@@ -1,0 +1,538 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		F953B23A2D76F2E300809311 /* SkeletonUI in Frameworks */ = {isa = PBXBuildFile; productRef = F953B2392D76F2E300809311 /* SkeletonUI */; };
+		F96BB8742D71E5840004B9F6 /* CodableWrappers in Frameworks */ = {isa = PBXBuildFile; productRef = F96BB8732D71E5840004B9F6 /* CodableWrappers */; };
+		F96BB8DC2D71F9150004B9F6 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = F96BB8DB2D71F9150004B9F6 /* Moya */; };
+		F9E394F72D719F17008C2F2C /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = F9E394F62D719F17008C2F2C /* ComposableArchitecture */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		F96BB87D2D71EAC50004B9F6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F9E394DC2D719BFC008C2F2C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F9E394E32D719BFC008C2F2C;
+			remoteInfo = ShiDaApp;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		F96BB8792D71EAC50004B9F6 /* ShiDaAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ShiDaAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F9E394E42D719BFC008C2F2C /* ShiDaApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShiDaApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		F96BB87A2D71EAC50004B9F6 /* ShiDaAppTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ShiDaAppTests;
+			sourceTree = "<group>";
+		};
+		F9E394E62D719BFC008C2F2C /* ShiDaApp */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ShiDaApp;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F96BB8762D71EAC50004B9F6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F9E394E12D719BFC008C2F2C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F96BB8742D71E5840004B9F6 /* CodableWrappers in Frameworks */,
+				F953B23A2D76F2E300809311 /* SkeletonUI in Frameworks */,
+				F9E394F72D719F17008C2F2C /* ComposableArchitecture in Frameworks */,
+				F96BB8DC2D71F9150004B9F6 /* Moya in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		F96BB86D2D71B9590004B9F6 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		F9E394DB2D719BFC008C2F2C = {
+			isa = PBXGroup;
+			children = (
+				F9E394E62D719BFC008C2F2C /* ShiDaApp */,
+				F96BB87A2D71EAC50004B9F6 /* ShiDaAppTests */,
+				F96BB86D2D71B9590004B9F6 /* Frameworks */,
+				F9E394E52D719BFC008C2F2C /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		F9E394E52D719BFC008C2F2C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F9E394E42D719BFC008C2F2C /* ShiDaApp.app */,
+				F96BB8792D71EAC50004B9F6 /* ShiDaAppTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		F96BB8782D71EAC50004B9F6 /* ShiDaAppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F96BB87F2D71EAC50004B9F6 /* Build configuration list for PBXNativeTarget "ShiDaAppTests" */;
+			buildPhases = (
+				F96BB8752D71EAC50004B9F6 /* Sources */,
+				F96BB8762D71EAC50004B9F6 /* Frameworks */,
+				F96BB8772D71EAC50004B9F6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F96BB87E2D71EAC50004B9F6 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				F96BB87A2D71EAC50004B9F6 /* ShiDaAppTests */,
+			);
+			name = ShiDaAppTests;
+			packageProductDependencies = (
+			);
+			productName = ShiDaAppTests;
+			productReference = F96BB8792D71EAC50004B9F6 /* ShiDaAppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		F9E394E32D719BFC008C2F2C /* ShiDaApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F9E394F22D719BFE008C2F2C /* Build configuration list for PBXNativeTarget "ShiDaApp" */;
+			buildPhases = (
+				F9E394E02D719BFC008C2F2C /* Sources */,
+				F9E394E12D719BFC008C2F2C /* Frameworks */,
+				F9E394E22D719BFC008C2F2C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				F9E394E62D719BFC008C2F2C /* ShiDaApp */,
+			);
+			name = ShiDaApp;
+			packageProductDependencies = (
+				F9E394F62D719F17008C2F2C /* ComposableArchitecture */,
+				F96BB8732D71E5840004B9F6 /* CodableWrappers */,
+				F96BB8DB2D71F9150004B9F6 /* Moya */,
+				F953B2392D76F2E300809311 /* SkeletonUI */,
+			);
+			productName = ShiDaApp;
+			productReference = F9E394E42D719BFC008C2F2C /* ShiDaApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F9E394DC2D719BFC008C2F2C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1620;
+				LastUpgradeCheck = 1620;
+				TargetAttributes = {
+					F96BB8782D71EAC50004B9F6 = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = F9E394E32D719BFC008C2F2C;
+					};
+					F9E394E32D719BFC008C2F2C = {
+						CreatedOnToolsVersion = 16.2;
+					};
+				};
+			};
+			buildConfigurationList = F9E394DF2D719BFC008C2F2C /* Build configuration list for PBXProject "ShiDaApp" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = F9E394DB2D719BFC008C2F2C;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				F9E394F52D719F16008C2F2C /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
+				F96BB8722D71E5840004B9F6 /* XCRemoteSwiftPackageReference "CodableWrappers" */,
+				F96BB8DA2D71F9150004B9F6 /* XCRemoteSwiftPackageReference "Moya" */,
+				F953B2382D76F2E300809311 /* XCRemoteSwiftPackageReference "SkeletonUI" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = F9E394E52D719BFC008C2F2C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F9E394E32D719BFC008C2F2C /* ShiDaApp */,
+				F96BB8782D71EAC50004B9F6 /* ShiDaAppTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		F96BB8772D71EAC50004B9F6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F9E394E22D719BFC008C2F2C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F96BB8752D71EAC50004B9F6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F9E394E02D719BFC008C2F2C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		F96BB87E2D71EAC50004B9F6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F9E394E32D719BFC008C2F2C /* ShiDaApp */;
+			targetProxy = F96BB87D2D71EAC50004B9F6 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		F96BB8802D71EAC50004B9F6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = NLX5R5XWKN;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.1105am.duxiuyun.ShiDaAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ShiDaApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ShiDaApp";
+			};
+			name = Debug;
+		};
+		F96BB8812D71EAC50004B9F6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = NLX5R5XWKN;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.1105am.duxiuyun.ShiDaAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ShiDaApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ShiDaApp";
+			};
+			name = Release;
+		};
+		F9E394F02D719BFE008C2F2C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		F9E394F12D719BFE008C2F2C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		F9E394F32D719BFE008C2F2C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"ShiDaApp/Preview Content\"";
+				DEVELOPMENT_TEAM = NLX5R5XWKN;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.1105am.duxiuyun.ShiDaApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		F9E394F42D719BFE008C2F2C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"ShiDaApp/Preview Content\"";
+				DEVELOPMENT_TEAM = NLX5R5XWKN;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.1105am.duxiuyun.ShiDaApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		F96BB87F2D71EAC50004B9F6 /* Build configuration list for PBXNativeTarget "ShiDaAppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F96BB8802D71EAC50004B9F6 /* Debug */,
+				F96BB8812D71EAC50004B9F6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F9E394DF2D719BFC008C2F2C /* Build configuration list for PBXProject "ShiDaApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F9E394F02D719BFE008C2F2C /* Debug */,
+				F9E394F12D719BFE008C2F2C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F9E394F22D719BFE008C2F2C /* Build configuration list for PBXNativeTarget "ShiDaApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F9E394F32D719BFE008C2F2C /* Debug */,
+				F9E394F42D719BFE008C2F2C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		F953B2382D76F2E300809311 /* XCRemoteSwiftPackageReference "SkeletonUI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "git@github.com:CSolanaM/SkeletonUI.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.2;
+			};
+		};
+		F96BB8722D71E5840004B9F6 /* XCRemoteSwiftPackageReference "CodableWrappers" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "git@github.com:GottaGetSwifty/CodableWrappers.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.1.0;
+			};
+		};
+		F96BB8DA2D71F9150004B9F6 /* XCRemoteSwiftPackageReference "Moya" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "git@github.com:Moya/Moya.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 15.0.3;
+			};
+		};
+		F9E394F52D719F16008C2F2C /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "git@github.com:pointfreeco/swift-composable-architecture.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.18.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		F953B2392D76F2E300809311 /* SkeletonUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F953B2382D76F2E300809311 /* XCRemoteSwiftPackageReference "SkeletonUI" */;
+			productName = SkeletonUI;
+		};
+		F96BB8732D71E5840004B9F6 /* CodableWrappers */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F96BB8722D71E5840004B9F6 /* XCRemoteSwiftPackageReference "CodableWrappers" */;
+			productName = CodableWrappers;
+		};
+		F96BB8DB2D71F9150004B9F6 /* Moya */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F96BB8DA2D71F9150004B9F6 /* XCRemoteSwiftPackageReference "Moya" */;
+			productName = Moya;
+		};
+		F9E394F62D719F17008C2F2C /* ComposableArchitecture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F9E394F52D719F16008C2F2C /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = F9E394DC2D719BFC008C2F2C /* Project object */;
+}
