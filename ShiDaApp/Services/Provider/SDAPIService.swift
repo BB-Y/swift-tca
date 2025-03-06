@@ -86,10 +86,9 @@ public final class APIService: APIServiceType {
             }
             
         }
+        
+        
     }
-  
-    
-   
    
     
     public func request(_ target: any TargetType) async throws -> Response {
@@ -127,6 +126,25 @@ public final class APIService: APIServiceType {
             }
         }
     }
+    
+
+//    
+//    func requestResult<T>(_ target: any Moya.TargetType, type: any Codable) async throws -> T where T : Codable {
+//        try await withCheckedThrowingContinuation { continuation in
+//            requestResult(target, type: type) { result in
+//                switch result {
+//                case .success(let success):
+//                    continuation.resume(with: result)
+//
+//                case .failure(let failure):
+//                    continuation.resume(throwing: failure)
+//
+//                }
+//            }
+//        }
+//        
+//    }
+    
     func requestResult<T>(_ target: any Moya.TargetType, type: T.Type) async throws -> T where T : Codable {
         
         try await withCheckedThrowingContinuation { continuation in

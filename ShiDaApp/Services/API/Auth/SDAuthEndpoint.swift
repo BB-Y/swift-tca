@@ -1,10 +1,11 @@
 import Foundation
+
 import Moya
 
 /// 认证相关的 API 端点
 public enum SDAuthEndpoint {
     /// 登录
-    case login(username: String, password: String)
+    case login(phone: String, password: String)
     /// 注册
     case register(username: String, password: String, email: String)
     /// 刷新 token
@@ -13,9 +14,20 @@ public enum SDAuthEndpoint {
     case logout
     ///验证码
     case phoneCode(_ phone: String, _ nation: String)
+    
+    ///重置密码
+    case resetPassword(String)
+    
+    ///更改密码
+    case changePassword(String, String)
+    
+    /// 验证手机号
+    case validatePhone(phone: String, code: String)
+
 }
 
 extension SDAuthEndpoint: SDEndpoint {
+    
     public var endpointPath: String {
         switch self {
         case .login:
@@ -28,15 +40,25 @@ extension SDAuthEndpoint: SDEndpoint {
             return "/auth/logout"
         case .phoneCode(_, _):
             return "/auth/code"
+        case .resetPassword(_):
+            return "/auth/code"
+
+        case .changePassword(_, _):
+            return "/auth/code"
+
+        case .validatePhone(_):
+            return "/auth/phoe"
+
         }
     }
     
     public var method: Moya.Method {
         switch self {
-        case .login, .register, .refreshToken, .phoneCode:
+        case .login, .register, .refreshToken, .phoneCode, .resetPassword, .changePassword, .validatePhone:
             return .post
         case .logout:
             return .delete
+        
         }
     }
     
@@ -74,19 +96,17 @@ extension SDAuthEndpoint: SDEndpoint {
                 ],
                 encoding: JSONEncoding.default
             )
+        case .resetPassword(_):
+            return .requestPlain
+        case .changePassword(_, _):
+            return .requestPlain
+
+        case .validatePhone(phone: let phone, code: let code):
+            return .requestPlain
+
         }
     }
-    
-    public var requiresAuth: Bool {
-        switch self {
-        case .login, .register:
-            return false
-        case .refreshToken, .logout:
-            return true
-        case .phoneCode(_, _):
-            return true
-        }
-    }
+   
     
     public var sampleData: Data {
         return Data()
