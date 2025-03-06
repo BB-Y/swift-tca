@@ -115,3 +115,10 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# SVN specific
+.svn/
+.svnignore
+*.svn-base
+*.svn-work
+.svn-revision
