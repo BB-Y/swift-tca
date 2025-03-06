@@ -49,7 +49,7 @@ extension SDAuthClient: DependencyKey {
             validatePhone: {phone, code in
                 try await apiService.requestResult(SDAuthEndpoint.validatePhone(phone: "", code: ""), type: PhoneValidateResponse.self)
 
-            }
+            }1
         )
     }
     
