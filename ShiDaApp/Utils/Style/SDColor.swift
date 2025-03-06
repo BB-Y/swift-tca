@@ -63,6 +63,9 @@ public enum SDColor {
     
     /// background: #ECEDF1;
     public static var buttonBackGray: Color { Color("ButtonBackGray", bundle: .main) }
+    
+    /// 验证码输入背景色 #F4F5F7
+    public static var inputBackground: Color { Color(hex: "#F4F5F7") }
 
     // MARK: - 扩展颜色
     

@@ -8,10 +8,14 @@
 import Testing
 import Foundation
 @testable import ShiDaApp
+@testable import Moya
 
 //测试 jsonstring 能否正确Decode为 SDAPIResponse
 struct SDAPIResponseTests {
     //MARK: - SDAPIResponse泛型测试
+    
+    
+    
     // 测试字典的解析
     @Test  func testModelDataParsing() throws {
         

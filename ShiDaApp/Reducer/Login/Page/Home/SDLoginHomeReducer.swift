@@ -14,72 +14,48 @@ struct SDLoginHomeReducer {
     @ObservableState
     struct State: Equatable {
         var path = StackState<Destination.State>()
-        var protocolCheck: Bool = false
         
-        /// x显示其他登录方式
-        var shouldShowLoginAndSignup = false
-        @Shared(.shareUserToken) var token = ""
-        @Shared(.shareUserInfo) var userInfo = nil
+        
+        
+//        
+//        @Shared(.shareUserToken) var token = ""
+//        @Shared(.shareUserInfo) var userInfoData = nil
+//        
+//        @Shared(.shareUserType) var userType = nil
+//
+//        var userInfo: SDResponseLogin? {
+//            userInfoData?.decode(to: SDResponseLogin.self)
+//        }
+        
+        @Shared(.shareLoginStatus) var loginStatus = .notLogin
 
-
-        var userInfoModel: UserInfo? {
-            if let userInfoModel = userInfo?.decode(to: UserInfo.self) {
-                return userInfoModel
-            }
-            
-            return nil
-        }
     }
     
     @Reducer(state: .equatable)
     enum Destination {
-        case login(SDLoginReducer)
-        case signup(SDSignupReducer)
         
+        case login(SDLoginReducer)
         case phoneValidate(SDValidatePhoneReducer)
     }
     
-    enum Action: BindableAction {
-        case showHome
-        case showLogin
-        case showSignup
-        case onOtherLoginTapped
+    enum Action {
         
+        case onCloseTapped
         
-        case binding(BindingAction<State>)
         case path(StackActionOf<Destination>)
     }
     
     @Dependency(\.dismiss) var dismiss
 
     var body: some ReducerOf<Self> {
-        BindingReducer()
+        
         Reduce { state, action in
             switch action {
-            
-            case .onOtherLoginTapped:
-                state.shouldShowLoginAndSignup.toggle()
-                return .none
-            case .showHome:
+            case .onCloseTapped:
+                
                 return .run {_ in
                     await dismiss()
                 }
-            
-                
-//                state.path.removeAll()
-//                return .none
-                
-            case .showLogin:
-                state.path.append(.login(SDLoginReducer.State()))
-                return .none
-                
-            case .showSignup:
-                state.path.append(.signup(SDSignupReducer.State()))
-                return .none
-                
-            case .binding(_):
-                return .none
-                
             case .path(.element(id: _, action: .login(.showHome))):
                 
                 return .run {_ in
@@ -90,10 +66,7 @@ struct SDLoginHomeReducer {
 
                 return .none
 
-                
-            case .path(.element(id: _, action: .signup(.showHome))):
-                state.path.removeAll()
-                return .none
+           
                 
             case .path:
                 return .none

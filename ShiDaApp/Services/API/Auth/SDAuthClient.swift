@@ -5,119 +5,97 @@ import Moya
 /// 认证相关的客户端接口
 struct SDAuthClient{
     /// 登录
-    var login:@Sendable  (_ username: String, _ password: String) async throws -> LoginResponse
-    
+    var loginSMS: @Sendable  (_ para: SDReqParaLoginSMS) async throws -> SDResponseLogin
+    var loginPassword: @Sendable  (_ para: SDReqParaLoginPassword) async throws -> SDResponseLogin
+
     /// 注册
-    var register: @Sendable (_ username: String, _ password: String, _ email: String) async throws -> RegisterResponse
+    var register: @Sendable (_ para: SDReqParaRegister) async throws -> SDResponseLogin
     
-    
-    var phoneCode: @Sendable (_ phoneNumber: String, _ nation: String) async throws -> RegisterResponse
-    
-    /// 刷新令牌
-    var refreshToken:@Sendable  (_ token: String) async throws -> LoginResponse
     
     /// 登出
-    var logout: @Sendable () async throws -> Void
+    var logout: @Sendable () async throws -> Bool
     
+    var resetPassword: @Sendable (_ para: SDReqParaForgetPassword) async throws -> Bool
+
     /// 手机号身份验证
-    var validatePhone: @Sendable (_ phone: String, _ code: String) async throws -> PhoneValidateResponse
+    var validatePhone: @Sendable (_ para: SDReqParaValidatePhone) async throws -> Bool
+    
+    var thirdpartylogin: @Sendable (_ para: SDReqParaThirdLogin) async throws -> SDResponseLogin
+    var thirdpartyregist: @Sendable (_ para: SDReqParaThirdRegist) async throws -> SDResponseLogin
+
+    
+    var phoneCode: @Sendable (_ para: SDReqParaSendCode) async throws -> Bool
+
 
 }
 
 extension SDAuthClient: DependencyKey {
     /// 提供实际的认证客户端实现
     static var liveValue: Self {
-        // 创建API服务
         let apiService = APIService()
         
         return Self(
-            login: { username, password in
-                try await apiService.requestResult(SDAuthEndpoint.login(phone: username, password: password), type: LoginResponse.self)
+            loginSMS: {
+                try await apiService.requestResult(SDAuthEndpoint.loginSMS($0))
             },
-            register: { username, password, email in
-                try await apiService.requestResult(SDAuthEndpoint.register(username: username, password: password, email: email), type: RegisterResponse.self)
+            loginPassword: {
+                try await apiService.requestResult(SDAuthEndpoint.loginPassword($0))
             },
-            phoneCode: {phone, nation in
-                try await apiService.requestResult(SDAuthEndpoint.logout, type: RegisterResponse.self)
-            },
-            refreshToken: { token in
-                try await apiService.requestResult(SDAuthEndpoint.refreshToken(token), type: LoginResponse.self)
+            register: {
+                try await apiService.requestResult(SDAuthEndpoint.register($0))
             },
             logout: {
-                try await apiService.request(SDAuthEndpoint.logout)
+                try await apiService.requestResult(SDAuthEndpoint.logout)
             },
-            validatePhone: {phone, code in
-                try await apiService.requestResult(SDAuthEndpoint.validatePhone(phone: "", code: ""), type: PhoneValidateResponse.self)
-
-            }1
+            resetPassword: {
+                try await apiService.requestResult(SDAuthEndpoint.resetPassword($0))
+            },
+            validatePhone: {
+                try await apiService.requestResult(SDAuthEndpoint.validatePhone($0))
+            },
+            thirdpartylogin: {
+                try await apiService.requestResult(SDAuthEndpoint.thirdpartylogin($0))
+            },
+            thirdpartyregist: {
+                try await apiService.requestResult(SDAuthEndpoint.thirdpartyregist($0))
+            },
+            phoneCode: {
+                try await apiService.requestResult(SDAuthEndpoint.sendPhoneCode($0))
+            }
         )
     }
     
     /// 提供测试用的模拟实现
     static var testValue: Self {
         Self(
-            login: { _, _ in
-                // 返回模拟的登录响应
-                return LoginResponse(
-                    accessToken: "test-access-token",
-                    refreshToken: "test-refresh-token",
-                    user: UserInfo(
-                        id: "test-id",
-                        username: "testuser",
-                        email: "test@example.com",
-                        avatarUrl: nil,
-                        createdAt: nil,
-                        updatedAt: nil
-                    )
-                )
+            loginSMS: { _ in
+                return SDResponseLogin.mock
             },
-            register: { _, _, _ in
-                // 返回模拟的注册响应
-                return RegisterResponse(
-                    user: UserInfo(
-                        id: "test-id",
-                        username: "testuser",
-                        email: "test@example.com",
-                        avatarUrl: nil,
-                        createdAt: nil,
-                        updatedAt: nil
-                    )
-                )
+            loginPassword: { _ in
+                return SDResponseLogin.mock
             },
-            phoneCode: {_, _ in
-                return RegisterResponse(
-                    user: UserInfo(
-                        id: "test-id",
-                        username: "testuser",
-                        email: "test@example.com",
-                        avatarUrl: nil,
-                        createdAt: nil,
-                        updatedAt: nil
-                    )
-                )
-            },
-            refreshToken: { _ in
-                // 返回模拟的刷新令牌响应
-                return LoginResponse(
-                    accessToken: "new-test-access-token",
-                    refreshToken: "new-test-refresh-token",
-                    user: UserInfo(
-                        id: "test-id",
-                        username: "testuser",
-                        email: "test@example.com",
-                        avatarUrl: nil,
-                        createdAt: nil,
-                        updatedAt: nil
-                    )
-                )
+            register: { _ in
+                return SDResponseLogin.mock
             },
             logout: {
-                // 模拟登出操作，不做任何事情
-            }, validatePhone: {_,_ in
-                return .init(token: "测试 token", user: .init(id: "1", username: "hzx", email: "", avatarUrl: "", createdAt: nil, updatedAt: nil))
+                return true
+            },
+            resetPassword: { _ in
+                return true
+            },
+            validatePhone: { _ in
+                return true
+            },
+            thirdpartylogin: { _ in
+                return SDResponseLogin.mock
+            },
+            thirdpartyregist: { _ in
+                return SDResponseLogin.mock
+            },
+            phoneCode: { _ in
+                return true
             }
         )
-        
     }
     static var previewValue: SDAuthClient {
         testValue

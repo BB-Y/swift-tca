@@ -37,14 +37,18 @@ struct SDButtonStyleGray: ButtonStyle {
 }
 struct SDButtonStyleDisabled: ButtonStyle {
     
+    @Environment(\.isEnabled) private var isEnabled
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .background(SDColor.accent.opacity(0.5))
-            .foregroundStyle(.white)
-            .clipShape(Capsule())
+            .foregroundStyle(isEnabled ? SDColor.accent : SDColor.accent.opacity(0.5))
+
     }
 }
 
 
-
+//extension PrimitiveButtonStyle where Self == SDDisabledButtonStyle {
+//    @MainActor @preconcurrency internal static var sdDisabled: SDDisabledButtonStyle {
+//        SDDisabledButtonStyle()
+//    }
+//}

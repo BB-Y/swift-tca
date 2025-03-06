@@ -1,15 +1,28 @@
 import Foundation
 import CodableWrappers
 
+
+
+protocol SDCodable: Codable {
+    
+    static func decode(from data: Data) -> Self
+
+    static func decode(from json: String) -> Self
+    var jsonString: String {get}
+    var data: Data{get}
+
+}
+
+
 /// 通用 API 响应模型
-@CustomCodable @SnakeCase
+
 public struct SDAPIResponse<T: Codable>: Codable {
     /// 状态码
     public let code: Int
     
     /// 消息
-    @CustomCodingKey("msg")
-    public let message: String
+    
+    public let msg: String
     
     /// 数据
     public let data: T?
@@ -18,9 +31,9 @@ public struct SDAPIResponse<T: Codable>: Codable {
     /// 是否成功
     public var isSuccess: Bool {
         return code == 200
-    }
-   
+    }   
 }
+
 
 ///// 分页响应模型
 //public struct SDPaginatedResponse<T: Codable>: Codable {

@@ -8,11 +8,19 @@
 import SwiftUI
 
 struct SDLargeTitleView: View {
+    let text: String
+    init(_ text: String) {
+        self.text = text
+    }
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        Text(text)
+            .font(.largeTitle)
+            .foregroundStyle(SDColor.text1)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            
     }
 }
 
 #Preview {
-    SDLargeTitleView()
+    SDLargeTitleView("1213")
 }

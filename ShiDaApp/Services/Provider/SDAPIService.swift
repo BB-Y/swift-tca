@@ -12,7 +12,7 @@ protocol APIServiceType {
     /// 发送请求并返回原始数据
     /// - Parameter target: API 目标
     /// - Returns: 包含成功或失败结果的 Result
-    func request(_ target: any TargetType, result: @escaping (Result<Response, APIError>) -> Void)
+    func request(_ target: any TargetType, result: @escaping (Result<Response, Error>) -> Void)
     
     /// 发送请求并返回原始数据
     /// - Parameter target: API 目标
@@ -27,14 +27,14 @@ protocol APIServiceType {
     ///   - target: API 目标
     ///   - type: 解码类型
     /// - Returns: 包含成功或失败结果的 Result
-    func requestResult<T: Codable>(_ target: any TargetType, type: T.Type, result: @escaping (Result<T, APIError>) -> Void)
+    func requestResult<T: Codable>(_ target: any TargetType, result: @escaping (Result<T, Error>) -> Void)
     
     /// 发送请求并返回 Result 类型
     /// - Parameters:
     ///   - target: API 目标
     ///   - type: 解码类型
     /// - Returns: 包含成功或失败结果的 Result
-    func requestResult<T: Codable>(_ target: any TargetType, type: T.Type) async throws -> T
+    func requestResult<T: Codable>(_ target: any TargetType) async throws -> T
     
    
     
@@ -63,7 +63,7 @@ public final class APIService: APIServiceType {
             plugins: APIConfiguration.defaultPlugins
         )
     }
-    public func request(_ target: any TargetType,  result: @escaping (Result<Response, APIError>) -> Void) {
+    public func request(_ target: any TargetType,  result: @escaping (Result<Response, Error>) -> Void) {
         
 
         provider.request(.target(target)) { response in
@@ -73,16 +73,16 @@ public final class APIService: APIServiceType {
                 case 200...299:
                     result(.success(moyaResponse))
                 case 401:
-                    result(.failure(.unauthorized))
+                    result(.failure(APIError.unauthorized))
                 default:
                     if let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: moyaResponse.data) {
-                        result(.failure(.serverError(code: moyaResponse.statusCode, message: errorResponse.message)))
+                        result(.failure(APIError.serverError(code: moyaResponse.statusCode, message: errorResponse.message)))
                     } else {
-                        result(.failure(.invalidResponse))
+                        result(.failure(APIError.invalidResponse))
                     }
                 }
             case .failure(let error):
-                result(.failure(.networkError(error)))
+                result(.failure(APIError.networkError(error)))
             }
             
         }
@@ -105,7 +105,7 @@ public final class APIService: APIServiceType {
             }
         }
     }
-    func requestResult<T>(_ target: any Moya.TargetType, type: T.Type, result: @escaping (Result<T, APIError>) -> Void) where T : Codable {
+    func requestResult<T>(_ target: any Moya.TargetType, result: @escaping (Result<T, Error>) -> Void) where T : Codable {
         request(target) { response in
             switch response {
             case .success(let moyaResponse):
@@ -116,10 +116,10 @@ public final class APIService: APIServiceType {
                     if apiResponse.isSuccess, let data = apiResponse.data {
                         result(.success(data))
                     } else {
-                        result(.failure(.serverError(code: apiResponse.code, message: "")))
+                        result(.failure(APIError.serverError(code: apiResponse.code, message: "")))
                     }
                 } catch {
-                    result(.failure(.decodingError(error)))
+                    result(.failure(APIError.decodingError(error)))
                 }
             case .failure(let error):
                 result(.failure(error))
@@ -127,28 +127,10 @@ public final class APIService: APIServiceType {
         }
     }
     
-
-//    
-//    func requestResult<T>(_ target: any Moya.TargetType, type: any Codable) async throws -> T where T : Codable {
-//        try await withCheckedThrowingContinuation { continuation in
-//            requestResult(target, type: type) { result in
-//                switch result {
-//                case .success(let success):
-//                    continuation.resume(with: result)
-//
-//                case .failure(let failure):
-//                    continuation.resume(throwing: failure)
-//
-//                }
-//            }
-//        }
-//        
-//    }
-    
-    func requestResult<T>(_ target: any Moya.TargetType, type: T.Type) async throws -> T where T : Codable {
+    func requestResult<T>(_ target: any Moya.TargetType) async throws -> T where T : Codable {
         
         try await withCheckedThrowingContinuation { continuation in
-            requestResult(target, type: type) { result in
+            requestResult(target) { (result: Result<T, Error>) in
                 switch result {
                 case .success(let success):
                     continuation.resume(with: result)

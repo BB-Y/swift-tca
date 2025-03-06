@@ -13,6 +13,9 @@ extension Font {
     /// 28
     static let sdLargeTitle: Font = .system(size: 28, weight: .regular)
     
+    /// 20
+    static let sdTitle: Font = .system(size: 20, weight: .regular)
+    
     /// 16
     static let sdBody1: Font = .system(size: 16, weight: .regular)
     /// 15

@@ -83,6 +83,12 @@ struct SDAPIServiceTests {
 
 // 测试用的API端点
 private enum TestEndpoint: SDEndpoint {
+    var modelType: any Codable.Type {
+        return UserInfo.self
+    }
+    
+    
+    
     case test
     
     var method: Moya.Method {

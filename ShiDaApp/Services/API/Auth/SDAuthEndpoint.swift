@@ -3,112 +3,89 @@ import Foundation
 import Moya
 
 /// 认证相关的 API 端点
-public enum SDAuthEndpoint {
+enum SDAuthEndpoint {
     /// 登录
-    case login(phone: String, password: String)
+    case loginSMS(_ model: SDReqParaLoginSMS)
+    
+    /// 登录
+    case loginPassword(_ model: SDReqParaLoginPassword)
     /// 注册
-    case register(username: String, password: String, email: String)
-    /// 刷新 token
-    case refreshToken(String)
-    /// 登出
+    case register(_ model: SDReqParaRegister)
+   
+    /// 登出不清空 token
     case logout
-    ///验证码
-    case phoneCode(_ phone: String, _ nation: String)
+   
     
     ///重置密码
-    case resetPassword(String)
+    case resetPassword(SDReqParaForgetPassword)
     
-    ///更改密码
-    case changePassword(String, String)
-    
-    /// 验证手机号
-    case validatePhone(phone: String, code: String)
 
+    
+    /// 验证手机号 resturn Bool
+    case validatePhone(SDReqParaValidatePhone)
+
+    /// 三方登录
+    case thirdpartylogin(_ model: SDReqParaThirdLogin)
+    
+    /// 三方登录后未注册需要注册
+    case thirdpartyregist(_ model: SDReqParaThirdRegist)
+
+    ///验证码
+    case sendPhoneCode(SDReqParaSendCode)
 }
 
 extension SDAuthEndpoint: SDEndpoint {
     
-    public var endpointPath: String {
+    public var path: String {
         switch self {
-        case .login:
-            return "/auth/login"
-        case .register:
-            return "/auth/register"
-        case .refreshToken:
-            return "/auth/refresh"
-        case .logout:
-            return "/auth/logout"
-        case .phoneCode(_, _):
-            return "/auth/code"
-        case .resetPassword(_):
-            return "/auth/code"
-
-        case .changePassword(_, _):
-            return "/auth/code"
-
-        case .validatePhone(_):
-            return "/auth/phoe"
-
+        case .loginSMS:         return "/app/portal/smslogin"
+        case .loginPassword:    return "/app/portal/passwordlogin"
+        case .register:         return "/app/portal/regist"
+        case .logout:           return "/app/portal/quit"
+        case .resetPassword:    return "/app/portal/forgetpwd"
+        case .validatePhone:    return "/app/portal/check"
+        case .thirdpartylogin:  return "/app/portal/thirdpartylogin"
+        case .thirdpartyregist: return "/app/portal/thirdpartyregist"
+        case .sendPhoneCode:    return "/sms"
         }
     }
     
     public var method: Moya.Method {
         switch self {
-        case .login, .register, .refreshToken, .phoneCode, .resetPassword, .changePassword, .validatePhone:
+            
+        default:
             return .post
-        case .logout:
-            return .delete
-        
         }
     }
     
     public var task: Task {
         switch self {
-        case let .login(username, password):
-            return .requestParameters(
-                parameters: [
-                    "username": username,
-                    "password": password
-                ],
-                encoding: JSONEncoding.default
-            )
-        case let .register(username, password, email):
-            return .requestParameters(
-                parameters: [
-                    "username": username,
-                    "password": password,
-                    "email": email
-                ],
-                encoding: JSONEncoding.default
-            )
-        case let .refreshToken(token):
-            return .requestParameters(
-                parameters: ["refresh_token": token],
-                encoding: JSONEncoding.default
-            )
+        case let .loginSMS(model):
+            return .requestJSONEncodable(model)
+            
+        case let .loginPassword(model):
+            return .requestJSONEncodable(model)
+            
+        case let .register(model):
+            return .requestJSONEncodable(model)
+
         case .logout:
             return .requestPlain
-        case let .phoneCode(phone, nation):
-            return .requestParameters(
-                parameters: [
-                    "phone": phone,
-                    "nation": nation
-                ],
-                encoding: JSONEncoding.default
-            )
-        case .resetPassword(_):
-            return .requestPlain
-        case .changePassword(_, _):
-            return .requestPlain
+       
+        case let .resetPassword(model):
+            return .requestJSONEncodable(model)
+        
+        case let .validatePhone(model):
+            return .requestJSONEncodable(model)
 
-        case .validatePhone(phone: let phone, code: let code):
-            return .requestPlain
+        case let .thirdpartylogin(model):
+            return .requestJSONEncodable(model)
 
+        case let .thirdpartyregist(model):
+            return .requestJSONEncodable(model)
+            
+        case let .sendPhoneCode(model):
+            return .requestJSONEncodable(model)
         }
-    }
-   
-    
-    public var sampleData: Data {
-        return Data()
     }
 }
