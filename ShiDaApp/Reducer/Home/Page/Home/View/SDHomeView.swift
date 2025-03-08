@@ -39,14 +39,14 @@ struct SDHomeView: View {
                 
             }
             .background(SDColor.background)
-            .overlay {
-                Button("TestView") {
-                    store.send(.pushToTestView)
-                }
-                .buttonStyle(SDButtonStyleConfirm())
-            }
+//            .overlay {
+//                Button("TestView") {
+//                    store.send(.pushToTestView)
+//                }
+//                .buttonStyle(SDButtonStyleConfirm())
+//            }
             .overlay(alignment: .bottom) {
-                if store.token.isEmpty {
+                if store.loginStatus == .notLogin {
                     HStack {
                         Text("登录体验更多精彩内容！")
                             .font(.sdBody2)
@@ -58,7 +58,6 @@ struct SDHomeView: View {
                         } label: {
                             Text("立即登录")
                                 .padding(.horizontal, 32)
-                                .padding(.vertical, 8)
                         }
                         .buttonStyle(SDButtonStyleConfirm(isDisable: false))
 
@@ -74,14 +73,12 @@ struct SDHomeView: View {
             }
             //.hideToolBar()
             .navigationTitle("")
-            
-            .onAppear {
+            .task{
                 store.send(.onAppear)
+
             }
-            
-            .fullScreenCover(item: $store.scope(state: \.login, action: \.login), content: { item in
-                SDLoginHomeView(store: item)
-            })
+           
+           
            
         } destination: { store in
             switch store.case {

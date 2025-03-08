@@ -39,8 +39,9 @@ struct SDCountDownReducer {
                 state.currentNumber = state.startNumber
                 // 创建一个本地变量来跟踪倒计时
                 let initialCount = state.currentNumber
-                state.isCounting = true
+                
                 return .run { send in
+                    await send(.set(\.isCounting, true))
                     var currentCount = initialCount
                     for await _ in self.clock.timer(interval: .seconds(1)) {
                         if currentCount > 0 {
@@ -53,8 +54,8 @@ struct SDCountDownReducer {
                     }
                 }
             case .stop:
-                state.isCounting = false
-                return .none
+                
+                return .send(.set(\.isCounting, false))
 
             case .binding(_):
                 return .none

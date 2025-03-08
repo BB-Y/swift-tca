@@ -100,7 +100,7 @@ public enum SDThirdPartyType: Int, Codable {
 }
 //MARK: - 响应模型
 /// 登录响应模型
-struct SDResponseLogin : Codable {
+struct SDResponseLogin : Codable, Equatable {
     /// 地址
     let address : String?
     /// 审核状态（0-未申请 1-申请中 10-审核通过 20-审核拒绝）
@@ -147,6 +147,7 @@ struct SDResponseLogin : Codable {
     let schoolId : Int?
     /// 用户状态（10-正常 20-禁用 30-锁定）
     let status : Int?
+    
     /// 登录令牌
     let token : String?
     /// 用户类型（10-教师 20-学生）

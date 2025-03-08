@@ -16,14 +16,21 @@ struct SDLoginHomeView: View {
         NavigationStack(
             path: $store.scope(state: \.path, action: \.path)
         ) {
-            content
+            WithPerceptionTracking {
+                content
+            }
+            
         } destination: { state in
             switch state.case {
-            case .login(let store):
-                SDLoginView(store: store)
+//            case .login(let store):
+//                SDLoginView(store: store)
            
             case .phoneValidate(let store):
                 SDValidatePhoneView(store: store)
+//            case .loginAgain(let store):
+//                SDLoginAgainView(store: store)
+            case .selectUserType(let store):
+                SDSelectUserTypeView(store: store)
             }
         }
     }
@@ -31,22 +38,24 @@ struct SDLoginHomeView: View {
     private var content: some View {
         VStack(spacing: 0) {
             
-            if store.loginStatus == .logout {
-                SDLoginAgainView(store: .init(initialState: SDLoginAgainReducer.State(), reducer: {
-                    SDLoginAgainReducer()
-                }))
+            if store.showlogin == false, store.loginStatus == .logout {
+                SDLoginAgainView(store: store.scope(state: \.loginAgain, action: \.loginAgain))
+                .transition(.asymmetric(
+                    insertion: .move(edge: .trailing),
+                    removal: .move(edge: .leading)
+                ))
                 
             } else {
-                SDLoginView(store: .init(initialState: SDLoginReducer.State(), reducer: { SDLoginReducer() }))
+                SDLoginView(store: store.scope(state: \.login, action: \.login))
+                .transition(.asymmetric(
+                    insertion: .move(edge: .trailing),
+                    removal: .move(edge: .leading)
+                ))
             }
-            
-
-            
-            Spacer()
-                .frame(height: 115)
         }
-        .padding()
+        
         .navigationTitle("")
+        .animation(.easeInOut, value: store.showlogin)
         .toolbar {
             ToolbarItem(placement: .navigation) {
                 Button(action: {

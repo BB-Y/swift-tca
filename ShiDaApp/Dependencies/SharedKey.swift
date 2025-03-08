@@ -9,7 +9,7 @@ import Foundation
 import ComposableArchitecture
 
 /// 存储在 UserDefault
-extension SharedKey where Self == AppStorageKey<String> {
+extension SharedKey where Self == AppStorageKey<String?> {
   static var shareUserToken: Self {
     appStorage("SDShareUserToken")
   }

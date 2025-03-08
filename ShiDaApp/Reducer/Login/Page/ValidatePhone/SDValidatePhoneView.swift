@@ -18,10 +18,12 @@ struct SDValidatePhoneReducer {
         var nation: String = "86"
         var code: String = ""
         
-        var isValidPhone: Bool = false //登录按钮是否可用
-        var isValidCode: Bool = false //登录按钮是否可用
+        var isValid: Bool = false //手机号是否可用
+        var isValidCode: Bool = false //确认按钮是否可用
         
-        
+        var isValidButton: Bool = false
+
+        var showCodeInput = false
         var errorMsg = ""
         
         var countDownState = SDCountDownReducer.State(startNumber: 5)
@@ -38,6 +40,7 @@ struct SDValidatePhoneReducer {
                 return "发送验证码"
             }
         }
+      
     }
     
     enum Action: BindableAction {
@@ -53,12 +56,16 @@ struct SDValidatePhoneReducer {
         
         case countDownAction(SDCountDownReducer.Action)
         
+        case sendCode
+        case codeResponse(Result<Bool, Error>)            // 验证码响应
+
         case binding(BindingAction<State>)
     }
     
     
     @Dependency(\.continuousClock) var clock
-    
+    @Dependency(\.authClient) var authClient        // 认证客户端
+
     
     var body: some ReducerOf<Self> {
         
@@ -69,79 +76,115 @@ struct SDValidatePhoneReducer {
         Reduce { state, action in
         
             switch action {
-            case .binding(\.phone):
-                print(state.phone.count)
+            case .binding(\.phone), .countDownAction(.binding(\.isCounting)):
+                
+                let isCounting = state.countDownState.isCounting == true
+               print("isCounting \(isCounting)")
                 if state.phone.count > 11 {
                     let text = state.phone.subString(form: 0, to: 11)
                     return .run { send in
                         await send(.setPhone(text))
+                            
                     }
                 }
+                let phoneValid = state.phone.checkPhoneError == nil
                 
                 
+                state.isValidButton = !isCounting && phoneValid
                 return .none
                 
             case .setPhone(let phone):
-                print("setPhone called \(phone)")
                 
                 state.phone = phone
                 
-                print("new phone called \(state.phone)")
                 
-                if isValidPhone(phone) {
-                    state.isValidPhone = true
-                }
                 return .none
            
-                
+//            case .countDownAction(let countDownAction):
+//                switch countDownAction {
+//                    
+//                case .start:
+//                    return .none
+//
+//                case .stop:
+//                    <#code#>
+//                case .binding(_):
+//                    return .none
+//                }
+//                return .none
             case .onSendTapped, .onSendAgainTapped:
+                if state.isValidButton {
+                    return .send(.sendCode)
+                }
                 // 发送验证码时启动倒计时
-                
                 if state.countDownState.isCounting == true {
                     return .none
                 }
-                return .send(.countDownAction(.start))
-           
+                if let errorMsg = state.phone.checkPhoneError {
+                    state.errorMsg = errorMsg
+                    return .none
+                }
+                return .none
+            case .sendCode:
                 
+                return sendVerificationCode(phone: state.phone)
+            case .codeResponse(.success(let result)):
+                if result {
+                    state.showCodeInput = true
+
+                } else {
+                    state.errorMsg = "发送失败，请稍候重试"
+                }
+
+                return .none
+            case .codeResponse(.failure(let error)):
+                state.errorMsg = (error as? APIError)?.errorDescription ?? "发送失败，请稍候重试"
+
+                return .none
+
             default:
                 return .none
             }
         }
     }
     
-    // 验证手机号格式
-    private func isValidPhone(_ phone: String) -> Bool {
-        
-        // 简单验证：11位数字
-        return phone.count == 11 && phone.allSatisfy { $0.isNumber }
+    private func sendVerificationCode(phone: String) -> Effect<Action> {
+        let para = SDReqParaSendCode(isForget: true, isRegister: false, phoneNum: phone, type: .app)
+        return .run { send in
+            await send(.countDownAction(.start))
+            await send(.codeResponse(Result { try await self.authClient.phoneCode(para) }))
+        }
     }
 }
 struct SDValidatePhoneView: View {
     @Perception.Bindable var store: StoreOf<SDValidatePhoneReducer>
-    @State var isPresented = false
+    
     var body: some View {
-        VStack(spacing: 0) {
-            Spacer()
-                .frame(height: 48)
-            SDLargeTitleView("验证手机号")
-            Spacer()
-                .frame(height: 32)
-            SDPhoneInputView("请输入手机号", phone: $store.phone, nationCode: $store.nation)
-            Spacer()
-                .frame(height: 40)
-            Button {
-                isPresented.toggle()
-                store.send(.onSendTapped)
-            } label: {
-                Text(store.sendButtonText)
+        WithPerceptionTracking {
+            VStack(spacing: 0) {
+                Spacer()
+                    .frame(height: 48)
+                SDLargeTitleView("验证手机号")
+                Spacer()
+                    .frame(height: 32)
+                SDPhoneInputView("请输入手机号", phone: $store.phone, nationCode: $store.nation)
+                Spacer()
+                    .frame(height: 40)
+                Button {
+                    store.send(.onSendTapped)
+                } label: {
+                    Text(store.sendButtonText)
+                }
+                .buttonStyle(SDButtonStyleConfirm(isDisable: !store.isValidButton))
+                Spacer()
+                
             }
-            .buttonStyle(SDButtonStyleConfirm(isDisable: !store.isValidPhone))
-            Spacer()
-            
-        }
-        .padding(.horizontal, 40)
-        .navigationDestination(isPresented: $isPresented) {
-            SDValidateCodeView(store: store)
+            .padding(.horizontal, 40)
+            .navigationDestination(isPresented: $store.showCodeInput) {
+                WithPerceptionTracking {
+                    SDValidateCodeView(store: store)
+                }
+            }
         }
     }
 }
@@ -170,7 +213,7 @@ struct SDValidateCodeView: View {
             } label: {
                 Text("确定")
             }
-            .buttonStyle(SDButtonStyleConfirm(isDisable: !store.isValidPhone))
+            .buttonStyle(SDButtonStyleConfirm(isDisable: !store.isValid))
             Spacer()
                 .frame(height: 24)
             Button {

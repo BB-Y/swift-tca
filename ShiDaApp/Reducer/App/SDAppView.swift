@@ -17,8 +17,10 @@ struct SDAppFeature {
         var bookState: BookFeature.State = .init()
         var studyState: StudyFeature.State = .init()
         var myState: MyFeature.State = .init()
+        @Presents var login: SDLoginHomeReducer.State?
+
         
-        var loginState: SDLoginHomeReducer.State = .init()
+        @Shared(.shareLoginStatus) var loginStatus = .notLogin
         
 
     }
@@ -37,8 +39,9 @@ struct SDAppFeature {
         case study(StudyFeature.Action)
         case my(MyFeature.Action)
         
-        case login(SDLoginHomeReducer.Action)
         
+        case login(PresentationAction<SDLoginHomeReducer.Action>)
+
 
     }
     
@@ -50,14 +53,29 @@ struct SDAppFeature {
         Reduce { state, action in
             switch action {
             case let .tabSelected(tab):
-                state.selectedTab = tab
+                if state.loginStatus != .login {
+                    if tab == .study || tab == .my {
+                        state.login = SDLoginHomeReducer.State()
+                    }
+                } else {
+                    state.selectedTab = tab
+                }
                 return .none
-          
+            case .home(.onLoginTapped):
+                state.login = SDLoginHomeReducer.State()
+                return .none
+            case .my(MyFeature.Action.logout):
+                return .send(.tabSelected(.home))
+                
             case .home, .book, .study, .my, .login:
                 return .none
             }
         }
-        
+        //解包@Presents
+        .ifLet(\.$login, action: \.login) {
+            SDLoginHomeReducer()
+        }
+        //切片 Reducer
         Scope(state: \.homeState, action: \.home) {
             SDHomeFeature()
         }
@@ -79,14 +97,14 @@ struct SDAppView: View {
     var body: some View {
         VStack (spacing: 0){
             
-            HStack {
-                Text("网络错误")
-            }
-            .frame(height: 40)
-            .frame(maxWidth: .infinity)
-            .background {
-                Color.red
-            }
+//            HStack {
+//                Text("网络错误")
+//            }
+//            .frame(height: 40)
+//            .frame(maxWidth: .infinity)
+//            .background {
+//                Color.red
+//            }
             
             TabView(selection: $store.selectedTab.sending(\.tabSelected)) {
                 
@@ -101,6 +119,13 @@ struct SDAppView: View {
             
         }
         
+        .fullScreenCover(item: $store.scope(state: \.login, action: \.login), content: { item in
+            WithPerceptionTracking {
+                SDLoginHomeView(store: item)
+
+            }
+        })
+        
         
     }
     // 首页
@@ -114,6 +139,7 @@ struct SDAppView: View {
             )
         }
         .tabItem {
+            
             Label("首页", image: store.selectedTab == .home ? "home_tab_select" : "home_tab_deselect")
         }
         .tag(SDAppFeature.SDTabItem.home)

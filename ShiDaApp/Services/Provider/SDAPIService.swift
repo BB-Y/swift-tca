@@ -116,7 +116,7 @@ public final class APIService: APIServiceType {
                     if apiResponse.isSuccess, let data = apiResponse.data {
                         result(.success(data))
                     } else {
-                        result(.failure(APIError.serverError(code: apiResponse.code, message: "")))
+                        result(.failure(APIError.serverError(code: apiResponse.code, message: apiResponse.msg)))
                     }
                 } catch {
                     result(.failure(APIError.decodingError(error)))

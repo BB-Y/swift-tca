@@ -8,38 +8,93 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct MyFeature: Reducer {
+@Reducer
+struct MyFeature {
+    @ObservableState
     struct State: Equatable {
+        
+        var path: StackState<Path.State> = StackState<Path.State>()
+
         // 我的页面的状态
-        @Shared(.shareUserToken) var token = ""
+        @Shared(.shareLoginStatus) var loginStatus = .notLogin
+        
+        @Shared(.shareUserInfo) var userInfo = nil
+        
+        @Presents var login: SDLoginHomeReducer.State?
+
+        var userInfoModel: SDResponseLogin? {
+            guard let data = userInfo else { return nil }
+            return try? JSONDecoder().decode(SDResponseLogin.self, from: data)
+        }
     }
     
-    enum Action: Equatable,ViewAction {
-        // 我的页面的动作
-        case onAppear
+    @Reducer(state: .equatable)
+    enum Path {
         
-        
-        case view(View)
-        enum View {
-            case onLogoutTapped
 
+      
+    }
+    
+    enum Action: ViewAction {
+        // 我的页面的动作
+       
+        
+        case path(StackActionOf<Path>)
+
+        case view(View)
+        
+        case login(PresentationAction<SDLoginHomeReducer.Action>)
+
+        case logout
+        
+        enum View {
+            case onAppear
+            case onLogoutTapped
+            case onRemoveUserTapped
+            
         }
     }
     
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case .onAppear:
-                // 处理页面出现时的逻辑
+                
+            case .logout:
                 return .none
             case let .view(viewAction):
                 switch viewAction {
                 case .onLogoutTapped:
-                    state.$token.withLock({$0 = ""})
+                    state.$loginStatus.withLock({$0 = .logout})
+                    state.path.removeAll()
+                    state.login = SDLoginHomeReducer.State()
+                    return .send(.logout)
+                case .onRemoveUserTapped:
+                    state.$loginStatus.withLock({$0 = .notLogin})
+                    state.$userInfo.withLock({$0 = nil})
+                    state.path.removeAll()
+                    state.login = SDLoginHomeReducer.State()
+
+
+                case .onAppear:
+                    return .none
+
                 }
                 return .none
+                
+            case .login(_):
+                return .none
+                
+            case .path:
+                return .none
+
             }
+        
         }
+        .ifLet(\.$login, action: \.login) {
+            SDLoginHomeReducer()
+        }
+        .forEach(\.path, action: \.path)
+
     }
 }
 
@@ -54,6 +109,10 @@ struct MyView: View {
                 .fontWeight(.bold)
             Button("退出登陆") {
                 send(.onLogoutTapped)
+            }
+            
+            Button("退出登陆,清除用户信息") {
+                send(.onRemoveUserTapped)
             }
             Spacer()
             
@@ -70,7 +129,7 @@ struct MyView: View {
                             .font(.title2)
                             .fontWeight(.bold)
                         
-                        Text("用户ID: 123456")
+                        Text(store.userInfoModel?.phone ?? "")
                             .font(.subheadline)
                             .foregroundColor(.gray)
                     }
@@ -103,9 +162,11 @@ struct MyView: View {
             
             Spacer()
         }
-        .padding()
+        .fullScreenCover(item: $store.scope(state: \.login, action: \.login), content: { item in
+            SDLoginHomeView(store: item)
+        })
         .onAppear {
-            store.send(.onAppear)
+            send(.onAppear)
         }
     }
 }

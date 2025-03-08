@@ -51,6 +51,7 @@ struct SDLoginAgainReducer {
                 }
                
             case .onOtherLoginTapped:
+                
                 return .none
             case .onAcceptTapped:
                 let newAccept = !state.accept
@@ -111,6 +112,9 @@ struct SDLoginAgainView: View {
             .padding(.bottom, 30)
             
         }
+//        .background {
+//            Color.red
+//        }
     }
 }
 

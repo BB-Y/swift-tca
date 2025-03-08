@@ -2,7 +2,7 @@ import Foundation
 
 import Moya
 
-/// 认证相关的 API 端点
+/// 认证相关的 API 端点 如果token过期了，接口错误码是401
 enum SDAuthEndpoint {
     /// 登录
     case loginSMS(_ model: SDReqParaLoginSMS)

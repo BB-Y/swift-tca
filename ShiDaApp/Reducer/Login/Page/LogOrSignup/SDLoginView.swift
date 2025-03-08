@@ -13,56 +13,65 @@ struct SDLoginView: View {
     @State private var isFlipping = false
     
     var body: some View {
-        VStack(spacing: 0) {
-            // 标题部分
-            titleSection
-            
-            Spacer()
-                .frame(height: 16)
-            
-            // 输入部分
-            inputSection
-            
-            Spacer()
-                .frame(height: 16)
-            
-            // 登录方式切换部分
-            loginTypeToggleSection
-            
-            Spacer()
-                .frame(height: 30)
-            
-            // 登录按钮部分
-            loginButtonSection
-            
-            Spacer()
-                .frame(height: 24)
-            
-            // 协议部分
-            protocolSection
-            
-           
-            
-            Spacer()
-            
-            // 其他登录方式部分
-            otherLoginMethodsSection
-            
-            Spacer()
-                .frame(height: 100)
-            
-
-        }
-        .padding(.horizontal, 40.pad(134))
-        .transition(.opacity)
-        // 添加协议弹窗
-        .sheet(isPresented: $store.showProtocolSheet) {
-            SDProtocolConfirmView {
-                store.send(.onProtocolConfirmed)
+        WithPerceptionTracking {
+            VStack(spacing: 0) {
+                // 标题部分
+                titleSection
+                
+                Spacer()
+                    .frame(height: 16)
+                
+                // 输入部分
+                inputSection
+                
+                Spacer()
+                    .frame(height: 16)
+                
+                // 登录方式切换部分
+                loginTypeToggleSection
+                
+                Spacer()
+                    .frame(height: 30)
+                
+                // 登录按钮部分
+                loginButtonSection
+                
+                Spacer()
+                    .frame(height: 24)
+                
+                // 协议部分
+                protocolSection
+                
+                
+                
+                Spacer()
+                
+                // 其他登录方式部分
+                otherLoginMethodsSection
+                
+                Spacer()
+                    .frame(height: 100)
+                
+                
             }
-            .presentationDetents([.height(250)])
-            .presentationDragIndicator(.hidden)
+            .padding(.horizontal, 40.pad(134))
+            //        .background(content: {
+            //            Color.blue
+            //        })
+            
+            // 添加协议弹窗
+            .sheet(isPresented: $store.showProtocolSheet) {
+                WithPerceptionTracking {
+                    SDProtocolConfirmView {
+                        store.send(.onProtocolConfirmed)
+                    }
+                    .presentationDetents([.height(250)])
+                    .presentationDragIndicator(.hidden)
+                }
+            }
+            .navigationTitle("")
         }
+        
         
     }
     
@@ -208,10 +217,12 @@ struct SDLoginView: View {
 
 #Preview {
     NavigationStack {
-        SDLoginView(store: Store(initialState: SDLoginReducer.State(), reducer: {
-            SDLoginReducer()
-        }))
-        .navigationTitle("")
+        WithPerceptionTracking {
+            SDLoginView(store: Store(initialState: SDLoginReducer.State(), reducer: {
+                SDLoginReducer()
+            }))
+            .navigationTitle("")
+        }
     }
     .tint(SDColor.accent)
 }

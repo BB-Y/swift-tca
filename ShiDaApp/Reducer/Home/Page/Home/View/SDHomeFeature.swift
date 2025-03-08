@@ -23,9 +23,9 @@ struct SDHomeFeature {
         //= StackState<Path.State>()
         var isLoginViewShow = false
         
-        @Presents var login: SDLoginHomeReducer.State?
-        @Shared(.shareUserToken) var token: String = ""
+        @Shared(.shareUserToken) var token: String? = nil
 
+        @Shared(.shareLoginStatus) var loginStatus = .notLogin
     }
     
     @Reducer(state: .equatable)
@@ -40,24 +40,38 @@ struct SDHomeFeature {
         case onAppear
         case pushToTestView  // 添加新的 action
         case path(StackActionOf<Path>)
-        case login(PresentationAction<SDLoginHomeReducer.Action>)
 
         case onLoginTapped
         
+        
+    }
+    enum CancelID: Hashable {
+        case loginStatusObservation
     }
     @Dependency(\.dismiss) var dismiss
+    @Dependency(\.mainQueue) var main
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
                 
             case .onAppear:
                 return .none
+//                return .publisher {
+//                    state.$loginStatus.publisher
+//                        .map { status in
+//                            
+//                            return Action.onLoginStatusChanged
+//                        }
+//                        .receive(on: main)
+//                }
+
+           
             case .pushToTestView:
                 state.path.append(.test(SDHomeTestFeature.State(page: "1")))
                 return .none
-                
+                    
+                //父级处理
             case .onLoginTapped:
-                state.login = SDLoginHomeReducer.State()
                 return .none
                 
             case .path(.element(id: _, action: .test(.delegate(.nextPage(let page))))):
@@ -71,24 +85,12 @@ struct SDHomeFeature {
                 
                 state.path.removeAll()
                 return .none
-
-            // 添加对登录页关闭的处理
-//            case .login(.presented(.showHome)),
-//                 .login(.presented(.path(.element(id: _, action: .login(.showHome))))),
-//                 .login(.presented(.path(.element(id: _, action: .signup(.showHome))))):
-//                state.login = nil
-//                return .none
-                
-            case .login:
-                return .none
                 
             case .path(_):
                 return .none
             }
         }
-        .ifLet(\.$login, action: \.login) {
-            SDLoginHomeReducer()
-        }
+        
         .forEach(\.path, action: \.path)
     }
 }

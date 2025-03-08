@@ -8,20 +8,25 @@
 import Foundation
 import ComposableArchitecture
 
+// MARK: - State 计算属性扩展
 extension SDLoginReducer.State {
+    // 根据协议勾选状态返回对应图标名
     var acceptProtocolIcon: String {
         acceptProtocol ? "icon_protocol_check" : "icon_protocol_uncheck"
     }
+    
+    // 根据登录方式返回密码输入框占位符
     var passwordPlaceholder: String {
         isSMSLogin ? "请输入验证码" : "请输入密码"
     }
+    
+    // 根据倒计时状态返回发送验证码按钮文本
     var sendButtonText: String {
         if let isCounting = countDownState.isCounting {
             if isCounting {
                 return "重新发送(\(countDownState.currentNumber)s)"
             } else {
                 return "重新发送"
-                
             }
         } else {
             return "发送验证码"
@@ -73,63 +78,66 @@ extension SDLoginReducer.State {
 @Reducer
 struct SDLoginReducer {
     
-    // 在 State 结构体中添加 showUrl 状态
+    // MARK: - State
     @ObservableState
     struct State: Equatable {
-        
-        //var isLogin: Bool
+        // 用户输入信息
         var phone: String = ""
         var nationCode: String = "86"
-        
         var password: String = ""
-        var isSMSLogin: Bool = true //手机号登录或密码登录
-        var isLoading: Bool = false
-        var isValid: Bool = false //登录按钮是否可用
-        var errorMsg: String = ""
-        var showPassword = false
         
-        // 添加协议弹窗显示状态
-        var showProtocolSheet: Bool = false
-        var showUrl: String? = nil  // 添加这一行
+        // UI 状态
+        var isSMSLogin: Bool = true // 是否为短信验证码登录
+        var isLoading: Bool = false // 加载状态
+        var isValid: Bool = false   // 登录按钮是否可用
+        var errorMsg: String = ""   // 错误信息
+        var showPassword = false    // 是否显示密码
+        var isFlipping = false      // 切换登录方式的翻转动画
         
+        // 协议相关
+        var showProtocolSheet: Bool = false // 协议弹窗显示状态
+        var showUrl: String? = nil         // 协议 URL
+        
+        // 验证码倒计时状态
         var countDownState = SDCountDownReducer.State(startNumber: 5)
         
-        var isFlipping = false //翻转动画
-        
+        // 共享状态
         @Shared(.shareUserToken) var token = ""
         @Shared(.shareUserInfo) var userInfo = nil
         @Shared(.shareUserType) var userType = nil
         @Shared(.shareAcceptProtocol) var acceptProtocol = false
-        
-        
     }
     
+    // MARK: - Actions
     enum Action: BindableAction {
-        case onLoginTapped
-        case onBottomButtonTapped
-        case onForgetTapped
-        case onSendCodeTapped
-        case onProtocolTapped
-        case onLinkTapped(String)  // 添加这一行
-        case dismissWebView        // 添加这一行
-        case showHome
-        case loginResponse(Result<SDResponseLogin, Error>)
-        case codeResponse(Result<Bool, Error>)
-        case onProtocolConfirmed // 新增：用户在弹窗中点击"同意并继续"
+        // 用户交互事件
+        case onLoginTapped           // 点击登录按钮
+        case onBottomButtonTapped    // 点击底部按钮
+        case onForgetTapped         // 点击忘记密码
+        case onSendCodeTapped       // 点击发送验证码
+        case onProtocolTapped       // 点击协议勾选框
+        case onLinkTapped(String)   // 点击协议链接
+        case eyeTapped             // 点击密码显示切换
+        case onToggleLoginTypeTapped // 切换登录方式
+        case onProtocolConfirmed    // 确认协议
+        case dismissWebView         // 关闭协议网页
         
-        case eyeTapped
-        case onToggleLoginTypeTapped
-        case countDownAction(SDCountDownReducer.Action)
+        // 网络请求响应
+        case loginDone(Result<SDResponseLogin, Error>)     // 登录完成
+        case loginResponse(Result<SDResponseLogin, Error>) // 登录响应
+        case codeResponse(Result<Bool, Error>)            // 验证码响应
         
-        case binding(BindingAction<State>)
+        // 其他 Action
+        case countDownAction(SDCountDownReducer.Action)   // 倒计时相关
+        case binding(BindingAction<State>)               // 状态绑定
     }
-    @Dependency(\.authClient) var authClient
     
-    @Dependency(\.continuousClock) var clock
+    // MARK: - Dependencies
+    @Dependency(\.authClient) var authClient        // 认证客户端
+    @Dependency(\.continuousClock) var clock       // 时钟服务
+    @Dependency(\.dismiss) var dismiss            // 页面关闭
     
-    @Dependency(\.dismiss) var dismiss
-    
-    
+    // MARK: - Reducer Body
     var body: some ReducerOf<Self> {
         BindingReducer()
         Scope(state: \.countDownState, action: \.countDownAction) {
@@ -167,11 +175,11 @@ struct SDLoginReducer {
                 return handleBottomButtonTapped()
             case .onForgetTapped:
                 return handleForgetTapped(state: &state)
-            case .showHome:
-                return handleShowHome(state: &state)
+            case .loginDone:
+                return .none
             case .binding(\.isFlipping):
                 return .none
-            case .binding(\.phone), .binding(\.password):
+            case .binding(\.phone), .binding(\.password), .binding(\.$acceptProtocol):
                 return handlePhoneOrPasswordBinding(state: &state)
             case .binding:
                 return .none
@@ -185,7 +193,7 @@ struct SDLoginReducer {
     
     private func handleProtocolTapped(state: inout State) -> Effect<Action> {
         state.$acceptProtocol.withLock { $0.toggle() }
-        return .none
+        return handlePhoneOrPasswordBinding(state: &state)
     }
     
     private func handleToggleLoginType(state: inout State) -> Effect<Action> {
@@ -210,26 +218,12 @@ struct SDLoginReducer {
         if state.countDownState.isCounting == true {
             return .none
         }
-        if state.phone.isEmpty {
-            state.errorMsg = "手机号不能为空"
-            
-            return .run { send in
-                try await clock.sleep(for: .seconds(3))
-                await send(.binding(.set(\.errorMsg, "")))
-            }
-        }
-        if !state.phone.isValidPhoneNumber {
-            state.errorMsg = "手机号格式错误"
+        if let error = checkPhoneError(state.phone) {
+            state.errorMsg = error
             return .none
         }
         
-        // 检查协议是否勾选
-        if !state.acceptProtocol {
-            // 如果未勾选，显示协议弹窗
-            state.showProtocolSheet = true
-            return .none
-        }
-        
+
         // 协议已勾选，直接发送验证码
         return sendVerificationCode(phone: state.phone)
     }
@@ -238,6 +232,7 @@ struct SDLoginReducer {
     private func sendVerificationCode(phone: String) -> Effect<Action> {
         let para = SDReqParaSendCode(isForget: false, isRegister: false, phoneNum: phone, type: .app)
         return .run { send in
+            await send(.countDownAction(.start))
             await send(.codeResponse(Result { try await self.authClient.phoneCode(para) }))
         }
     }
@@ -254,37 +249,77 @@ struct SDLoginReducer {
         return .none
     }
     
-    private func handleLoginTapped(state: inout State) -> Effect<Action> {
-        state.errorMsg = ""
-        
-        if state.phone.isEmpty {
-            state.errorMsg = "手机号不能为空"
-            return.none
+    private func checkPhoneError(_ phone: String) -> String? {
+        if phone.isEmpty {
+            print("手机号不能为空")
+            return "手机号不能为空"
         }
-        if !state.phone.isValidPhoneNumber {
-            state.errorMsg = "手机号格式错误"
-            return.none
-        } 
-        if state.isSMSLogin {
-            if !state.password.isValidSixNumber {
-                state.errorMsg = "验证码格式错误"
-                return.none
+        if !phone.isValidPhoneNumber {
+            print("手机号格式错误")
+            return "手机号格式错误"
+        }
+        return nil
+    }
+    private func checkPasswordError(_ password: String, isSMSLogin: Bool) -> String? {
+        
+        if isSMSLogin {
+            if password.isEmpty {
+                return "验证码不能为空"
+                
+            }
+            if !password.isValidSixNumber {
+                return "验证码格式错误"
+                
             }
         } else {
-            if !state.password.isValidPassword {
-                state.errorMsg = "密码格式错误"
-                return.none
+            if password.isEmpty {
+                return "密码不能为空"
+            }
+            if !password.isValidPassword {
+                return "密码格式错误"
             }
         }
-        
-        if state.password.isEmpty {
-            state.errorMsg = "密码不能为空"
-            return.none
+        return nil
+    }
+
+    
+    private func checkLoginError(state: inout State) -> String? {
+        if let phoneError = checkPhoneError(state.phone) {
+            return phoneError
+
         }
+                
+       
+        if let passwordError = checkPasswordError(state.password, isSMSLogin: state.isSMSLogin)  {
+            return passwordError
+        }
+       
+      
+        return nil
+        
+    }
+    private func handleErrorMsg(_ msg: String) -> Effect<Action> {
+        return .run { send in
+            await send(.binding(.set(\.errorMsg, msg)))
+            try await clock.sleep(for: .seconds(3))
+            await send(.binding(.set(\.errorMsg, "")))
+        }
+    }
+    private func handleLoginTapped(state: inout State) -> Effect<Action> {
+        state.errorMsg = ""
+        if let error = checkLoginError(state: &state) {
+            return handleErrorMsg(error)
+        }
+        if !state.acceptProtocol {
+            state.showProtocolSheet.toggle()
+            return .none
+
+        }
+
         state.isLoading = true
         let phone = state.phone
         let password = state.password
-        let para = SDReqParaLoginSMS(phone: phone, smsCode: password, userType: .student)
+        let para = SDReqParaLoginSMS(phone: phone, smsCode: password, userType: state.userType)
         return .run { send in
             await send(.loginResponse(Result { try await self.authClient.loginSMS(para) }))
         }
@@ -294,20 +329,23 @@ struct SDLoginReducer {
         print("loginResponse")
         state.isLoading = false
         state.isValid = true
-        // 更新全局用户状态
-        let data = Data.getData(from: userInfoModel)
-        state.$userInfo.withLock({$0 = data})
+        state.errorMsg = ""
         
-        state.$token.withLock({$0 = "token get"})
         return .run { send in
-            await send(.showHome)
+            await send(.loginDone(.success(userInfoModel)))
         }
     }
     
     private func handleLoginResponseFailure(state: inout State, error: Error) -> Effect<Action> {
         state.isLoading = false
-        state.isValid = false
-        state.errorMsg = error.localizedDescription
+        state.isValid = true
+        if let apiError = error as? APIError {
+            state.errorMsg = apiError.errorDescription!
+            return .run { send in
+                await send(.loginDone(.failure(apiError)))
+            }
+        }
+
         return .none
     }
     
@@ -321,14 +359,37 @@ struct SDLoginReducer {
         return .none
     }
     
-    private func handleShowHome(state: inout State) -> Effect<Action> {
-        state.isValid = true
-        state.errorMsg = ""
-        return .none
-    }
+    
     
     private func handlePhoneOrPasswordBinding(state: inout State) -> Effect<Action> {
-        state.isValid = !state.phone.isEmpty && !state.password.isEmpty
+        
+        
+        print(state.phone)
+        print(state.password)
+
+        guard checkPhoneError(state.phone) == nil else {
+            state.isValid = false
+            print("checkPhoneError")
+
+            return .none
+        }
+        print("checkPhoneNoError")
+
+        guard checkPasswordError(state.password, isSMSLogin: state.isSMSLogin) == nil else {
+            print("checkPasswordError")
+
+            state.isValid = false
+            return .none
+        }
+        print("checkPasswordNoError")
+
+        guard state.acceptProtocol else {
+            print("acceptProtocolError")
+
+            state.isValid = false
+            return .none
+        }
+        state.isValid = true
         state.errorMsg = ""
         return .none
     }
@@ -338,8 +399,10 @@ struct SDLoginReducer {
         state.showProtocolSheet = false
         // 自动勾选协议
         state.$acceptProtocol.withLock { $0 = true }
+        
         // 发送验证码
-        return sendVerificationCode(phone: state.phone)
+        return handleLoginTapped(state: &state)
+        //return sendVerificationCode(phone: state.phone)
     }
 }
 

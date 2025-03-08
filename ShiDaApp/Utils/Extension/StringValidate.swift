@@ -28,4 +28,35 @@ extension String {
         let predicate = NSPredicate(format: "SELF MATCHES %@", regex)
         return predicate.evaluate(with: self)
     }
+    
+    var checkPhoneError: String? {
+        if self.isEmpty {
+            return "手机号不能为空"
+        }
+        if !self.isValidPhoneNumber {
+            return "手机号格式错误"
+        }
+        return nil
+    }
+    
+    var checkCodeError: String? {
+        if self.isEmpty {
+            return "验证码不能为空"
+            
+        }
+        if !self.isValidSixNumber {
+            return "验证码格式错误"
+        }
+        return nil
+    }
+    var checkPasswordError: String? {
+        if self.isEmpty {
+            return "密码不能为空"
+            
+        }
+        if !self.isValidSixNumber {
+            return "密码格式错误"
+        }
+        return nil
+    }
 }
