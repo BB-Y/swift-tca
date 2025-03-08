@@ -10,7 +10,7 @@ import ComposableArchitecture
 
 struct SDLoginView: View {
     @Perception.Bindable var store: StoreOf<SDLoginReducer>
-    @State private var isFlipping = false
+    
     
     var body: some View {
         WithPerceptionTracking {
@@ -169,7 +169,7 @@ struct SDLoginView: View {
         SDProtocoView(accept: Binding(get: {
             store.acceptProtocol
         }, set: { value in
-            store.$acceptProtocol.withLock{$0 = value}
+            store.send(.onProtocolTapped)
         }))
     }
     

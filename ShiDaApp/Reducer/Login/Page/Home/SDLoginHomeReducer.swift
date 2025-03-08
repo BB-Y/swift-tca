@@ -17,26 +17,29 @@ struct SDLoginHomeReducer {
         
         //登出状态切换其他登录方式
         var showlogin = false
+        var errorMsg = ""
         
         @Shared(.shareLoginStatus) var loginStatus = .notLogin
-
-      
         @Shared(.shareUserToken) var token = nil
-        @Shared(.shareUserType) var userType = nil
         @Shared(.shareAcceptProtocol) var acceptProtocol = false
-        
-        var loginAgain = SDLoginAgainReducer.State()
-        var login = SDLoginReducer.State()
-        var selectUserType = SDSelectUserTypeReducer.State()
-        
-        
         @Shared(.shareUserInfo) var userInfo = nil
 
+        var loginAgain = SDLoginAgainReducer.State()
+        var login = SDLoginReducer.State()
+        
+        init() {
+            if loginStatus == .notLogin {
+                showlogin = true
+            }
+        }
+        
         var userInfoModel: SDResponseLogin? {
             guard let data = userInfo else { return nil }
             return try? JSONDecoder().decode(SDResponseLogin.self, from: data)
         }
-        
+        var userType: SDUserType?{
+            userInfoModel?.userType
+        }
     }
     
     @Reducer(state: .equatable)
@@ -47,32 +50,65 @@ struct SDLoginHomeReducer {
         //case loginAgain(SDLoginAgainReducer)
         
         case selectUserType(SDSelectUserTypeReducer)
+        
+        case resetPassword(SDSetNewPasswordReducer)
     }
     
     enum Action {
         
         case onCloseTapped
+        
+        //scope
         case login(SDLoginReducer.Action)
         case loginAgain(SDLoginAgainReducer.Action)
-
+        
         case checkUserType
         case path(StackActionOf<Destination>)
+        
+        case dismiss
     }
     
     @Dependency(\.dismiss) var dismiss
-
+    
     var body: some ReducerOf<Self> {
-        
         Reduce { state, action in
             switch action {
-                
+            case .path(StackAction.element(id: _, action: .resetPassword(.delegate(.resetPasswordSuccess)))):
+                state.path.removeAll()
+                return .none
+           
+            case let .path(StackAction.element(id: _, action: .phoneValidate(.delegate(action)))):
+                switch action {
+                case .validateSuccess(phone: let phone, code: let code):
+                    state.path.append(.resetPassword(SDSetNewPasswordReducer.State(phone: phone, code: code)))
+                    return .none
+
+                }
+//            case .resetPassword(.delegate(.resetPasswordSuccess)):
+//                state.path.removeAll()
+//                return .none
+            case .loginAgain(.delegate(let action)):
+                switch action {
+                case .userTypeNil:
+                    state.errorMsg = "登录失败，请选择其他登录方式"
+                case .loginSuccess:
+                    state.$loginStatus.withLock {$0 = .login}
+                    return .send(.dismiss)
+                case .switchToOtherLogin:
+                    state.showlogin = true
+                }
+                return .none
+
+           
             case .onCloseTapped:
                 
+                return .send(.dismiss)
+
+            case .dismiss:
                 return .run {_ in
                     await dismiss()
                 }
-
-
+                
             case .checkUserType:
                 if state.userInfoModel?.userType == nil {
                     state.path.append(.selectUserType(SDSelectUserTypeReducer.State()))
@@ -82,26 +118,25 @@ struct SDLoginHomeReducer {
                 }
                 //let data = state.$userInfo.wra
                 
-//                if let a = state.$userInfo.decode(type: SDResponseLogin.self, decoder: JSONDecoder()) {
-//                    
-//                }
+                //                if let a = state.$userInfo.decode(type: SDResponseLogin.self, decoder: JSONDecoder()) {
+                //
+                //                }
                 return .none
                 
                 
                 
+                //选择身份后回调, 一定是登录后才会选择身份，登出后再登录不会到这个流程
             case let .path(.element(id: _, action: .selectUserType(.onConfirmTapped(userType)))):
-                state.$userType.withLock {
-                    $0 = userType
+                if var user = state.userInfoModel {
+                    user.userType = userType
+                    state.$userInfo.withLock { $0 = Data.getData(from: user) }
                 }
                 return .send(.login(SDLoginReducer.Action.onLoginTapped))
-            case .path:
-                return .none
-            case .login(let action):
+           
+            case .login(.delegate(let action)):
                 switch action {
-               
-                
-                case .loginDone(.success(let userInfoModel)):
                     
+                case .loginSuccess(let userInfoModel):
                     if userInfoModel.token == nil {
                         state.$loginStatus.withLock({$0 = .notLogin})
                     } else {
@@ -112,35 +147,34 @@ struct SDLoginHomeReducer {
                         }
                     }
                     
-                    
                     // 更新全局用户状态
                     let data = Data.getData(from: userInfoModel)
                     state.$userInfo.withLock({$0 = data})
-                    state.$loginStatus.withLock({$0 = .login})
-
+                    
                     state.$token.withLock({$0 = userInfoModel.token})
                     return .send(.checkUserType)
-                case .loginDone(.failure(let error)):
+                case .loginFailed(let error):
                     print(error)
-
-                case .onForgetTapped:
+                    return .none
+                case .forgetPassword:
                     let phone = state.login.phone
                     state.path.append(.phoneValidate(SDValidatePhoneReducer.State(phone: phone)))
                     return .none
-
-                default:
-                    return .none
+                
+               
                 }
+                
+                
+           
+                
+                
+            
+                
+            
+           
+            case .loginAgain, .login, .path:
                 return .none
             
-
-            case .loginAgain(let action):
-                
-                if case .onOtherLoginTapped = action {
-                    state.showlogin = true
-                }
-                return .none
-
             }
         }
         .forEach(\.path, action: \.path) {

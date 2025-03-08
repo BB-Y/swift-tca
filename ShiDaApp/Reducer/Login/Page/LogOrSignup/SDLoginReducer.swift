@@ -72,8 +72,13 @@ extension SDLoginReducer.State {
         //                return true
         //            }
     }
-    
-    
+    var userInfoModel: SDResponseLogin? {
+        guard let data = userInfo else { return nil }
+        return try? JSONDecoder().decode(SDResponseLogin.self, from: data)
+    }
+    var userType:SDUserType? {
+        userInfoModel?.userType
+    }
 }
 @Reducer
 struct SDLoginReducer {
@@ -104,11 +109,17 @@ struct SDLoginReducer {
         // 共享状态
         @Shared(.shareUserToken) var token = ""
         @Shared(.shareUserInfo) var userInfo = nil
-        @Shared(.shareUserType) var userType = nil
+        
         @Shared(.shareAcceptProtocol) var acceptProtocol = false
     }
     
     // MARK: - Actions
+    enum Delegate {
+        case loginSuccess(SDResponseLogin)
+        case loginFailed(Error)
+        case forgetPassword
+    }
+
     enum Action: BindableAction {
         // 用户交互事件
         case onLoginTapped           // 点击登录按钮
@@ -130,6 +141,11 @@ struct SDLoginReducer {
         // 其他 Action
         case countDownAction(SDCountDownReducer.Action)   // 倒计时相关
         case binding(BindingAction<State>)               // 状态绑定
+        
+        case checkValid
+        
+        case delegate(Delegate)
+
     }
     
     // MARK: - Dependencies
@@ -183,6 +199,8 @@ struct SDLoginReducer {
                 return handlePhoneOrPasswordBinding(state: &state)
             case .binding:
                 return .none
+            case .checkValid:
+                return handlePhoneOrPasswordBinding(state: &state)
             default:
                 return .none
             }
@@ -193,7 +211,7 @@ struct SDLoginReducer {
     
     private func handleProtocolTapped(state: inout State) -> Effect<Action> {
         state.$acceptProtocol.withLock { $0.toggle() }
-        return handlePhoneOrPasswordBinding(state: &state)
+        return .send(.checkValid)
     }
     
     private func handleToggleLoginType(state: inout State) -> Effect<Action> {
@@ -317,23 +335,29 @@ struct SDLoginReducer {
         }
 
         state.isLoading = true
+        let isSMSLogin = state.isSMSLogin
         let phone = state.phone
         let password = state.password
-        let para = SDReqParaLoginSMS(phone: phone, smsCode: password, userType: state.userType)
+        let userType = state.userType
+       
         return .run { send in
-            await send(.loginResponse(Result { try await self.authClient.loginSMS(para) }))
+            if isSMSLogin {
+                let para = SDReqParaLoginSMS(phone: phone, smsCode: password, userType: userType)
+                await send(.loginResponse(Result { try await self.authClient.loginSMS(para) }))
+            } else {
+                let para = SDReqParaLoginPassword(phone: phone, password: password, userType: userType)
+                await send(.loginResponse(Result { try await self.authClient.loginPassword(para) }))
+            }
+            
         }
     }
     
     private func handleLoginResponseSuccess(state: inout State, userInfoModel: SDResponseLogin) -> Effect<Action> {
-        print("loginResponse")
         state.isLoading = false
         state.isValid = true
         state.errorMsg = ""
         
-        return .run { send in
-            await send(.loginDone(.success(userInfoModel)))
-        }
+        return .send(.delegate(.loginSuccess(userInfoModel)))
     }
     
     private func handleLoginResponseFailure(state: inout State, error: Error) -> Effect<Action> {
@@ -341,11 +365,8 @@ struct SDLoginReducer {
         state.isValid = true
         if let apiError = error as? APIError {
             state.errorMsg = apiError.errorDescription!
-            return .run { send in
-                await send(.loginDone(.failure(apiError)))
-            }
+            return .send(.delegate(.loginFailed(apiError)))
         }
-
         return .none
     }
     
@@ -356,7 +377,7 @@ struct SDLoginReducer {
     
     private func handleForgetTapped(state: inout State) -> Effect<Action> {
         state.errorMsg = ""
-        return .none
+        return .send(.delegate(.forgetPassword))
     }
     
     

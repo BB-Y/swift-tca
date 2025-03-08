@@ -22,22 +22,25 @@ struct SDHomeView: View {
         
 
         NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
-            VStack(spacing: 0) {
-                header
-                    .padding(.horizontal, 16)
-//                    .background {
-//                        SDColor.background
-//                            .ignoresSafeArea(.all)
-//                    }
-                ScrollView {
-                    content
+            WithPerceptionTracking {
+                VStack(spacing: 0) {
+                    header
                         .padding(.horizontal, 16)
+    //                    .background {
+    //                        SDColor.background
+    //                            .ignoresSafeArea(.all)
+    //                    }
+                    ScrollView {
+                        content
+                            .padding(.horizontal, 16)
+                    }
+                    
+                    
+                    
+                    
                 }
-                
-                
-                
-                
             }
+            
             .background(SDColor.background)
 //            .overlay {
 //                Button("TestView") {
@@ -46,7 +49,7 @@ struct SDHomeView: View {
 //                .buttonStyle(SDButtonStyleConfirm())
 //            }
             .overlay(alignment: .bottom) {
-                if store.loginStatus == .notLogin {
+                if store.loginStatus != .login {
                     HStack {
                         Text("登录体验更多精彩内容！")
                             .font(.sdBody2)

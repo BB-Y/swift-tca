@@ -17,9 +17,10 @@ struct MyFeature {
 
         // 我的页面的状态
         @Shared(.shareLoginStatus) var loginStatus = .notLogin
-        
         @Shared(.shareUserInfo) var userInfo = nil
-        
+        @Shared(.shareAcceptProtocol) var acceptProtocol = false
+        @Shared(.shareUserToken) var token = nil
+
         @Presents var login: SDLoginHomeReducer.State?
 
         var userInfoModel: SDResponseLogin? {
@@ -65,14 +66,19 @@ struct MyFeature {
                 switch viewAction {
                 case .onLogoutTapped:
                     state.$loginStatus.withLock({$0 = .logout})
+                    state.$acceptProtocol.withLock({$0 = false})
                     state.path.removeAll()
                     state.login = SDLoginHomeReducer.State()
                     return .send(.logout)
                 case .onRemoveUserTapped:
                     state.$loginStatus.withLock({$0 = .notLogin})
                     state.$userInfo.withLock({$0 = nil})
+                    state.$acceptProtocol.withLock({$0 = false})
+                    state.$token.withLock({$0 = ""})
+
                     state.path.removeAll()
                     state.login = SDLoginHomeReducer.State()
+                    return .send(.logout)
 
 
                 case .onAppear:
@@ -103,67 +109,75 @@ struct MyView: View {
     @Perception.Bindable var store: StoreOf<MyFeature>
     
     var body: some View {
-        VStack {
-            Text("个人中心")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-            Button("退出登陆") {
-                send(.onLogoutTapped)
-            }
-            
-            Button("退出登陆,清除用户信息") {
-                send(.onRemoveUserTapped)
-            }
-            Spacer()
-            
-            VStack(spacing: 20) {
-                // 用户信息
-                HStack {
-                    Image(systemName: "person.circle.fill")
-                        .resizable()
-                        .frame(width: 60, height: 60)
-                        .foregroundColor(.blue)
-                    
-                    VStack(alignment: .leading) {
-                        Text("用户名")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                        
-                        Text(store.userInfoModel?.phone ?? "")
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
-                    }
-                    
-                    Spacer()
+        WithPerceptionTracking {
+            VStack {
+                Text("个人中心")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                Button("退出登陆") {
+                    send(.onLogoutTapped)
                 }
-                .padding()
-                .background(Color.gray.opacity(0.1))
-                .cornerRadius(10)
                 
-                // 菜单项
-                List {
-                    ForEach(["我的学习", "我的收藏", "学习记录", "设置"], id: \.self) { item in
-                        HStack {
-                            Text(item)
-                                .font(.headline)
+                Button("退出登陆,清除用户信息") {
+                    send(.onRemoveUserTapped)
+                }
+                Spacer()
+                
+                VStack(spacing: 20) {
+                    // 用户信息
+                    HStack {
+                        Image(systemName: "person.circle.fill")
+                            .resizable()
+                            .frame(width: 60, height: 60)
+                            .foregroundColor(.blue)
+                        
+                        VStack(alignment: .leading) {
+                            Text("用户名")
+                                .font(.title2)
+                                .fontWeight(.bold)
                             
-                            Spacer()
-                            
-                            Image(systemName: "chevron.right")
+                            Text(store.userInfoModel?.phone ?? "")
+                                .font(.subheadline)
                                 .foregroundColor(.gray)
                         }
-                        .padding(.vertical, 8)
+                        
+                        Spacer()
                     }
+                    .padding()
+                    .background(Color.gray.opacity(0.1))
+                    .cornerRadius(10)
+                    
+                    // 菜单项
+                    List {
+                        ForEach(["我的学习", "我的收藏", "学习记录", "设置"], id: \.self) { item in
+                            WithPerceptionTracking {
+                                HStack {
+                                    Text(item)
+                                        .font(.headline)
+                                    
+                                    Spacer()
+                                    
+                                    Image(systemName: "chevron.right")
+                                        .foregroundColor(.gray)
+                                }
+                                .padding(.vertical, 8)
+                            }
+                            
+                        }
+                    }
+                    .listStyle(PlainListStyle())
+                    .frame(height: 250)
                 }
-                .listStyle(PlainListStyle())
-                .frame(height: 250)
+                .padding()
+                
+                Spacer()
             }
-            .padding()
-            
-            Spacer()
         }
+        
         .fullScreenCover(item: $store.scope(state: \.login, action: \.login), content: { item in
-            SDLoginHomeView(store: item)
+            WithPerceptionTracking {
+                SDLoginHomeView(store: item)
+            }
         })
         .onAppear {
             send(.onAppear)

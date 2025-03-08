@@ -45,23 +45,23 @@ struct SDPhoneInputView: View {
             SDColor.background
                 .clipShape(Capsule())
         }
-        .sheet(isPresented: $showNationList) {
-            ScrollView {
-                ForEach(0..<50) { item in
-                    Text("\(item)")
-                        .onTapGesture {
-                            nationCode = "\(item)"
-                            showNationList.toggle()
-                        }
-                }
-                
-            }
-            .sdSheetBackground({
-                Color.red
-            })
-            .presentationDetents([.medium, .large, .fraction(0.8), .height(200)])
-
-        }
+//        .sheet(isPresented: $showNationList) {
+//            ScrollView {
+//                ForEach(0..<50) { item in
+//                    Text("\(item)")
+//                        .onTapGesture {
+//                            nationCode = "\(item)"
+//                            showNationList.toggle()
+//                        }
+//                }
+//                
+//            }
+//            .sdSheetBackground({
+//                Color.red
+//            })
+//            .presentationDetents([.medium, .large, .fraction(0.8), .height(200)])
+//
+//        }
     }
 }
 

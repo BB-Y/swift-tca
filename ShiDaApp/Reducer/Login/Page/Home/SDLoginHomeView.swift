@@ -31,6 +31,8 @@ struct SDLoginHomeView: View {
 //                SDLoginAgainView(store: store)
             case .selectUserType(let store):
                 SDSelectUserTypeView(store: store)
+            case .resetPassword(let store):
+                SDSetNewPasswordView(store: store)
             }
         }
     }
@@ -38,15 +40,15 @@ struct SDLoginHomeView: View {
     private var content: some View {
         VStack(spacing: 0) {
             
-            if store.showlogin == false, store.loginStatus == .logout {
-                SDLoginAgainView(store: store.scope(state: \.loginAgain, action: \.loginAgain))
+            if store.showlogin  {
+                
+                SDLoginView(store: store.scope(state: \.login, action: \.login))
                 .transition(.asymmetric(
                     insertion: .move(edge: .trailing),
                     removal: .move(edge: .leading)
                 ))
-                
             } else {
-                SDLoginView(store: store.scope(state: \.login, action: \.login))
+                SDLoginAgainView(store: store.scope(state: \.loginAgain, action: \.loginAgain))
                 .transition(.asymmetric(
                     insertion: .move(edge: .trailing),
                     removal: .move(edge: .leading)

@@ -53,9 +53,18 @@ struct SDAppFeature {
         Reduce { state, action in
             switch action {
             case let .tabSelected(tab):
+                print(tab)
+                print(state.selectedTab)
+                let current = state.selectedTab
                 if state.loginStatus != .login {
                     if tab == .study || tab == .my {
+                        //state.selectedTab = .home
+                        state.selectedTab = current
+
                         state.login = SDLoginHomeReducer.State()
+
+                    } else {
+                        state.selectedTab = tab
                     }
                 } else {
                     state.selectedTab = tab
@@ -65,7 +74,9 @@ struct SDAppFeature {
                 state.login = SDLoginHomeReducer.State()
                 return .none
             case .my(MyFeature.Action.logout):
-                return .send(.tabSelected(.home))
+                print("logpout")
+                state.selectedTab = .home
+                return .none
                 
             case .home, .book, .study, .my, .login:
                 return .none
@@ -95,29 +106,35 @@ struct SDAppView: View {
     @Perception.Bindable var store: StoreOf<SDAppFeature>
     
     var body: some View {
-        VStack (spacing: 0){
-            
-//            HStack {
-//                Text("网络错误")
-//            }
-//            .frame(height: 40)
-//            .frame(maxWidth: .infinity)
-//            .background {
-//                Color.red
-//            }
-            
-            TabView(selection: $store.selectedTab.sending(\.tabSelected)) {
+        WithPerceptionTracking{
+            VStack (spacing: 0){
                 
-                homeView
+    //            HStack {
+    //                Text("网络错误")
+    //            }
+    //            .frame(height: 40)
+    //            .frame(maxWidth: .infinity)
+    //            .background {
+    //                Color.red
+    //            }
                 
-                bookView
+                TabView(selection: $store.selectedTab.sending(\.tabSelected)) {
+                    WithPerceptionTracking {
+                        homeView
+                        
+                        bookView
+                        
+                        studyView
+                        myView
+                    }
+                    
+                    
+                }
+                .sdTint(SDColor.accent)
                 
-                studyView
-                myView
             }
-            .sdTint(SDColor.accent)
-            
         }
+        
         
         .fullScreenCover(item: $store.scope(state: \.login, action: \.login), content: { item in
             WithPerceptionTracking {
@@ -131,12 +148,15 @@ struct SDAppView: View {
     // 首页
     var homeView: some View {
         NavigationStack {
-            SDHomeView(
-                store: store.scope(
-                    state: \.homeState,
-                    action: \.home
+            WithPerceptionTracking {
+                SDHomeView(
+                    store: store.scope(
+                        state: \.homeState,
+                        action: \.home
+                    )
                 )
-            )
+            }
+            
         }
         .tabItem {
             
@@ -148,12 +168,15 @@ struct SDAppView: View {
     // 书籍
     var bookView: some View {
         NavigationStack {
-            BookView(
-                store: store.scope(
-                    state: \.bookState,
-                    action: \.book
+            WithPerceptionTracking {
+                BookView(
+                    store: store.scope(
+                        state: \.bookState,
+                        action: \.book
+                    )
                 )
-            )
+            }
+            
         }
         .tabItem {
             Label("书籍", image: store.selectedTab == .book ? "book_tab_select" : "book_tab_deselect")
@@ -164,12 +187,15 @@ struct SDAppView: View {
     // 学习
     var studyView: some View {
         NavigationStack {
-            StudyView(
-                store: store.scope(
-                    state: \.studyState,
-                    action: \.study
+            WithPerceptionTracking {
+                StudyView(
+                    store: store.scope(
+                        state: \.studyState,
+                        action: \.study
+                    )
                 )
-            )
+            }
+            
         }
         .tabItem {
             Label("学习", image: store.selectedTab == .study ? "study_tab_select" : "study_tab_deselect")
@@ -180,12 +206,15 @@ struct SDAppView: View {
     // 我的
     var myView: some View {
         NavigationStack {
-            MyView(
-                store: store.scope(
-                    state: \.myState,
-                    action: \.my
+            WithPerceptionTracking {
+                MyView(
+                    store: store.scope(
+                        state: \.myState,
+                        action: \.my
+                    )
                 )
-            )
+            }
+            
         }
         .tabItem {
             Label("我的", image: store.selectedTab == .my ? "my_tab_select" : "my_tab_deselect")

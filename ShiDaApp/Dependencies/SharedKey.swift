@@ -20,12 +20,7 @@ extension SharedKey where Self == AppStorageKey<Data?> {
     appStorage("SDShareUserInfo")
   }
 }
-extension SharedKey where Self == InMemoryKey<SDUserType?> {
-  static var shareUserType: Self {
-      
-      inMemory("SDShareUserType")
-  }
-}
+
 
 extension SharedKey where Self == InMemoryKey<Bool> {
   static var shareAcceptProtocol: Self {

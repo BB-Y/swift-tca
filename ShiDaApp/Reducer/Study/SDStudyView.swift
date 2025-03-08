@@ -33,7 +33,10 @@ struct StudyView: View {
     let store: StoreOf<StudyFeature>
     
     var body: some View {
-        Text("study")
+        WithPerceptionTracking{
+            Text("study")
+
+        }
     }
 }
 

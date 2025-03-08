@@ -151,7 +151,7 @@ struct SDResponseLogin : Codable, Equatable {
     /// 登录令牌
     let token : String?
     /// 用户类型（10-教师 20-学生）
-    let userType : SDUserType?
+    var userType : SDUserType?
 }
 
 

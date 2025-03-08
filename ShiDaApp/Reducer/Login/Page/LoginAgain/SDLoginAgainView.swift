@@ -11,53 +11,83 @@ import CodableWrappers
 
 @Reducer
 struct SDLoginAgainReducer {
+    @Dependency(\.userClient) var userClient
+    
     @ObservableState
     struct State: Equatable {
-        
         var userAvator: String = ""
         var userName: String = ""
         
         @Shared(.shareAcceptProtocol) var acceptProtocol = false
+        @Shared(.shareUserInfo) var userInfo = nil
 
-        var showProtocol = false
+        var showProtocol: Bool = false
         var isPush = false
+        
+        var userInfoModel: SDResponseLogin? {
+            guard let data = userInfo else { return nil }
+            return try? JSONDecoder().decode(SDResponseLogin.self, from: data)
+        }
     }
     
-    enum Action {
-        
+    enum Action: BindableAction {  // 添加 BindableAction
+        case binding(BindingAction<State>)  // 添加这一行
         case onLoginTapped
         case onOtherLoginTapped
-        
-        
         case onAcceptContinueTapped
+        case getUserInfoResponse(Result<SDResponseUserInfo, Error>)
         
+        // 父级处理的 Action
+        case delegate(Delegate)
         
+        enum Delegate: Equatable {
+            case userTypeNil
+            case loginSuccess
+            case switchToOtherLogin
+        }
     }
     
     var body: some ReducerOf<Self> {
-        
-        
+        BindingReducer()  // 添加这一行
         Reduce { state, action in
             switch action {
-                
+            case .delegate(_):
+                return .none
             case .onLoginTapped:
                 if state.acceptProtocol == false {
                     state.showProtocol = true
                     return .none
-                    
-                } else{
-                    //TODO: 接口
-                    return .none
+                } else {
+                    return .run { send in
+                        await send(.getUserInfoResponse(Result {
+                            try await userClient.getUserInfo()
+                        }))
+                    }
                 }
                 
-            case .onOtherLoginTapped:
+            case let .getUserInfoResponse(.success(response)):
+                if response.userType == nil {
+                    return .send(.delegate(.userTypeNil))
+                } else {
+                    return .send(.delegate(.loginSuccess))
+                }
                 
+            case .getUserInfoResponse(.failure):
+                // 处理错误情况，可以添加错误提示
+                return .none
+                
+            case .onOtherLoginTapped:
+                return .send(.delegate(.switchToOtherLogin))
+            
                 return .none
            
                 
             case .onAcceptContinueTapped:
+                state.showProtocol = false
                 state.$acceptProtocol.withLock({$0 = true})
                 return .send(.onLoginTapped)
+            case .binding(_):
+                return .none
             }
         }
     }
@@ -88,7 +118,7 @@ struct SDLoginAgainView: View {
                     
                         
                     // 用户名
-                    Text("逆风的少年") // 这里应该替换为实际用户名
+                    Text(store.userInfoModel?.name ?? "") // 这里应该替换为实际用户名
                         .font(.sdBody3)
                         .foregroundStyle(SDColor.text1)
                 }
@@ -122,6 +152,16 @@ struct SDLoginAgainView: View {
             
         }
         .padding(.horizontal, 40.pad(134))
+        
+        .sheet(isPresented: $store.showProtocol) {
+            WithPerceptionTracking {
+                SDProtocolConfirmView {
+                    store.send(.onAcceptContinueTapped)
+                }
+                .presentationDetents([.height(250)])
+                .presentationDragIndicator(.hidden)
+            }
+        }
         //        .background {
         //            Color.red
         //        }

@@ -18,3 +18,10 @@ extension DependencyValues {
         set { self[SDAuthClient.self] = newValue }
     }
 }
+/// 扩展依赖值以包含认证客户端
+extension DependencyValues {
+    var userClient: SDUserClient {
+        get { self[SDUserClient.self] }
+        set { self[SDUserClient.self] = newValue }
+    }
+}

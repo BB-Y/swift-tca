@@ -22,7 +22,7 @@ struct SDValidatePhoneReducer {
         var isValidCode: Bool = false //确认按钮是否可用
         
         var isValidButton: Bool = false
-
+        
         var showCodeInput = false
         var errorMsg = ""
         
@@ -34,13 +34,20 @@ struct SDValidatePhoneReducer {
                     return "重新发送(\(countDownState.currentNumber)s)"
                 } else {
                     return "重新发送"
-
+                    
                 }
             } else {
                 return "发送验证码"
             }
         }
-      
+        init(phone: String = "") {
+            self.phone = phone
+            if phone.isValidPhoneNumber {
+                isValid = true
+                isValidButton = true
+            }
+        }
+        
     }
     
     enum Action: BindableAction {
@@ -53,19 +60,27 @@ struct SDValidatePhoneReducer {
         case phoneValidateResponse(Result<Bool, Error>)
         
         case setPhone(String)
+        case setCode(String)
         
         case countDownAction(SDCountDownReducer.Action)
         
         case sendCode
         case codeResponse(Result<Bool, Error>)            // 验证码响应
-
-        case binding(BindingAction<State>)
-    }
+        
+        case checkCodeResponse(Result<Bool, Error>)            // 验证
     
+        case binding(BindingAction<State>)               // 状态绑定
+        case delegate(Delegate)
+    
+        
+    }
+    enum Delegate {
+        case validateSuccess(phone: String, code: String)
+    }
     
     @Dependency(\.continuousClock) var clock
     @Dependency(\.authClient) var authClient        // 认证客户端
-
+    
     
     var body: some ReducerOf<Self> {
         
@@ -74,17 +89,36 @@ struct SDValidatePhoneReducer {
             SDCountDownReducer()
         }
         Reduce { state, action in
-        
+            
             switch action {
+            case .onConfirmTapped:
+                let phone = state.phone
+                let code = state.code
+                return .run { send in
+                    await send(.checkCodeResponse(Result { try await self.authClient.validatePhone(.init(phone: phone, smsCode: code)) }))
+                }
+                
+            case .checkCodeResponse(.success(let check)):
+                if check {
+                    return .send(.delegate(.validateSuccess(phone: state.phone, code: state.code)))
+                }
+                state.errorMsg = "验证失败"
+                return .none
+            case .checkCodeResponse(.failure(let error)):
+                print(error)
+                state.errorMsg = (error as? APIError)?.errorDescription ?? ""
+                return .none
+                
+                
             case .binding(\.phone), .countDownAction(.binding(\.isCounting)):
                 
                 let isCounting = state.countDownState.isCounting == true
-               print("isCounting \(isCounting)")
+                print("isCounting \(isCounting)")
                 if state.phone.count > 11 {
                     let text = state.phone.subString(form: 0, to: 11)
                     return .run { send in
                         await send(.setPhone(text))
-                            
+                        
                     }
                 }
                 let phoneValid = state.phone.checkPhoneError == nil
@@ -92,26 +126,34 @@ struct SDValidatePhoneReducer {
                 
                 state.isValidButton = !isCounting && phoneValid
                 return .none
-                
-            case .setPhone(let phone):
-                
-                state.phone = phone
-                
+            case .binding(\.code):
+                if state.code.count > 6 {
+                    let text = state.code.subString(form: 0, to: 6)
+                    return .run { send in
+                        await send(.setCode(text))
+                    }
+                }
+                state.isValidCode = state.code.count == 6
                 
                 return .none
-           
-//            case .countDownAction(let countDownAction):
-//                switch countDownAction {
-//                    
-//                case .start:
-//                    return .none
-//
-//                case .stop:
-//                    <#code#>
-//                case .binding(_):
-//                    return .none
-//                }
-//                return .none
+            case .setPhone(let phone):
+                state.phone = phone
+                return .none
+            case .setCode(let code):
+                state.code = code
+                return .none
+                //            case .countDownAction(let countDownAction):
+                //                switch countDownAction {
+                //
+                //                case .start:
+                //                    return .none
+                //
+                //                case .stop:
+                //                    <#code#>
+                //                case .binding(_):
+                //                    return .none
+                //                }
+                //                return .none
             case .onSendTapped, .onSendAgainTapped:
                 if state.isValidButton {
                     return .send(.sendCode)
@@ -131,17 +173,23 @@ struct SDValidatePhoneReducer {
             case .codeResponse(.success(let result)):
                 if result {
                     state.showCodeInput = true
-
+                    
                 } else {
                     state.errorMsg = "发送失败，请稍候重试"
                 }
-
+                
                 return .none
             case .codeResponse(.failure(let error)):
+                //测试代码
+                if state.phone.hasPrefix("1999") {
+                    state.showCodeInput = true
+                    return .none
+                    
+                }
                 state.errorMsg = (error as? APIError)?.errorDescription ?? "发送失败，请稍候重试"
-
+                
                 return .none
-
+                
             default:
                 return .none
             }
@@ -170,6 +218,9 @@ struct SDValidatePhoneView: View {
                 SDPhoneInputView("请输入手机号", phone: $store.phone, nationCode: $store.nation)
                 Spacer()
                     .frame(height: 40)
+                Text(store.errorMsg)
+                    .font(.sdBody3)
+                    .foregroundStyle(SDColor.error)
                 Button {
                     store.send(.onSendTapped)
                 } label: {
@@ -178,8 +229,10 @@ struct SDValidatePhoneView: View {
                 .buttonStyle(SDButtonStyleConfirm(isDisable: !store.isValidButton))
                 Spacer()
                 
+                
             }
             .padding(.horizontal, 40)
+            
             .navigationDestination(isPresented: $store.showCodeInput) {
                 WithPerceptionTracking {
                     SDValidateCodeView(store: store)
@@ -209,23 +262,23 @@ struct SDValidateCodeView: View {
             Spacer()
                 .frame(height: 40)
             Button {
-                store.send(.onSendTapped)
+                store.send(.onConfirmTapped)
             } label: {
                 Text("确定")
             }
-            .buttonStyle(SDButtonStyleConfirm(isDisable: !store.isValid))
+            .buttonStyle(SDButtonStyleConfirm(isDisable: !store.isValidCode))
             Spacer()
                 .frame(height: 24)
             Button {
                 store.send(.onSendAgainTapped)
             } label: {
                 Text(store.sendButtonText)
-
+                
             }
             .font(.sdBody1)
-
+            
             .buttonStyle(SDButtonStyleDisabled())
-
+            
             .disabled(store.countDownState.isCounting == true)
             
             
@@ -238,20 +291,13 @@ struct SDValidateCodeView: View {
 
 #Preview {
     NavigationStack {
-        SDValidatePhoneView(store: Store(initialState: SDValidatePhoneReducer.State(), reducer: {
+        SDValidatePhoneView(store: Store(initialState: SDValidatePhoneReducer.State(phone: "12211112222"), reducer: {
             SDValidatePhoneReducer()
         }))
     }
     
 }
-#Preview {
-    NavigationStack {
-        SDValidateCodeView(store: Store(initialState: SDValidatePhoneReducer.State(), reducer: {
-            SDValidatePhoneReducer()
-        }))
-    }
-    
-}
+
 extension String {
     func subString (form start : Int, to end: Int) -> String {
         guard start >= 0, end <= self.count, start <= end else {

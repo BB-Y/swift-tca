@@ -29,7 +29,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		F9607A942D7C138A0060AC51 /* Exceptions for "ShiDaApp" folder in "ShiDaApp" target */ = {
+		F9607A9D2D7C32EE0060AC51 /* Exceptions for "ShiDaApp" folder in "ShiDaApp" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -47,7 +47,7 @@
 		F9E394E62D719BFC008C2F2C /* ShiDaApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				F9607A942D7C138A0060AC51 /* Exceptions for "ShiDaApp" folder in "ShiDaApp" target */,
+				F9607A9D2D7C32EE0060AC51 /* Exceptions for "ShiDaApp" folder in "ShiDaApp" target */,
 			);
 			path = ShiDaApp;
 			sourceTree = "<group>";
@@ -408,7 +408,7 @@
 				DEVELOPMENT_TEAM = NLX5R5XWKN;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "";
+				INFOPLIST_FILE = ShiDaApp/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -440,7 +440,7 @@
 				DEVELOPMENT_TEAM = NLX5R5XWKN;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "";
+				INFOPLIST_FILE = ShiDaApp/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

@@ -65,41 +65,41 @@ extension SDAuthClient: DependencyKey {
         )
     }
     
-    /// 提供测试用的模拟实现
-    static var testValue: Self {
-        Self(
-            loginSMS: { _ in
-                return SDResponseLogin.mock
-            },
-            loginPassword: { _ in
-                return SDResponseLogin.mock
-            },
-            register: { _ in
-                return SDResponseLogin.mock
-            },
-            logout: {
-                return true
-            },
-            resetPassword: { _ in
-                return true
-            },
-            validatePhone: { _ in
-                return true
-            },
-            thirdpartylogin: { _ in
-                return SDResponseLogin.mock
-            },
-            thirdpartyregist: { _ in
-                return SDResponseLogin.mock
-            },
-            phoneCode: { _ in
-                return true
-            }
-        )
-    }
-    static var previewValue: SDAuthClient {
-        testValue
-    }
+//    /// 提供测试用的模拟实现
+//    static var testValue: Self {
+//        Self(
+//            loginSMS: { _ in
+//                return SDResponseLogin.mock
+//            },
+//            loginPassword: { _ in
+//                return SDResponseLogin.mock
+//            },
+//            register: { _ in
+//                return SDResponseLogin.mock
+//            },
+//            logout: {
+//                return true
+//            },
+//            resetPassword: { _ in
+//                return true
+//            },
+//            validatePhone: { _ in
+//                return true
+//            },
+//            thirdpartylogin: { _ in
+//                return SDResponseLogin.mock
+//            },
+//            thirdpartyregist: { _ in
+//                return SDResponseLogin.mock
+//            },
+//            phoneCode: { _ in
+//                return true
+//            }
+//        )
+//    }
+//    static var previewValue: SDAuthClient {
+//        testValue
+//    }
 }
 
 
