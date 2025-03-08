@@ -166,22 +166,11 @@ struct SDLoginView: View {
     
     // 协议部分
     private var protocolSection: some View {
-        HStack(alignment: .top) {
-            Image(store.acceptProtocolIcon)
-                .onTapGesture {
-                    store.send(.onProtocolTapped)
-                }
-            SDLinkTextView(segments: [
-                .text("我已阅读并同意"),
-                .link("《用户协议》", url: "https://baidu.com"),
-                .link("《隐私政策》", url: "https://baidu.com"),
-                .link("《儿童/青少年个人信息保护政策》", url: "https://baidu123.com")
-            ])
-            .lineSpacing(4)
-            
-        }
-        .font(.sdSmall1)
-        .foregroundStyle(SDColor.text3)
+        SDProtocoView(accept: Binding(get: {
+            store.acceptProtocol
+        }, set: { value in
+            store.$acceptProtocol.withLock{$0 = value}
+        }))
     }
     
     // 其他登录方式部分

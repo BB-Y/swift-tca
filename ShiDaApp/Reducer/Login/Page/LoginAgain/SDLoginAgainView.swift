@@ -17,8 +17,8 @@ struct SDLoginAgainReducer {
         var userAvator: String = ""
         var userName: String = ""
         
-        @Shared(.shareAcceptProtocol) var accept = false
-        
+        @Shared(.shareAcceptProtocol) var acceptProtocol = false
+
         var showProtocol = false
         var isPush = false
     }
@@ -27,39 +27,36 @@ struct SDLoginAgainReducer {
         
         case onLoginTapped
         case onOtherLoginTapped
-        case onAcceptTapped
+        
         
         case onAcceptContinueTapped
-
+        
         
     }
     
     var body: some ReducerOf<Self> {
         
-
+        
         Reduce { state, action in
             switch action {
                 
             case .onLoginTapped:
-                if state.accept == false {
+                if state.acceptProtocol == false {
                     state.showProtocol = true
                     return .none
-
+                    
                 } else{
                     //TODO: 接口
                     return .none
                 }
-               
+                
             case .onOtherLoginTapped:
                 
                 return .none
-            case .onAcceptTapped:
-                let newAccept = !state.accept
-                state.$accept.withLock({$0 = newAccept})
-                return .none
            
+                
             case .onAcceptContinueTapped:
-                state.$accept.withLock({$0 = true})
+                state.$acceptProtocol.withLock({$0 = true})
                 return .send(.onLoginTapped)
             }
         }
@@ -68,56 +65,71 @@ struct SDLoginAgainReducer {
 
 struct SDLoginAgainView: View {
     @Perception.Bindable var store: StoreOf<SDLoginAgainReducer>
-
+    
     var body: some View {
+        
         VStack(spacing: 0) {
             Spacer()
-           Image("logo_large")
+            Image("logo_large")
             Spacer()
             // 用户头像和信息
-            VStack(spacing: 16) {
+            VStack(spacing: 24) {
                 // 头像
-                Image("login_weixin") // 这里应该替换为用户头像
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 80, height: 80)
-                    .clipShape(Circle())
-                    .overlay(
-                     Circle()
-                         .stroke(SDColor.accent, lineWidth: 2)
-                    )
-                    .padding(.top, 40)
+                VStack(spacing: 16) {
+                    Circle()
+                        .fill(SDColor.accent)
+                        .frame(width: 56, height: 56)
+                        .overlay {
+                            Image("login_qq") // 这里应该替换为用户头像
+                                .resizable()
+                                .scaledToFill()
+                                .clipShape(Circle())
+                        }
+                    
+                        
+                    // 用户名
+                    Text("逆风的少年") // 这里应该替换为实际用户名
+                        .font(.sdBody3)
+                        .foregroundStyle(SDColor.text1)
+                }
                 
-                // 用户名
-                Text("逆风的少年") // 这里应该替换为实际用户名
-                    .font(.title2)
-                    .foregroundStyle(SDColor.text1)
+                
                 Button {
                     store.send(.onLoginTapped)
                 } label: {
                     Text("登录此帐号")
-
+                    
                 }
                 .buttonStyle(SDButtonStyleConfirm())
-
+                
                 Button {
                     store.send(.onOtherLoginTapped)
                 } label: {
-                    Text("其他登录方式")
-
+                    Text("其他登录方式>")
+                        .font(.sdBody3)
+                        .foregroundStyle(SDColor.text3)
                 }
-                .buttonStyle(SDButtonStyleConfirm())
             }
             .frame(maxWidth: .infinity)
-            .padding(.bottom, 30)
+            SDVSpacer(40)
+            SDProtocoView(accept: Binding(get: {
+                store.acceptProtocol
+            }, set: { value in
+                store.$acceptProtocol.withLock{$0 = value}
+            }))
+            
+
             
         }
-//        .background {
-//            Color.red
-//        }
+        .padding(.horizontal, 40.pad(134))
+        //        .background {
+        //            Color.red
+        //        }
     }
 }
 
-//#Preview {
-//    SDLoginAgainView()
-//}
+#Preview {
+    SDLoginAgainView(store: .init(initialState: SDLoginAgainReducer.State(), reducer: {
+        SDLoginAgainReducer()
+    }))
+}

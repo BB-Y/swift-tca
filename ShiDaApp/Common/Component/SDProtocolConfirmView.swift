@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-// 协议确认视图
+// 协议确认sheet视图
 struct SDProtocolConfirmView: View {
     var onConfirm: () -> Void
     @Environment(\.dismiss) var dismiss
@@ -44,5 +44,30 @@ struct SDProtocolConfirmView: View {
         .withCloseButton {
             dismiss()
         }
+    }
+}
+
+struct SDProtocoView: View {
+    @Binding var accept : Bool
+    var acceptProtocolIcon: String {
+        accept ? "icon_protocol_check" : "icon_protocol_uncheck"
+    }
+     var body: some View {
+        HStack(alignment: .top) {
+            Image(acceptProtocolIcon)
+                .onTapGesture {
+                    accept.toggle()
+                }
+            SDLinkTextView(segments: [
+                .text("我已阅读并同意"),
+                .link("《用户协议》", url: "https://baidu.com"),
+                .link("《隐私政策》", url: "https://baidu.com"),
+                .link("《儿童/青少年个人信息保护政策》", url: "https://baidu123.com")
+            ])
+            .lineSpacing(4)
+            
+        }
+        .font(.sdSmall1)
+        .foregroundStyle(SDColor.text3)
     }
 }
