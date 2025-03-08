@@ -22,59 +22,74 @@ struct SDSetNewPasswordReducer {
         }
     }
     
-    enum Action: BindableAction {
+    enum Action: BindableAction,ViewAction {
         case binding(BindingAction<State>)
-
-        case onSubmitButtonTapped
-        case resetPasswordResponse(Result<Bool, Error>)
+        case view(ViewAction)
         case delegate(Delegate)
+        case `internal`(InternalAction)
         
+        enum ViewAction {
+            case submitButtonTapped
+        }
+        
+        enum InternalAction {
+            case resetPasswordResponse(Result<Bool, Error>)
+        }
+        
+        @CasePathable
         enum Delegate {
             case resetPasswordSuccess
         }
     }
-    @Dependency(\.authClient) var authClient        // 认证客户端
-
+    
+    @Dependency(\.authClient) var authClient
+    
     var body: some ReducerOf<Self> {
         BindingReducer()
         
         Reduce { state, action in
             switch action {
-    
-            case .onSubmitButtonTapped:
-//                guard state.canSubmit else {
-//                    state.errorMsg = "请检查后再试"
-//                    return .none
-//                }
-                state.isLoading = true
-                let request = SDReqParaForgetPassword(phoneNum: state.phone, password: state.password, smsCode: state.code)
-                
-                
-                return .run { send in
-                    await send(
-                        .resetPasswordResponse(
-                            Result { 
-                                try await authClient.resetPassword(request)
-                            }
+            case .view(let action):
+                switch action {
+                case .submitButtonTapped:
+                    state.isLoading = true
+                    let request = SDReqParaForgetPassword(phoneNum: state.phone, password: state.password, smsCode: state.code)
+                    
+                    return .run { send in
+                        await send(
+                            .internal(
+                                .resetPasswordResponse(
+                                    Result {
+                                        try await authClient.resetPassword(request)
+                                    }
+                                )
+                            )
                         )
-                    )
+                    }
                 }
                 
-            case let .resetPasswordResponse(.success(success)):
-                state.isLoading = false
-                if success {
-                    return .send(.delegate(.resetPasswordSuccess))
-                } else {
-                    state.errorMsg = "重置密码失败"
+            case let .internal(action):
+                switch action {
+                    
+                case .resetPasswordResponse(let .success(success)):
+                    state.isLoading = false
+                    if success {
+                        return .send(.delegate(.resetPasswordSuccess))
+                    } else {
+                        state.errorMsg = "重置密码失败"
+                        return .none
+                    }
+                case .resetPasswordResponse(.failure(let error)):
+                    state.isLoading = false
+                    state.errorMsg = error.localizedDescription
                     return .none
                 }
+            
                 
-            case let .resetPasswordResponse(.failure(error)):
-                state.isLoading = false
-                state.errorMsg = error.localizedDescription
-                return .none
+                
             case .binding(_):
                 return .none
+                
             case .delegate:
                 return .none
             }

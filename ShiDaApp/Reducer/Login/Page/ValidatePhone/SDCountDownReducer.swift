@@ -54,7 +54,7 @@ struct SDCountDownReducer {
                     }
                 }
             case .stop:
-                
+                //不直接赋值的原因是让父级监听
                 return .send(.set(\.isCounting, false))
 
             case .binding(_):

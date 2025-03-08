@@ -8,6 +8,7 @@
 import SwiftUI
 import ComposableArchitecture
 
+@ViewAction(for: SDSetNewPasswordReducer.self)
 struct SDSetNewPasswordView: View {
     @Perception.Bindable var store: StoreOf<SDSetNewPasswordReducer>
     
@@ -56,8 +57,7 @@ struct SDSetNewPasswordView: View {
                 SDVSpacer(2)
 
                 Button {
-                    store.send(.onSubmitButtonTapped)
-
+                    send(.submitButtonTapped)
                 } label: {
                     if store.isLoading {
                         ProgressView()

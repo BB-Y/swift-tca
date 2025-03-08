@@ -2,6 +2,14 @@ import Foundation
 import ComposableArchitecture
 import Moya
 
+
+/// 扩展依赖值以包含认证客户端
+extension DependencyValues {
+    var authClient: SDAuthClient {
+        get { self[SDAuthClient.self] }
+        set { self[SDAuthClient.self] = newValue }
+    }
+}
 /// 认证相关的客户端接口
 struct SDAuthClient{
     /// 登录

@@ -159,7 +159,6 @@ struct SDLoginReducer {
         Scope(state: \.countDownState, action: \.countDownAction) {
             SDCountDownReducer()
         }
-        // 在 Reducer 中处理新增的 Action
         Reduce { state, action in
             switch action {
             case let .onLinkTapped(url):
@@ -269,32 +268,28 @@ struct SDLoginReducer {
     
     private func checkPhoneError(_ phone: String) -> String? {
         if phone.isEmpty {
-            print("手机号不能为空")
-            return "手机号不能为空"
+            return LoginError.phoneEmpty.errorDescription
         }
         if !phone.isValidPhoneNumber {
-            print("手机号格式错误")
-            return "手机号格式错误"
+            return LoginError.phoneInvalid.errorDescription
         }
         return nil
     }
+    
     private func checkPasswordError(_ password: String, isSMSLogin: Bool) -> String? {
-        
         if isSMSLogin {
             if password.isEmpty {
-                return "验证码不能为空"
-                
+                return LoginError.codeEmpty.errorDescription
             }
             if !password.isValidSixNumber {
-                return "验证码格式错误"
-                
+                return LoginError.codeInvalid.errorDescription
             }
         } else {
             if password.isEmpty {
-                return "密码不能为空"
+                return LoginError.passwordEmpty.errorDescription
             }
             if !password.isValidPassword {
-                return "密码格式错误"
+                return LoginError.passwordInvalid.errorDescription
             }
         }
         return nil
@@ -383,33 +378,25 @@ struct SDLoginReducer {
     
     
     private func handlePhoneOrPasswordBinding(state: inout State) -> Effect<Action> {
+        // 检查手机号
+        if checkPhoneError(state.phone) != nil {
+            state.isValid = false
+            return .none
+        }
         
+        // 检查密码/验证码
+        if checkPasswordError(state.password, isSMSLogin: state.isSMSLogin) != nil {
+            state.isValid = false
+            return .none
+        }
         
-        print(state.phone)
-        print(state.password)
-
-        guard checkPhoneError(state.phone) == nil else {
-            state.isValid = false
-            print("checkPhoneError")
-
-            return .none
-        }
-        print("checkPhoneNoError")
-
-        guard checkPasswordError(state.password, isSMSLogin: state.isSMSLogin) == nil else {
-            print("checkPasswordError")
-
+        // 检查协议
+        if !state.acceptProtocol {
             state.isValid = false
             return .none
         }
-        print("checkPasswordNoError")
-
-        guard state.acceptProtocol else {
-            print("acceptProtocolError")
-
-            state.isValid = false
-            return .none
-        }
+        
+        // 所有验证通过
         state.isValid = true
         state.errorMsg = ""
         return .none
@@ -429,3 +416,23 @@ struct SDLoginReducer {
 
 
 
+// MARK: - Login Error
+enum LoginError: LocalizedError {
+    case phoneEmpty
+    case phoneInvalid
+    case passwordEmpty
+    case passwordInvalid
+    case codeEmpty
+    case codeInvalid
+    
+    var errorDescription: String? {
+        switch self {
+        case .phoneEmpty: return "手机号不能为空"
+        case .phoneInvalid: return "手机号格式错误"
+        case .passwordEmpty: return "密码不能为空"
+        case .passwordInvalid: return "密码格式错误"
+        case .codeEmpty: return "验证码不能为空"
+        case .codeInvalid: return "验证码格式错误"
+        }
+    }
+}

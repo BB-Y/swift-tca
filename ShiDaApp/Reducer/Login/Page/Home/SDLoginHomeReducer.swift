@@ -44,13 +44,8 @@ struct SDLoginHomeReducer {
     
     @Reducer(state: .equatable)
     enum Destination {
-        
-        //case login(SDLoginReducer)
         case phoneValidate(SDValidatePhoneReducer)
-        //case loginAgain(SDLoginAgainReducer)
-        
         case selectUserType(SDSelectUserTypeReducer)
-        
         case resetPassword(SDSetNewPasswordReducer)
     }
     
@@ -73,10 +68,12 @@ struct SDLoginHomeReducer {
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            // 重置密码成功后清空导航栈
             case .path(StackAction.element(id: _, action: .resetPassword(.delegate(.resetPasswordSuccess)))):
                 state.path.removeAll()
                 return .none
            
+            // 手机号验证成功后跳转到重置密码页面
             case let .path(StackAction.element(id: _, action: .phoneValidate(.delegate(action)))):
                 switch action {
                 case .validateSuccess(phone: let phone, code: let code):
@@ -109,6 +106,7 @@ struct SDLoginHomeReducer {
                     await dismiss()
                 }
                 
+            // 检查用户类型并进行相应跳转
             case .checkUserType:
                 if state.userInfoModel?.userType == nil {
                     state.path.append(.selectUserType(SDSelectUserTypeReducer.State()))
@@ -133,10 +131,13 @@ struct SDLoginHomeReducer {
                 }
                 return .send(.login(SDLoginReducer.Action.onLoginTapped))
            
+                   // 处理登录成功后的操作
+
             case .login(.delegate(let action)):
                 switch action {
                     
                 case .loginSuccess(let userInfoModel):
+                    // 根据返回的用户信息更新登录状态
                     if userInfoModel.token == nil {
                         state.$loginStatus.withLock({$0 = .notLogin})
                     } else {
