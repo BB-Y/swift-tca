@@ -12,13 +12,15 @@ struct SDValidateCodeReducer {
         var isValidCode: Bool = false
         var errorMsg = ""
         
-        // 修改为接收共享状态
-        @Shared var sendCodeState: SDSendCodeReducer.State
+        @Shared var isCounting: Bool
+        @Shared var currentNumber: Int
+        
         
         // 添加初始化方法接收共享状态
-        init(phone: String, sendCodeState: Shared<SDSendCodeReducer.State>) {
+        init(phone: String, isCounting: Shared<Bool>, currentNumber: Shared<Int>) {
             self.phone = phone
-            self._sendCodeState = sendCodeState
+            self._isCounting = isCounting
+            self._currentNumber = currentNumber
         }
     }
     
@@ -26,13 +28,14 @@ struct SDValidateCodeReducer {
         case onConfirmTapped
         case onSendAgainTapped
         case setCode(String)
-        case sendCode(SDSendCodeReducer.Action)
+
         case checkCodeResponse(Result<Bool, Error>)
         case binding(BindingAction<State>)
         case delegate(Delegate)
         case onDisappear
         enum Delegate {
            case validateSuccess(phone: String, code: String)
+            case onSendAgainTapped
        }
     }
     
@@ -42,25 +45,26 @@ struct SDValidateCodeReducer {
     var body: some ReducerOf<Self> {
         BindingReducer()
         
-        Scope(state: \.sendCodeState, action: \.sendCode) {
-            SDSendCodeReducer()
-        }
         
         Reduce { state, action in
             switch action {
             
-
-            case .onDisappear:
-                return .send(.sendCode(.countDown(.reset)))
-
-            case .sendCode(.delegate(.countDownFinish)):
-                state.isValidCode = state.phone.isValidSixNumber
+            case .binding(\.code):
+                let code = state.code
+                
+                // 如果超过6位，截取前6位
+                if code.count > 6 {
+                    return .run { send in
+                        await send(.binding(.set(\.code, code.prefix(6).description)))
+                    }
+                }
+                
+                // 检查是否为6位数字，并且不在倒计时中
+                state.isValidCode = code.isValidSixNumber
                 return .none
-            case .sendCode(.delegate(.countDownStart)):
-                state.isValidCode = false
-                return .none
+
             case .onSendAgainTapped:
-                return .send(.sendCode(.sendCode))
+                return .send(.delegate(.onSendAgainTapped))
 
             case .onConfirmTapped:
                 return .run { [phone = state.phone, code = state.code] send in
@@ -75,14 +79,7 @@ struct SDValidateCodeReducer {
                 return .none
                 
           
-                
-            case .sendCode(.delegate(.sendSuccess)):
-                state.errorMsg = ""
-                return .none
-                
-            case .sendCode(.delegate(.sendFailure(let error))):
-                state.errorMsg = error
-                return .none
+         
                 
             
             

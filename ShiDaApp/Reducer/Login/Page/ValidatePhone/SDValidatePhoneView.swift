@@ -17,8 +17,9 @@ struct SDValidatePhoneReducer {
         
         @Presents var inputCode: SDValidateCodeReducer.State?
         
-        @Shared var sendCodeState: SDSendCodeReducer.State
-        
+        var sendCodeState: SDSendCodeReducer.State
+        @Shared var isCounting: Bool
+        @Shared var currentNumber: Int
         
         var sendCodeType: SDSendCodeType
         var phone: String = ""
@@ -31,7 +32,9 @@ struct SDValidatePhoneReducer {
             self.phone = phone
             self.sendCodeType = sendCodeType
             //self.sendCodeState = .init(wrappedValue: .init(phone: phone, sendCodeType: sendCodeType))
-            self._sendCodeState = Shared(value: SDSendCodeReducer.State.init(phone: phone, sendCodeType: sendCodeType))
+            self._sendCodeState = SDSendCodeReducer.State.init(phone: phone, sendCodeType: sendCodeType)
+            self._isCounting = Shared(value: false)
+            self._currentNumber = Shared(value: 10)
             if phone.isValidPhoneNumber {
                 isValidButton = true
             }
@@ -65,16 +68,27 @@ struct SDValidatePhoneReducer {
         
         Reduce { state, action in
             switch action {
-            case .inputCode(.dismiss):
-                return .send(.sendCode(.countDown(.reset)))
+//            case .inputCode(.dismiss):
+//                return .send(.sendCode(.countDown(.reset)))
             case .sendCode(.delegate(.countDownFinish)):
+                state.$isCounting.withLock { $0 = false }
                 state.isValidButton = state.phone.isValidPhoneNumber
-                
+                state.buttonTitle = state.sendCodeState.sendButtonText
                 return .none
             case .sendCode(.delegate(.countDownStart)):
-                //state.isValidButton = false
-                
+                state.$isCounting.withLock { $0 = true }
+                state.isValidButton = false
+                state.buttonTitle = state.sendCodeState.sendButtonText
+
                 return .none
+            case .sendCode(.delegate(.countDownNumber(let number))):
+                state.$currentNumber.withLock { $0 = number }
+                state.isValidButton = false
+                state.buttonTitle = state.sendCodeState.sendButtonText
+
+                return .none
+
+                
             case .binding(\.phone):
                 let phone = state.phone
                 
@@ -94,21 +108,22 @@ struct SDValidatePhoneReducer {
                 
             case .onSendTapped:
                 let phone = state.phone
-                state.$sendCodeState.withLock {
-                    $0.phone = phone
-                }
+                state.sendCodeState.phone = phone
                 return .send(.sendCode(.sendCode))
                 
             case .sendCode(.delegate(.sendSuccess)):
                 // 发送成功后跳转到验证码页面
                 
-                state.inputCode = SDValidateCodeReducer.State(phone: state.phone, sendCodeState: state.$sendCodeState)
+                state.inputCode = SDValidateCodeReducer.State(phone: state.phone, isCounting: state.$isCounting, currentNumber: state.$currentNumber)
                 return .none
                 
             case .sendCode(.delegate(.sendFailure(let error))):
                 state.errorMsg = error
                 return .none
                 
+            case .inputCode(.presented(.delegate(.onSendAgainTapped))):
+                return .send(.onSendTapped)
+
             case .inputCode(.presented(.delegate(.validateSuccess(let phone, let code)))):
                 
                 return .send(.delegate(.validateSuccess(phone: phone, code: code)))

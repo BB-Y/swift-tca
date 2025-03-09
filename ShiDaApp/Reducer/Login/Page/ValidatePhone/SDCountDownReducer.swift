@@ -23,6 +23,10 @@ struct SDCountDownReducer {
         var currentNumber = 0
         // 添加一个唯一标识符，确保计时器不会被错误取消
         let id = UUID()
+        init(startNumber: Int) {
+            self.startNumber = startNumber
+            
+        }
     }
     
     enum Action: BindableAction {
@@ -75,9 +79,10 @@ struct SDCountDownReducer {
                 
             case .reset:  // 添加重置逻辑
                 state.isCounting = false
-                state.currentNumber = 0
-                return .cancel(id: CancelID.timer)
-                
+//                state.currentNumber = 0
+//                return .cancel(id: CancelID.timer)
+                return .none
+
             case .binding(_):
                 return .none
             }
