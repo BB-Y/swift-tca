@@ -109,7 +109,7 @@ struct SDLoginView: View {
                     Button {
                         store.send(.onSendCodeTapped)
                     } label: {
-                        Text(store.sendButtonText)
+                        Text(store.defaultButtonTitle)
                             .font(.sdBody3)
                     }
                     .buttonStyle(SDButtonStyleDisabled())
@@ -158,7 +158,13 @@ struct SDLoginView: View {
             Button {
                 store.send(.onLoginTapped)
             } label: {
-                Text(store.buttonTitle)
+                if store.isLoading {
+                    ProgressView()
+                } else {
+                    Text(store.buttonTitle)
+                }
+
+                
             }
             .buttonStyle(SDButtonStyleConfirm(isDisable: store.isLoading || !store.isValid))
         }

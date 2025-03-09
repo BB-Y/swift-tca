@@ -31,31 +31,30 @@ extension String {
     
     var checkPhoneError: String? {
         if self.isEmpty {
-            return "手机号不能为空"
+            return LoginError.phoneEmpty.errorDescription
         }
         if !self.isValidPhoneNumber {
-            return "手机号格式错误"
+            return LoginError.phoneInvalid.errorDescription
         }
         return nil
     }
     
     var checkCodeError: String? {
         if self.isEmpty {
-            return "验证码不能为空"
-            
+            return LoginError.codeEmpty.errorDescription
         }
         if !self.isValidSixNumber {
-            return "验证码格式错误"
+            return LoginError.codeInvalid.errorDescription
         }
         return nil
     }
+    
     var checkPasswordError: String? {
         if self.isEmpty {
-            return "密码不能为空"
-            
+            return LoginError.passwordEmpty.errorDescription
         }
         if !self.isValidSixNumber {
-            return "密码格式错误"
+            return LoginError.passwordInvalid.errorDescription
         }
         return nil
     }

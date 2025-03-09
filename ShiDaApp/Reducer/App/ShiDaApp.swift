@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import ComposableArchitecture
+@_exported import ComposableArchitecture
 
 @main
 struct ShiDaApp: App {

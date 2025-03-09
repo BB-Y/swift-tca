@@ -22,15 +22,21 @@ extension SDLoginReducer.State {
     
     // 根据倒计时状态返回发送验证码按钮文本
     var sendButtonText: String {
-        if let isCounting = countDownState.isCounting {
-            if isCounting {
-                return "重新发送(\(countDownState.currentNumber)s)"
-            } else {
-                return "重新发送"
-            }
+        let isCounting = countDownState.isCounting
+        if isCounting {
+            return "重新发送(\(countDownState.currentNumber)s)"
         } else {
-            return "发送验证码"
+            return "重新发送"
         }
+//        if let isCounting = countDownState.isCounting {
+//            if isCounting {
+//                return "重新发送(\(countDownState.currentNumber)s)"
+//            } else {
+//                return "重新发送"
+//            }
+//        } else {
+//            return "发送验证码"
+//        }
     }
     var title: String {
         return isSMSLogin ? "验证码登录" : "密码登录"
@@ -98,7 +104,7 @@ struct SDLoginReducer {
         var errorMsg: String = ""   // 错误信息
         var showPassword = false    // 是否显示密码
         var isFlipping = false      // 切换登录方式的翻转动画
-        
+        var defaultButtonTitle = "发送验证码"
         // 协议相关
         var showProtocolSheet: Bool = false // 协议弹窗显示状态
         var showUrl: String? = nil         // 协议 URL
@@ -177,7 +183,12 @@ struct SDLoginReducer {
             case .onProtocolConfirmed:
                 return handleProtocolConfirmed(state: &state)
             case let .codeResponse(.success(isSended)):
+                state.defaultButtonTitle = state.sendButtonText
+
                 return handleCodeResponseSuccess(isSended: isSended)
+            case let .codeResponse(.failure(error)):
+                return handleErrorMsg(error)
+
             case .eyeTapped:
                 return handleEyeTapped(state: &state)
             case .onLoginTapped:
@@ -192,8 +203,7 @@ struct SDLoginReducer {
                 return handleForgetTapped(state: &state)
             case .loginDone:
                 return .none
-            case .binding(\.isFlipping):
-                return .none
+            
             case .binding(\.phone), .binding(\.password), .binding(\.$acceptProtocol):
                 return handlePhoneOrPasswordBinding(state: &state)
             case .binding:
@@ -236,10 +246,10 @@ struct SDLoginReducer {
             return .none
         }
         if let error = checkPhoneError(state.phone) {
-            state.errorMsg = error
-            return .none
+            
+            return handleErrorMsg(error)
         }
-        
+
 
         // 协议已勾选，直接发送验证码
         return sendVerificationCode(phone: state.phone)
@@ -249,7 +259,6 @@ struct SDLoginReducer {
     private func sendVerificationCode(phone: String) -> Effect<Action> {
         let para = SDReqParaSendCode(isForget: false, isRegister: false, phoneNum: phone, type: .app)
         return .run { send in
-            await send(.countDownAction(.start))
             await send(.codeResponse(Result { try await self.authClient.phoneCode(para) }))
         }
     }
@@ -311,6 +320,20 @@ struct SDLoginReducer {
         return nil
         
     }
+    
+    private func handleErrorMsg(_ error: Error) -> Effect<Action> {
+        
+        if let error = error as? APIError, let msg = error.errorDescription {
+            return .run { send in
+                await send(.binding(.set(\.errorMsg, msg)))
+                try await clock.sleep(for: .seconds(3))
+                await send(.binding(.set(\.errorMsg, "")))
+            }
+        } else {
+            return .none
+        }
+        
+    }
     private func handleErrorMsg(_ msg: String) -> Effect<Action> {
         return .run { send in
             await send(.binding(.set(\.errorMsg, msg)))
@@ -336,6 +359,7 @@ struct SDLoginReducer {
         let userType = state.userType
        
         return .run { send in
+            try await self.clock.sleep(for: .seconds(2))
             if isSMSLogin {
                 let para = SDReqParaLoginSMS(phone: phone, smsCode: password, userType: userType)
                 await send(.loginResponse(Result { try await self.authClient.loginSMS(para) }))

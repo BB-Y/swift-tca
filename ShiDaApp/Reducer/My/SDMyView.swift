@@ -36,6 +36,13 @@ struct MyFeature {
       
     }
     
+    
+    enum View {
+        case onAppear
+        case onLogoutTapped
+        case onRemoveUserTapped
+    }
+    
     enum Action: ViewAction {
         // 我的页面的动作
        
@@ -48,12 +55,7 @@ struct MyFeature {
 
         case logout
         
-        enum View {
-            case onAppear
-            case onLogoutTapped
-            case onRemoveUserTapped
-            
-        }
+        
     }
     
     var body: some ReducerOf<Self> {

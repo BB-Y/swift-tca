@@ -11,7 +11,7 @@ import ComposableArchitecture
 //登录首页
 struct SDLoginHomeView: View {
     @Perception.Bindable var store: StoreOf<SDLoginHomeReducer>
-    @Environment(\.dismiss) var dismiss
+    
     var body: some View {
         NavigationStack(
             path: $store.scope(state: \.path, action: \.path)

@@ -21,24 +21,25 @@ struct SDSetNewPasswordReducer {
             password.isValidPassword
         }
     }
+   
     
+   
     enum Action: BindableAction,ViewAction {
         case binding(BindingAction<State>)
-        case view(ViewAction)
+        case view(View)
         case delegate(Delegate)
-        case `internal`(InternalAction)
+        case `internal`(Internal)
         
-        enum ViewAction {
-            case submitButtonTapped
-        }
         
-        enum InternalAction {
+        enum Internal {
             case resetPasswordResponse(Result<Bool, Error>)
         }
         
-        @CasePathable
         enum Delegate {
             case resetPasswordSuccess
+        }
+        enum View {
+            case submitButtonTapped
         }
     }
     
@@ -84,6 +85,7 @@ struct SDSetNewPasswordReducer {
                     state.errorMsg = error.localizedDescription
                     return .none
                 }
+
             
                 
                 

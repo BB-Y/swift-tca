@@ -81,8 +81,26 @@ struct SDReqParaSendCode : Codable {
     let isRegister : Bool?
     let phoneNum : String?
     let type : SDSendCodeUserType?
-}
+    
+   
+    init(isForget: Bool?, isRegister: Bool?, phoneNum: String?, type: SDSendCodeUserType?) {
+        self.isForget = isForget
+        self.isRegister = isRegister
+        self.phoneNum = phoneNum
+        self.type = type
+    }
+    init(_ phone: String, sendCodeType: SDSendCodeType) {
+        let isForget: Bool = sendCodeType == .forget
+        let isRegister: Bool = sendCodeType == .bind
 
+        self.init(isForget: isForget, isRegister: isRegister, phoneNum: phone, type: .app)
+    }
+}
+enum SDSendCodeType: Int, Codable, Equatable ,Sendable{
+    case forget
+    case bind
+    case login
+}
 /// 发送验证码用户类型
 public enum SDSendCodeUserType: Int, Codable {
     case app = 20
