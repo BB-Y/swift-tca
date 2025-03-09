@@ -66,26 +66,37 @@ struct SDSendCodeReducer {
                 if let errorMsg = para.phoneNum?.checkPhoneError {
                     return .send(.delegate(.sendFailure(errorMsg)))
                 } else {
-                    // 先发送 countDownStart 事件，确保父级能收到
-                    return .merge(
-                        .send(.delegate(.countDownStart)),
-                        .run { send in
-                            await send(.countDown(.start))
-                            await send(.codeResponse(Result { try await self.authClient.phoneCode(para) }))
-                        }
-                    )
+                    // 不再提前发送 countDownStart 事件和启动倒计时
+                    return .run { send in
+                        await send(.codeResponse(Result { try await self.authClient.phoneCode(para) }))
+                    }
                 }
                 
             case .codeResponse(.success(let result)):
                 if result {
-                    return .send(.delegate(.sendSuccess))
+                    // 在验证码发送成功后才开始倒计时
+                    return .merge(
+                        .send(.delegate(.sendSuccess)),
+                        .run { send in
+                            await send(.countDown(.start))
+                        },
+                        .send(.delegate(.countDownStart))
+
+                    )
                 }
                 return .send(.delegate(.sendFailure("发送失败，请稍候重试")))
                 
             case .codeResponse(.failure(let error)):
-                //                if state.phone.hasPrefix("1999") {
-                //                    return .send(.delegate(.sendSuccess))
-                //                }
+                                if state.phone.hasPrefix("1999") {
+                                    return .merge(
+                                        .send(.delegate(.sendSuccess)),
+                                        .run { send in
+                                            await send(.countDown(.start))
+                                        },
+                                        .send(.delegate(.countDownStart))
+
+                                    )
+                                }
                 let errorMsg = (error as? APIError)?.errorDescription ?? "发送失败，请稍候重试"
                 return .send(.delegate(.sendFailure(errorMsg)))
             

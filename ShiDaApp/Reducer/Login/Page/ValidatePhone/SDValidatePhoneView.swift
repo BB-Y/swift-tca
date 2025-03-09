@@ -11,14 +11,14 @@ import Combine
 
 @Reducer
 struct SDValidatePhoneReducer {
-   
+    
     @ObservableState
     struct State: Equatable {
         
         @Presents var inputCode: SDValidateCodeReducer.State?
-
+        
         @Shared var sendCodeState: SDSendCodeReducer.State
-       
+        
         
         var sendCodeType: SDSendCodeType
         var phone: String = ""
@@ -37,11 +37,11 @@ struct SDValidatePhoneReducer {
             }
         }
     }
-   
+    
     enum Action: BindableAction {
         case inputCode(PresentationAction<SDValidateCodeReducer.Action>)
         
-
+        
         case onSendTapped
         case setPhone(String)
         case sendCode(SDSendCodeReducer.Action)
@@ -61,7 +61,7 @@ struct SDValidatePhoneReducer {
         Scope(state: \.sendCodeState, action: \.sendCode) {
             SDSendCodeReducer()
         }
-       
+        
         
         Reduce { state, action in
             switch action {
@@ -72,22 +72,22 @@ struct SDValidatePhoneReducer {
                 
                 return .none
             case .sendCode(.delegate(.countDownStart)):
-                state.isValidButton = false
+                //state.isValidButton = false
                 
                 return .none
             case .binding(\.phone):
                 let phone = state.phone
-
+                
                 if phone.count > 11 {
                     return .run { send in
                         await send(.setPhone(phone.subString(form: 0, to: 11)))
                     }
                 }
-               
+                
                 state.isValidButton = phone.isValidPhoneNumber
-
+                
                 return .none
-           
+                
             case .setPhone(let phone):
                 state.phone = phone
                 return .none
@@ -110,48 +110,48 @@ struct SDValidatePhoneReducer {
                 return .none
                 
             case .inputCode(.presented(.delegate(.validateSuccess(let phone, let code)))):
-
+                
                 return .send(.delegate(.validateSuccess(phone: phone, code: code)))
-
-//            case .destination(.presented(let action)):
-//                          switch action {
-//                          case .inputCode(let action):
-//                              switch action {
-//                              case .delegate(.validateSuccess(let phone, let code)):
-//                                  return .send(.delegate(.validateSuccess(phone: phone, code: code)))
-//                              default:
-//                                  return .none
-//                              }
-//                          }
+                
+                //            case .destination(.presented(let action)):
+                //                          switch action {
+                //                          case .inputCode(let action):
+                //                              switch action {
+                //                              case .delegate(.validateSuccess(let phone, let code)):
+                //                                  return .send(.delegate(.validateSuccess(phone: phone, code: code)))
+                //                              default:
+                //                                  return .none
+                //                              }
+                //                          }
                 
                 
                 //return .send(.delegate(.validateSuccess(phone: phone, code: code)))
-
-//                switch action {
-//                case let .validateSuccess(phone, code):
-//                    return .send(.delegate(.validateSuccess(phone: phone, code: code)))
-//                }
                 
-
-//            case let .codeView(.presented(.delegate(.validateSuccess(phone, code)))):
-//                return .send(.delegate(.validateSuccess(phone: phone, code: code)))
+                //                switch action {
+                //                case let .validateSuccess(phone, code):
+                //                    return .send(.delegate(.validateSuccess(phone: phone, code: code)))
+                //                }
+                
+                
+                //            case let .codeView(.presented(.delegate(.validateSuccess(phone, code)))):
+                //                return .send(.delegate(.validateSuccess(phone: phone, code: code)))
                 
             default:
                 return .none
             }
         }
-//        .ifLet(\.sendCodeState, action: \.sendCode) {
-//            SDSendCodeReducer()
-//        }
+        //        .ifLet(\.sendCodeState, action: \.sendCode) {
+        //            SDSendCodeReducer()
+        //        }
         .ifLet(\.$inputCode, action: \.inputCode) {
             SDValidateCodeReducer()
-                       // .dependency(\.sendCodeState, \.sendCodeState)
-
+            // .dependency(\.sendCodeState, \.sendCodeState)
+            
         }
-
-       
         
-
+        
+        
+        
     }
 }
 struct SDValidatePhoneView: View {
@@ -176,10 +176,9 @@ struct SDValidatePhoneView: View {
                     store.send(.onSendTapped)
                 } label: {
                     //Text("发送验证码")
-                    Text(store.buttonTitle)
                     WithPerceptionTracking {
-        Text(store.sendCodeState.sendButtonText)
-    }
+                        Text(store.buttonTitle)
+                    }
                 }
                 .buttonStyle(SDButtonStyleConfirm(isDisable: !store.isValidButton))
                 Spacer()
@@ -193,11 +192,11 @@ struct SDValidatePhoneView: View {
                 }
             }
             
-//            .navigationDestination(isPresented: $store.showCodeInput) {
-//                WithPerceptionTracking {
-//                    SDValidateCodeView(store: store)
-//                }
-//            }
+            //            .navigationDestination(isPresented: $store.showCodeInput) {
+            //                WithPerceptionTracking {
+            //                    SDValidateCodeView(store: store)
+            //                }
+            //            }
         }
     }
 }
@@ -208,7 +207,7 @@ struct SDValidatePhoneView: View {
 //            SDValidatePhoneReducer()
 //        }))
 //    }
-//    
+//
 //}
 
 extension String {
