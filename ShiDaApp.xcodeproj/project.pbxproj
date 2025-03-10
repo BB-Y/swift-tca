@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		F953B23A2D76F2E300809311 /* SkeletonUI in Frameworks */ = {isa = PBXBuildFile; productRef = F953B2392D76F2E300809311 /* SkeletonUI */; };
+		F9607AB22D7E721C0060AC51 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = F9607AB12D7E721C0060AC51 /* SDWebImageSwiftUI */; };
 		F96BB8742D71E5840004B9F6 /* CodableWrappers in Frameworks */ = {isa = PBXBuildFile; productRef = F96BB8732D71E5840004B9F6 /* CodableWrappers */; };
 		F96BB8DC2D71F9150004B9F6 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = F96BB8DB2D71F9150004B9F6 /* Moya */; };
 		F9E394F72D719F17008C2F2C /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = F9E394F62D719F17008C2F2C /* ComposableArchitecture */; };
@@ -66,6 +67,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F9607AB22D7E721C0060AC51 /* SDWebImageSwiftUI in Frameworks */,
 				F96BB8742D71E5840004B9F6 /* CodableWrappers in Frameworks */,
 				F953B23A2D76F2E300809311 /* SkeletonUI in Frameworks */,
 				F9E394F72D719F17008C2F2C /* ComposableArchitecture in Frameworks */,
@@ -149,6 +151,7 @@
 				F96BB8732D71E5840004B9F6 /* CodableWrappers */,
 				F96BB8DB2D71F9150004B9F6 /* Moya */,
 				F953B2392D76F2E300809311 /* SkeletonUI */,
+				F9607AB12D7E721C0060AC51 /* SDWebImageSwiftUI */,
 			);
 			productName = ShiDaApp;
 			productReference = F9E394E42D719BFC008C2F2C /* ShiDaApp.app */;
@@ -187,6 +190,7 @@
 				F96BB8722D71E5840004B9F6 /* XCRemoteSwiftPackageReference "CodableWrappers" */,
 				F96BB8DA2D71F9150004B9F6 /* XCRemoteSwiftPackageReference "Moya" */,
 				F953B2382D76F2E300809311 /* XCRemoteSwiftPackageReference "SkeletonUI" */,
+				F9607AB02D7E721C0060AC51 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F9E394E52D719BFC008C2F2C /* Products */;
@@ -502,6 +506,14 @@
 				minimumVersion = 2.0.2;
 			};
 		};
+		F9607AB02D7E721C0060AC51 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "git@github.com:SDWebImage/SDWebImageSwiftUI.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.1.3;
+			};
+		};
 		F96BB8722D71E5840004B9F6 /* XCRemoteSwiftPackageReference "CodableWrappers" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "git@github.com:GottaGetSwifty/CodableWrappers.git";
@@ -533,6 +545,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F953B2382D76F2E300809311 /* XCRemoteSwiftPackageReference "SkeletonUI" */;
 			productName = SkeletonUI;
+		};
+		F9607AB12D7E721C0060AC51 /* SDWebImageSwiftUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F9607AB02D7E721C0060AC51 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
+			productName = SDWebImageSwiftUI;
 		};
 		F96BB8732D71E5840004B9F6 /* CodableWrappers */ = {
 			isa = XCSwiftPackageProductDependency;

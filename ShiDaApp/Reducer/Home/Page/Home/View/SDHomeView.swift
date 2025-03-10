@@ -11,19 +11,20 @@ import SkeletonUI
 
 struct SDHomeView: View {
     @Perception.Bindable var store: StoreOf<SDHomeFeature>
-    let books = [
-        "书籍1", "书籍2", "书籍3", "书籍4", "书籍5", "书籍6",
-        "书籍7", "书籍8", "书籍9", "书籍10", "书籍11", "书籍12"
-    ]
+   
     @State var searchText = ""
 
     @State var show = false
+    
+    var listData: [SDResponseHomeSection] {
+        store.homeData ?? []
+    }
     var body: some View {
         
 
         NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
             WithPerceptionTracking {
-                VStack(spacing: 0) {
+                VStack(spacing: 20) {
                     header
                         .padding(.horizontal, 16)
     //                    .background {
@@ -32,8 +33,9 @@ struct SDHomeView: View {
     //                    }
                     ScrollView {
                         content
-                            .padding(.horizontal, 16)
+                            
                     }
+                    .scrollIndicators(.hidden)
                     
                     
                     
@@ -42,12 +44,7 @@ struct SDHomeView: View {
             }
             
             .background(SDColor.background)
-//            .overlay {
-//                Button("TestView") {
-//                    store.send(.pushToTestView)
-//                }
-//                .buttonStyle(SDButtonStyleConfirm())
-//            }
+
             .overlay(alignment: .bottom) {
                 if store.loginStatus != .login {
                     HStack {
@@ -126,63 +123,19 @@ struct SDHomeView: View {
     }
     
     @ViewBuilder var content: some View {
-        
-            Image("banner")
-                .resizable()
-                .aspectRatio(CGSize(width: 16, height: 9), contentMode: .fit)
-                .background(Color.yellow)
-                .clipped()
-                .onTapGesture {
-                    store.send(.pushToTestView)
-                }
-                
-            VStack {
-                TitleView("十四五规划精品教材", "本教材紧扣国家“十四五”规划发展脉络，精心打造而成。内容全面涵盖了“十四五”期...")
-
-                
-                
-                    
-                
-                HStack {
-                    BookItemView()
-                    Spacer()
-                    BookItemView()
-                    Spacer()
-                    BookItemView()
-                }
-                .frame(maxWidth: .infinity)
-                
-            }
-            .padding(16)
-            .background(Color.white)
-            .cornerRadius(8)
-            
-            VStack {
-                TitleView("推荐位B型")
-
-                ScrollView(.horizontal) {
-                    HStack(spacing: 24) {
-                        ForEach(0..<10) { index in
-                            BookItemView()
-                        }
+        VStack(spacing: 20) {
+            ForEach(listData) { sectionData in
+                SDHomeSectionView(
+                    item: sectionData,
+                    onItemTap: { item in
+                        store.send(.onSectionItemTapped(item))
+                    },
+                    onTitleTap: { section in
+                        store.send(.onSectionTitleTapped(section))
                     }
-                    .frame(maxWidth: .infinity)
-                }
-                
+                )
             }
-            
-            VStack {
-                TitleView("推荐位C型","本教材紧扣国家“十四五”规划发展脉络，精心打造而成。内容全面涵盖了“十四五”期...")
-                LazyV()
-                
-                
-
-                
-            }
-            .padding(16)
-            .background(Color.white)
-            .cornerRadius(8)
-        
+        }        
     }
 }
 
@@ -190,9 +143,16 @@ struct SDHomeView: View {
     SDHomeView(
         store: Store(
             initialState: SDHomeFeature.State(),
-            reducer: { SDHomeFeature() }
+            reducer: { 
+                SDHomeFeature()
+                    .dependency(\.homeClient, .liveValue)
+
+                    ._printChanges()
+                
+            }
         )
     )
+    
     
 }
     

@@ -7,6 +7,8 @@
 
 import SwiftUI
 @_exported import ComposableArchitecture
+@_exported import SDWebImageSwiftUI
+
 
 @main
 struct ShiDaApp: App {

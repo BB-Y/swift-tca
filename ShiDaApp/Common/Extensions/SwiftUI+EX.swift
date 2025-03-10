@@ -37,7 +37,12 @@ extension View {
         }
     }
 }
-
+extension View {
+    func padding(_ h: CGFloat, _ v: CGFloat) -> some View {
+        self.padding([.leading, .trailing], h)
+            .padding([.top, .bottom], v)
+    }
+}
 
 
 

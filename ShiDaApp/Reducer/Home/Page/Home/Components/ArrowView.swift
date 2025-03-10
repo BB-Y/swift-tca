@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ArrowView: View {
     var body: some View {
-        Image("arrow")
+        Image("arrow_right")
             .scaledToFill()
             .contentShape(Rectangle())
     }

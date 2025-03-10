@@ -7,27 +7,36 @@
 
 import SwiftUI
 
-struct TitleView: View {
+struct SDHomeTitleView: View {
     let title: String
-    let subTitle: String
-    init(_ title: String, _ subTitle: String = "") {
+    let subTitle: String?
+    let onTapped: () -> Void
+    init(_ title: String, _ subTitle: String? = nil, onTapped: @escaping () -> Void) {
         self.title = title
         self.subTitle = subTitle
+        self.onTapped = onTapped
     }
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text(title)
-                    .font(.title2)
+                    .font(.sdTitle1)
                     .lineLimit(1)
+                    .foregroundStyle(SDColor.text1)
 
                 Spacer()
-                ArrowView()
+                Button {
+                    
+                } label: {
+                    ArrowView()
+                }
+
+                
             }
-            if subTitle.isEmpty == false {
+            if let subTitle, subTitle.isEmpty == false {
                 Text(subTitle)
-                    .font(.subheadline)
-                    .foregroundStyle(Color.gray)
+                    .font(.sdBody4)
+                    .foregroundStyle(SDColor.text3)
                     .lineLimit(2)
             }
         }
@@ -38,5 +47,5 @@ struct TitleView: View {
 }
 
 #Preview {
-    TitleView("十四五规划精品教材", "本教材紧扣国家“十四五”规划发展脉络，精心打造而成。内容全面涵盖了“十四五”期..")
+    SDHomeTitleView("十四五规划精品教材", "本教材紧扣国家“十四五”规划发展脉络，精心打造而成。内容全面涵盖了“十四五”期..", onTapped: {})
 }
