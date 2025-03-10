@@ -104,7 +104,7 @@ struct SDLoginView: View {
             
             HStack {
                 SDSecureField(store.passwordPlaceholder, text: $store.password, isSecure: !store.isSMSLogin)
-                                    
+                                
                 if store.showSendCode {
                     Button {
                         store.send(.onSendCodeTapped)
@@ -113,7 +113,7 @@ struct SDLoginView: View {
                             .font(.sdBody3)
                     }
                     .buttonStyle(SDButtonStyleDisabled())
-                    .disabled(store.countDownState.isCounting == true)
+                    .disabled(store.sendCodeState.isCounting)
                 }
             }
             .padding(.horizontal, 16)
@@ -215,6 +215,7 @@ struct SDLoginView: View {
         WithPerceptionTracking {
             SDLoginView(store: Store(initialState: SDLoginReducer.State(), reducer: {
                 SDLoginReducer()
+                    ._printChanges()
             }))
             .navigationTitle("")
         }

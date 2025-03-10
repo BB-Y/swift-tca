@@ -20,72 +20,41 @@ extension SDLoginReducer.State {
         isSMSLogin ? "请输入验证码" : "请输入密码"
     }
     
-    // 根据倒计时状态返回发送验证码按钮文本
+    // 根据 sendCodeState 返回发送验证码按钮文本
     var sendButtonText: String {
-        let isCounting = countDownState.isCounting
-        if isCounting {
-            return "重新发送(\(countDownState.currentNumber)s)"
-        } else {
-            return "重新发送"
-        }
-//        if let isCounting = countDownState.isCounting {
-//            if isCounting {
-//                return "重新发送(\(countDownState.currentNumber)s)"
-//            } else {
-//                return "重新发送"
-//            }
-//        } else {
-//            return "发送验证码"
-//        }
+        return sendCodeState.sendButtonText
     }
+    
     var title: String {
         return isSMSLogin ? "验证码登录" : "密码登录"
-        
-        //            if isLogin {
-        //                return isSMSLogin ? "验证码登录" : "密码登录"
-        //            } else {
-        //                if let userType {
-        //                    switch userType {
-        //                    case .student:
-        //                        return "学生注册"
-        //                    case .teacher:
-        //                        return "教师注册"
-        //                    }
-        //                } else {
-        //                    return "注册"
-        //                }
-        //            }
-        
     }
+    
     var buttonTitle: String {
         "登录"
-        //isLogin ? "登录" : "注册"
     }
+    
     var bottomTextTitle: String {
         "未注册用户会自动创建账号"
-        // isLogin ? "还没有账号？" : "已有账号"
     }
+    
     var bottomButtonTitle: String {
         "121212"
-        //isLogin ? "去注册" : "去登录"
     }
+    
     var showSendCode: Bool {
         return isSMSLogin
-        
-        //            if isLogin {
-        //                return isSMSLogin
-        //            } else {
-        //                return true
-        //            }
     }
+    
     var userInfoModel: SDResponseLogin? {
         guard let data = userInfo else { return nil }
         return try? JSONDecoder().decode(SDResponseLogin.self, from: data)
     }
+    
     var userType:SDUserType? {
         userInfoModel?.userType
     }
 }
+
 @Reducer
 struct SDLoginReducer {
     
@@ -104,19 +73,26 @@ struct SDLoginReducer {
         var errorMsg: String = ""   // 错误信息
         var showPassword = false    // 是否显示密码
         var isFlipping = false      // 切换登录方式的翻转动画
+        
+        // 保留这个属性，用于初始显示
         var defaultButtonTitle = "发送验证码"
+        
         // 协议相关
         var showProtocolSheet: Bool = false // 协议弹窗显示状态
         var showUrl: String? = nil         // 协议 URL
         
-        // 验证码倒计时状态
-        var countDownState = SDCountDownReducer.State(startNumber: 5)
+        // 替换为 SDSendCodeReducer.State
+        var sendCodeState: SDSendCodeReducer.State
         
         // 共享状态
         @Shared(.shareUserToken) var token = ""
         @Shared(.shareUserInfo) var userInfo = nil
         
         @Shared(.shareAcceptProtocol) var acceptProtocol = false
+        
+        init() {
+            self.sendCodeState = SDSendCodeReducer.State(phone: "", sendCodeType: .verify)
+        }
     }
     
     // MARK: - Actions
@@ -142,16 +118,16 @@ struct SDLoginReducer {
         // 网络请求响应
         case loginDone(Result<SDResponseLogin, Error>)     // 登录完成
         case loginResponse(Result<SDResponseLogin, Error>) // 登录响应
-        case codeResponse(Result<Bool, Error>)            // 验证码响应
+        
+        // 替换为 SDSendCodeReducer.Action
+        case sendCode(SDSendCodeReducer.Action)
         
         // 其他 Action
-        case countDownAction(SDCountDownReducer.Action)   // 倒计时相关
         case binding(BindingAction<State>)               // 状态绑定
         
         case checkValid
         
         case delegate(Delegate)
-
     }
     
     // MARK: - Dependencies
@@ -162,9 +138,12 @@ struct SDLoginReducer {
     // MARK: - Reducer Body
     var body: some ReducerOf<Self> {
         BindingReducer()
-        Scope(state: \.countDownState, action: \.countDownAction) {
-            SDCountDownReducer()
+        
+        // 替换为 SDSendCodeReducer
+        Scope(state: \.sendCodeState, action: \.sendCode) {
+            SDSendCodeReducer()
         }
+        
         Reduce { state, action in
             switch action {
             case let .onLinkTapped(url):
@@ -174,42 +153,85 @@ struct SDLoginReducer {
             case .dismissWebView:
                 state.showUrl = nil
                 return .none
+                
             case .onProtocolTapped:
                 return handleProtocolTapped(state: &state)
+                
             case .onToggleLoginTypeTapped:
                 return handleToggleLoginType(state: &state)
+                
             case .onSendCodeTapped:
-                return handleSendCodeTapped(state: &state)
+                if state.sendCodeState.isCounting {
+                    return .none
+                }
+                if let error = checkPhoneError(state.phone) {
+                    return handleErrorMsg(error)
+                }
+                
+                // 更新 sendCodeState 中的手机号并发送验证码
+                state.sendCodeState.phone = state.phone
+                return .send(.sendCode(.sendCode))
+                
             case .onProtocolConfirmed:
                 return handleProtocolConfirmed(state: &state)
-            case let .codeResponse(.success(isSended)):
+                
+            case .sendCode(.delegate(.sendSuccess)):
+                // 验证码发送成功后，更新 defaultButtonTitle
                 state.defaultButtonTitle = state.sendButtonText
+                return .none
+                
+            case .sendCode(.delegate(.countDownNumber(_))):
+                // 倒计时数字变化时，更新 defaultButtonTitle
+                state.defaultButtonTitle = state.sendButtonText
+                return .none
 
-                return handleCodeResponseSuccess(isSended: isSended)
-            case let .codeResponse(.failure(error)):
-                return handleErrorMsg(error)
-
+            case .sendCode(.delegate(.sendFailure(let errorMsg))):
+                return handleErrorMsg(errorMsg)
+                
+            case .sendCode(.delegate(.countDownStart)):
+                // 倒计时开始时的处理
+                state.defaultButtonTitle = state.sendButtonText
+                return .none
+                
+            case .sendCode(.delegate(.countDownFinish)):
+                // 倒计时结束时的处理
+                state.defaultButtonTitle = state.sendButtonText
+                return .none
+                
+            case .sendCode(.delegate(.countDownNumber(_))):
+                // 倒计时数字变化时的处理
+                return .none
+                
             case .eyeTapped:
                 return handleEyeTapped(state: &state)
+                
             case .onLoginTapped:
                 return handleLoginTapped(state: &state)
+                
             case let .loginResponse(.success(userInfoModel)):
                 return handleLoginResponseSuccess(state: &state, userInfoModel: userInfoModel)
+                
             case let .loginResponse(.failure(error)):
                 return handleLoginResponseFailure(state: &state, error: error)
+                
             case .onBottomButtonTapped:
                 return handleBottomButtonTapped()
+                
             case .onForgetTapped:
                 return handleForgetTapped(state: &state)
+                
             case .loginDone:
                 return .none
             
             case .binding(\.phone), .binding(\.password), .binding(\.$acceptProtocol):
                 return handlePhoneOrPasswordBinding(state: &state)
+                
             case .binding:
                 return .none
+                
             case .checkValid:
                 return handlePhoneOrPasswordBinding(state: &state)
+                
             default:
                 return .none
             }
@@ -239,35 +261,6 @@ struct SDLoginReducer {
             try await clock.sleep(for: .seconds(0.3))
             await send(.binding(.set(\.isFlipping, false)))
         }
-    }
-    
-    private func handleSendCodeTapped(state: inout State) -> Effect<Action> {
-        if state.countDownState.isCounting == true {
-            return .none
-        }
-        if let error = checkPhoneError(state.phone) {
-            
-            return handleErrorMsg(error)
-        }
-
-
-        // 协议已勾选，直接发送验证码
-        return sendVerificationCode(phone: state.phone)
-    }
-    
-    // 新增一个辅助方法用于发送验证码
-    private func sendVerificationCode(phone: String) -> Effect<Action> {
-        let para = SDReqParaSendCode(isForget: false, isRegister: false, phoneNum: phone, type: .app)
-        return .run { send in
-            await send(.codeResponse(Result { try await self.authClient.phoneCode(para) }))
-        }
-    }
-    
-    private func handleCodeResponseSuccess(isSended: Bool) -> Effect<Action> {
-        if isSended {
-            return .send(.countDownAction(.start))
-        }
-        return .none
     }
     
     private func handleEyeTapped(state: inout State) -> Effect<Action> {
@@ -308,21 +301,16 @@ struct SDLoginReducer {
     private func checkLoginError(state: inout State) -> String? {
         if let phoneError = checkPhoneError(state.phone) {
             return phoneError
-
         }
                 
-       
         if let passwordError = checkPasswordError(state.password, isSMSLogin: state.isSMSLogin)  {
             return passwordError
         }
        
-      
         return nil
-        
     }
     
     private func handleErrorMsg(_ error: Error) -> Effect<Action> {
-        
         if let error = error as? APIError, let msg = error.errorDescription {
             return .run { send in
                 await send(.binding(.set(\.errorMsg, msg)))
@@ -332,8 +320,8 @@ struct SDLoginReducer {
         } else {
             return .none
         }
-        
     }
+    
     private func handleErrorMsg(_ msg: String) -> Effect<Action> {
         return .run { send in
             await send(.binding(.set(\.errorMsg, msg)))
@@ -341,6 +329,7 @@ struct SDLoginReducer {
             await send(.binding(.set(\.errorMsg, "")))
         }
     }
+    
     private func handleLoginTapped(state: inout State) -> Effect<Action> {
         state.errorMsg = ""
         if let error = checkLoginError(state: &state) {
@@ -349,7 +338,6 @@ struct SDLoginReducer {
         if !state.acceptProtocol {
             state.showProtocolSheet.toggle()
             return .none
-
         }
 
         state.isLoading = true
@@ -367,7 +355,6 @@ struct SDLoginReducer {
                 let para = SDReqParaLoginPassword(phone: phone, password: password, userType: userType)
                 await send(.loginResponse(Result { try await self.authClient.loginPassword(para) }))
             }
-            
         }
     }
     
@@ -390,7 +377,6 @@ struct SDLoginReducer {
     }
     
     private func handleBottomButtonTapped() -> Effect<Action> {
-        //state.isLogin.toggle()
         return .none
     }
     
@@ -398,8 +384,6 @@ struct SDLoginReducer {
         state.errorMsg = ""
         return .send(.delegate(.forgetPassword))
     }
-    
-    
     
     private func handlePhoneOrPasswordBinding(state: inout State) -> Effect<Action> {
         // 检查手机号
@@ -434,11 +418,8 @@ struct SDLoginReducer {
         
         // 发送验证码
         return handleLoginTapped(state: &state)
-        //return sendVerificationCode(phone: state.phone)
     }
 }
-
-
 
 // MARK: - Login Error
 enum LoginError: LocalizedError {

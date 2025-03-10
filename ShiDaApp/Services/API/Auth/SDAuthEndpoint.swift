@@ -46,7 +46,7 @@ extension SDAuthEndpoint: SDEndpoint {
         case .validatePhone:    return "/app/portal/check"
         case .thirdpartylogin:  return "/app/portal/thirdpartylogin"
         case .thirdpartyregist: return "/app/portal/thirdpartyregist"
-        case .sendPhoneCode:    return "/sms"
+        case .sendPhoneCode:    return "/app/sms" // 更新路径
         }
     }
     

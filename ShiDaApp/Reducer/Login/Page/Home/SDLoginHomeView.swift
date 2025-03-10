@@ -113,6 +113,7 @@ struct SDLoginHomeView: View {
     NavigationStack {
         SDLoginHomeView(store: .init(initialState: .init(), reducer: {
             SDLoginHomeReducer.init()
+                ._printChanges()
         }))
     }
 }

@@ -26,7 +26,7 @@ struct SDHomeTitleView: View {
 
                 Spacer()
                 Button {
-                    
+                    onTapped()
                 } label: {
                     ArrowView()
                 }

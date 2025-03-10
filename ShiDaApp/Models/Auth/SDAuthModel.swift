@@ -75,32 +75,29 @@ struct SDReqParaThirdRegist : Codable {
     let userType : SDUserType?
 }
 
-struct SDReqParaSendCode : Codable {
-
-    let isForget : Bool?
-    let isRegister : Bool?
-    let phoneNum : String?
-    let type : SDSendCodeUserType?
-    
-   
-    init(isForget: Bool?, isRegister: Bool?, phoneNum: String?, type: SDSendCodeUserType?) {
-        self.isForget = isForget
-        self.isRegister = isRegister
-        self.phoneNum = phoneNum
-        self.type = type
-    }
-    init(_ phone: String, sendCodeType: SDSendCodeType) {
-        let isForget: Bool = sendCodeType == .forget
-        let isRegister: Bool = sendCodeType == .bind
-
-        self.init(isForget: isForget, isRegister: isRegister, phoneNum: phone, type: .app)
-    }
-}
+/// 发送验证码操作类型
 enum SDSendCodeType: Int, Codable, Equatable ,Sendable{
-    case forget
-    case bind
-    case login
+    case register = 10      // 注册
+    case forgetPassword = 20 // 忘记密码
+    case changePhone = 30    // 修改手机号码
+    case changeEmail = 40    // 修改邮箱地址
+    case changePassword = 50 // 修改密码
+    case verify = 60         // 验证
 }
+
+/// 新的发送验证码请求模型
+public struct SDReqParaSendCode: Codable {
+    let opType: SDSendCodeType?
+    let phoneNum: String?
+    
+    init(opType: SDSendCodeType?, phoneNum: String?) {
+        self.opType = opType
+        self.phoneNum = phoneNum
+    }
+}
+
+
+
 /// 发送验证码用户类型
 public enum SDSendCodeUserType: Int, Codable {
     case app = 20

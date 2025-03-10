@@ -159,7 +159,7 @@ struct SDLoginHomeReducer {
                     return .none
                 case .forgetPassword:
                     let phone = state.login.phone
-                    state.path.append(.phoneValidate(SDValidatePhoneReducer.State(phone: phone, sendCodeType: .forget)))
+                    state.path.append(.phoneValidate(SDValidatePhoneReducer.State(phone: phone, sendCodeType: .forgetPassword)))
                     return .none
                 
                

@@ -18,7 +18,7 @@ struct SDSendCodeReducer {
         // 替换CountDown为直接的计时器状态
         var isCounting: Bool = false
         var currentNumber: Int = 0
-        var startNumber: Int = 10
+        var startNumber: Int = 3
         
         var sendButtonText: String {
             isCounting ? "重新发送(\(currentNumber)s)" : "重新发送"
@@ -69,8 +69,8 @@ struct SDSendCodeReducer {
                 if state.isCounting {
                     return .none
                 }
+                let para = SDReqParaSendCode(opType: state.sendCodeType, phoneNum: state.phone)
                 
-                let para = SDReqParaSendCode(state.phone, sendCodeType: state.sendCodeType)
                 if let errorMsg = para.phoneNum?.checkPhoneError {
                     return .send(.delegate(.sendFailure(errorMsg)))
                 } else {
@@ -81,19 +81,19 @@ struct SDSendCodeReducer {
                 
             case .codeResponse(.success(let result)):
                 if result {
-                    return .merge(
-                        .send(.delegate(.sendSuccess)),
-                        .send(.startCountDown)
-                    )
+                    return .run { send in
+                        await  send(.startCountDown)
+                        await send(.delegate(.sendSuccess))
+                    }
                 }
                 return .send(.delegate(.sendFailure("发送失败，请稍候重试")))
                 
             case .codeResponse(.failure(let error)):
                 if state.phone.hasPrefix("1999") {
-                    return .merge(
-                        .send(.delegate(.sendSuccess)),
-                        .send(.startCountDown)
-                    )
+                    return .run { send in
+                        await  send(.startCountDown)
+                        await send(.delegate(.sendSuccess))
+                    }
                 }
                 let errorMsg = (error as? APIError)?.errorDescription ?? "发送失败，请稍候重试"
                 return .send(.delegate(.sendFailure(errorMsg)))
@@ -103,23 +103,24 @@ struct SDSendCodeReducer {
                 let start = state.startNumber
                 state.currentNumber = start
                 
-                return .merge(
-                    .run { send in
-                        await send(.delegate(.countDownNumber(start)))
-                        await send(.binding(.set(\.isCounting, true)))
-                        
-                        for await _ in self.clock.timer(interval: .seconds(1)) {
-                            await send(.tick)
-                        }
+                return .run { send in
+                    await send(.binding(.set(\.isCounting, true)))
+                    await send(.delegate(.countDownNumber(start)))
+                    
+                    for await _ in self.clock.timer(interval: .seconds(1)) {
+                        await send(.tick)
                     }
-                        .cancellable(id: SDSendCodeReducer.timerCancelID, cancelInFlight: true)
-                )
+                }
+                    .cancellable(id: SDSendCodeReducer.timerCancelID, cancelInFlight: true)
                 
             case .tick:
                 print("正在计时\(state.currentNumber)")
                 let current = state.currentNumber
                 if current == 1 {
-                    return .merge(.send(.delegate(.countDownNumber(0))), .send(.stopCountDown))
+                    return .run { send in
+                        await  send(.delegate(.countDownNumber(0)))
+                        await send(.stopCountDown)
+                    }
                 }
                 else if current > 1 {
                     state.currentNumber = current - 1
