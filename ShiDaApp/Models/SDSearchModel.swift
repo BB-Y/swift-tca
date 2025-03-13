@@ -74,11 +74,11 @@ public struct SDReqParaCategorySearch: Codable, Equatable {
     /// 搜索关键词
     public let keyword: String
     /// 分类ID
-    public let categoryId: String?
+    public let categoryId: Int?
     /// 排序类型（0: 最新发布, 1: 综合推荐）
-    public let sortType: Int
+    public let sortType: SDSearchSortType
     
-    public static func `default`(keyword: String, categoryId: String? = nil, sortType: Int = SDSearchSortType.latest.rawValue) -> SDReqParaCategorySearch {
+    public static func `default`(keyword: String, categoryId: Int? = nil, sortType: SDSearchSortType = .latest) -> SDReqParaCategorySearch {
         SDReqParaCategorySearch(keyword: keyword, categoryId: categoryId, sortType: sortType, pagination: .default)
     }
     
@@ -86,7 +86,7 @@ public struct SDReqParaCategorySearch: Codable, Equatable {
         SDReqParaCategorySearch(keyword: keyword, categoryId: categoryId, sortType: sortType, pagination: pagination.nextPage)
     }
     
-    public init(keyword: String, categoryId: String?, sortType: Int, pagination: SDPagination = .default) {
+    public init(keyword: String, categoryId: Int?, sortType: SDSearchSortType, pagination: SDPagination = .default) {
         self.keyword = keyword
         self.categoryId = categoryId
         self.sortType = sortType
@@ -151,11 +151,20 @@ public struct SDReqParaAdvancedSearch: Codable, Equatable {
 
 //MARK: - 搜索排序类型
 /// 搜索排序类型
-public enum SDSearchSortType: Int, Codable, Equatable {
+public enum SDSearchSortType: Int, Codable, Equatable, CaseIterable {
     /// 最新发布
     case latest = 0
     /// 综合推荐
     case recommended = 1
+    
+    public var title: String {
+        switch self {
+        case .latest:
+            return "最新"
+        case .recommended:
+            return "最热"
+        }
+    }
 }
 
 //MARK: - 教材类型

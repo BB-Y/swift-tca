@@ -99,21 +99,49 @@ struct SDBookHomeView: View {
             .padding(.vertical, 8)
         }
         .background(Color.white)
+        // 二级分类（如果有）
+        if !store.subCategories.isEmpty {
+            Divider()
+                .padding(.horizontal, 16)
+            
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 16) {
+                    // 全部二级分类选项
+                    categoryButton(id: nil, name: "全部", isSub: true)
+
+                    
+                    // 动态二级分类选项
+                    ForEach(store.subCategories) { category in
+                        categoryButton(id: category.id, name: category.name ?? "", isSub: true)
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+            }
+                   .background(Color.white)
+
+        }
     }
     
     // 分类按钮
-    func categoryButton(id: Int?, name: String) -> some View {
+    func categoryButton(id: Int?, name: String, isSub: Bool = false) -> some View {
         Button {
+            if isSub{
+                store.send(.selectSubCategory(id))
+            } else {
             store.send(.selectCategory(id))
+
+            }
         } label: {
+            let currentid = isSub ? store.selectedSubCategoryId : store.selectedCategoryId
             Text(name)
                 .font(.sdBody2)
-                .foregroundColor(store.selectedCategoryId == id ? SDColor.primary : SDColor.text2)
+                .foregroundColor(currentid == id ? SDColor.primary : SDColor.text2)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 6)
                 .background(
                     RoundedRectangle(cornerRadius: 16)
-                        .fill(store.selectedCategoryId == id ? SDColor.primary.opacity(0.1) : SDColor.buttonBackGray)
+                        .fill(currentid == id ? SDColor.primary.opacity(0.1) : SDColor.buttonBackGray)
                 )
         }
     }
@@ -121,12 +149,12 @@ struct SDBookHomeView: View {
     // 排序选项栏
     @ViewBuilder var sortOptionsBar: some View {
         HStack(spacing: 20) {
-            ForEach(SDBookFeature.State.SortType.allCases, id: \.self) { sortType in
+            ForEach(SDSearchSortType.allCases, id: \.self) { sortType in
                 Button {
                     store.send(.changeSortType(sortType))
                 } label: {
                     HStack(spacing: 4) {
-                        Text(sortType.rawValue)
+                        Text(sortType.title)
                             .font(.sdBody2)
                             .foregroundColor(store.currentSortType == sortType ? SDColor.primary : SDColor.text2)
                         
@@ -144,7 +172,6 @@ struct SDBookHomeView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .background(Color.white)
-        .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 2)
     }
     
     // 书籍列表内容
@@ -248,46 +275,12 @@ struct SDBookHomeView: View {
         .padding(.vertical, 100)
     }
     
-    // 加载中视图
-    var loadingView: some View {
-        VStack(spacing: 16) {
-            ForEach(0..<5, id: \.self) { _ in
-                HStack {
-                    Rectangle()
-                        .skeleton(with: true)
-                        .frame(width: 80, height: 120)
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        Rectangle()
-                            .skeleton(with: true)
-                            .frame(height: 20)
-                        
-                        Rectangle()
-                            .skeleton(with: true)
-                            .frame(height: 16)
-                            .opacity(0.7)
-                        
-                        Rectangle()
-                            .skeleton(with: true)
-                            .opacity(0.7)
-                            .frame(width: 100)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .padding(.horizontal, 16)
-            }
-        }
-        .padding(.vertical, 16)
-    }
+   
     
     // 搜索结果容器视图
     var searchResultsContainer: some View {
         VStack(spacing: 0) {
-            // 搜索加载中视图
-            if store.searchResultsFeature.isSearchLoading {
-                searchLoadingView
-            }
-            
+         
             // 搜索结果视图
             ScrollView {
                 VStack {

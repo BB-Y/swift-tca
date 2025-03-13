@@ -20,16 +20,16 @@ struct SDBookFeature: Reducer {
         // 当前选中的分类
         var selectedCategoryId: Int? = nil
         
-        // 排序方式
-        enum SortType: String, Equatable, CaseIterable {
-            case newest = "最新"
-            case hottest = "最热"
-        }
-        var currentSortType: SortType = .newest
+        // 二级分类数据
+        var subCategories: [SDBookCategory] = []
+        var isLoadingSubCategories: Bool = false
+        var selectedSubCategoryId: Int? = nil
+        
+      
+        var currentSortType: SDSearchSortType = .latest
         
         // 搜索相关状态
         var searchText = ""
-        
         
         // 搜索结果组件状态
         var searchResultsFeature = SDSearchResultsFeature.State()
@@ -57,18 +57,20 @@ struct SDBookFeature: Reducer {
         // 分类相关
         case fetchCategoriesResponse(Result<[SDBookCategory], Error>)
         case selectCategory(Int?)
-        
+        case selectSubCategory(Int?)
+
         // 排序相关
-        case changeSortType(State.SortType)
+        case changeSortType(SDSearchSortType)
         
         // 搜索相关操作
+        //所有有关搜索的操作都使用这个 action
         case submitSearch
         case searchResultsFeature(SDSearchResultsFeature.Action)
         
         // 导航相关
         case path(StackActionOf<Path>)
         
-        // 添加获取书籍列表的操作
+        //  初始化页面时触发
         case fetchBookList
     }
     
@@ -108,14 +110,43 @@ struct SDBookFeature: Reducer {
                 return .none
                 
             case let .selectCategory(categoryId):
-                state.selectedCategoryId = categoryId
-                // 这里可以添加根据分类获取书籍的逻辑
-                return .none
+                // 如果点击的是已选中的分类，不做任何操作
+                if state.selectedCategoryId == categoryId {
+                    return .none
+                }
                 
+                state.selectedCategoryId = categoryId
+                state.selectedSubCategoryId = nil  // 重置二级分类选择
+                
+                // 如果选择了全部或没有选择分类，清空二级分类
+                if categoryId == nil {
+                    state.subCategories = []
+                } else {
+                    // 从已加载的一级分类中查找对应的二级分类
+                    if let selectedCategory = state.categories.first(where: { $0.id == categoryId }),
+                       let subList = selectedCategory.subList {
+                        state.subCategories = subList
+                    } else {
+                        state.subCategories = []
+                    }
+                }
+                
+                // 获取书籍列表
+                return .send(.fetchBookList)
+            
+            case let .selectSubCategory(subCategoryId):
+                // 如果点击的是已选中的二级分类，不做任何操作
+                if state.selectedSubCategoryId == subCategoryId {
+                    return .none
+                }
+                
+                state.selectedSubCategoryId = subCategoryId
+                return .send(.fetchBookList)
+            
             case let .changeSortType(sortType):
                 state.currentSortType = sortType
                 // 这里可以添加根据排序方式重新获取书籍的逻辑
-                return .none
+                return .send(.fetchBookList)
                 
        
                 
@@ -139,7 +170,7 @@ struct SDBookFeature: Reducer {
                 // 显示搜索结果视图
                 
                 // 委托给搜索结果组件执行搜索
-                return .send(.searchResultsFeature(.submitSearch(.keyword(state.searchText))))
+                return .send(.fetchBookList)
           
                 
             case let .searchResultsFeature(.delegate(.bookSelected(book))):
@@ -149,10 +180,18 @@ struct SDBookFeature: Reducer {
                 
            
             case .fetchBookList:
-                // 创建搜索参数
+                // 创建搜索参数，考虑一级和二级分类
+                let categoryId: Int?
                 
+                // 如果有选中的二级分类，优先使用二级分类ID
+                if let subCategoryId = state.selectedSubCategoryId {
+                    categoryId = subCategoryId
+                } else {
+                    categoryId = state.selectedCategoryId
+                }
+           
                 // 委托给搜索结果组件执行搜索
-                return .send(.searchResultsFeature(.submitSearch(.keyword(state.searchText))))
+                return .send(.searchResultsFeature(.submitSearch(.category(keyword: state.searchText, categoryId: categoryId, sortType: state.currentSortType))))
                 
             case .binding, .path, .searchResultsFeature:
                 return .none

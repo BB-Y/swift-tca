@@ -17,7 +17,7 @@ struct SDSearchResultsFeature {
         var isSearchLoading = false
         var isLoadingMore: Bool = false
         var searchResults: SDBookSearchResult? = nil
-        var currentPagination: SDPagination = .init(offset: 1, pageSize: 10)
+        var currentPagination: SDPagination = .default
         var canLoadMore: Bool = false
         
         // 搜索类型
@@ -27,7 +27,7 @@ struct SDSearchResultsFeature {
     // 搜索类型枚举
     enum SearchType: Equatable {
         case keyword(String)
-        case category(keyword: String, categoryId: String?, sortType: Int)
+        case category(keyword: String, categoryId: Int?, sortType: SDSearchSortType)
         
         var isEmpty: Bool {
             switch self {
