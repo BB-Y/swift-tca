@@ -22,9 +22,11 @@ struct SDHomeView: View {
                 VStack(spacing: 0) {
                     // 自定义导航栏
                     header
+                        .debug()
                     
                     ScrollView {
                         content
+                            .padding(.top, 16)
                     }
                     .scrollIndicators(.hidden)
                     .overlay(alignment: .bottom) {
@@ -140,6 +142,7 @@ struct SDHomeView: View {
             .frame(height: 32)
             .background { SDColor.buttonBackGray }
             .clipShape(Capsule())
+            .debug(.blue)
         }
         .frame(height: 44)
         .padding(.horizontal, 16)
@@ -250,7 +253,7 @@ var searchLoadingView: some View {
                 SDHomeFeature()
                     .dependency(\.homeClient, .liveValue)
                     ._printChanges()
-                    .dependency(\.searchClient, .testValue)
+                    .dependency(\.searchClient, .liveValue)
             }
         )
     )

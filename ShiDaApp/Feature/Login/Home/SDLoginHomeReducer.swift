@@ -61,6 +61,8 @@ struct SDLoginHomeReducer {
         case path(StackActionOf<Destination>)
         
         case dismiss
+        
+        case loginDone
     }
     
     @Dependency(\.dismiss) var dismiss
@@ -90,7 +92,7 @@ struct SDLoginHomeReducer {
                     state.errorMsg = "登录失败，请选择其他登录方式"
                 case .loginSuccess:
                     state.$loginStatus.withLock {$0 = .login}
-                    return .send(.dismiss)
+                    return .merge(.send(.dismiss), .send(.loginDone))
                 case .switchToOtherLogin:
                     state.showlogin = true
                 }
@@ -112,7 +114,7 @@ struct SDLoginHomeReducer {
                     state.path.append(.selectUserType(SDSelectUserTypeReducer.State()))
                 } else {
                     state.$loginStatus.withLock{$0 = .login}
-                    return .send(.onCloseTapped)
+                    return .merge(.send(.dismiss), .send(.loginDone))
                 }
                 //let data = state.$userInfo.wra
                 
@@ -173,7 +175,7 @@ struct SDLoginHomeReducer {
                 
             
            
-            case .loginAgain, .login, .path:
+            case .loginAgain, .login, .path, .loginDone:
                 return .none
             
             }

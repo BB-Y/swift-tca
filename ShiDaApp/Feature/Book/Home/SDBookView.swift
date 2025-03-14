@@ -8,7 +8,26 @@
 import SwiftUI
 import ComposableArchitecture
 import SkeletonUI
+import UIKit
+//Singleton Class View
+class SingletonView: UIView {
+    
+    // Singleton instance
+        static let shared : UIView = SingletonView.sharedInstance(size: CGSize(width: 20, height: 20))
 
+        // You can modify argument list as per your need.
+        class private func sharedInstance(size : CGSize)->UIView {
+            //Putting the view in the middle, but the details falls on you.
+            let view = UIView(frame: CGRect(x: (UIScreen.main.bounds.width / 2) - size.width/2, y: 0, width: size.width, height: size.height))
+            //just so you can see something
+            view.layer.backgroundColor = UIColor.red.cgColor
+            let label = UILabel()
+            label.text = "123"
+            view.addSubview(label)
+            return view
+        }
+    
+}
 struct SDBookHomeView: View {
     @Perception.Bindable var store: StoreOf<SDBookFeature>
     
@@ -34,6 +53,15 @@ struct SDBookHomeView: View {
                     .refreshable {
                         // 刷新逻辑
                     }
+                    .onAppear{
+                              
+                              //Hide the default refresh controller, attach our uiView
+                              //Because is a singleton it wont be added several times
+                              //You can always expand your singleton to be hidden, animated, removed, etc.
+                        UIRefreshControl.appearance().tintColor = .systemRed
+                        UIRefreshControl.appearance().addSubview(SingletonView.shared)
+
+                          }
                     
                 }
                 .background(SDColor.background)
@@ -349,8 +377,8 @@ struct SDBookHomeView: View {
             initialState: SDBookFeature.State(),
             reducer: {
                 SDBookFeature()
-                    .dependency(\.bookClient, .testValue)
-                    .dependency(\.searchClient, .testValue)
+                    .dependency(\.bookClient, .liveValue)
+                    .dependency(\.searchClient, .liveValue)
             }
         )
     )

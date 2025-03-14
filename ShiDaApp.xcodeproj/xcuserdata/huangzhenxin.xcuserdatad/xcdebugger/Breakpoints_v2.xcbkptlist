@@ -114,50 +114,6 @@
             endingLineNumber = "75"
             landmarkName = "body"
             landmarkType = "24">
-            <Locations>
-               <Location
-                  uuid = "DF27DC4E-F8B6-4BBD-9B36-3DBBA876F87E - f3ad0f3313c13199"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (inout ShiDaApp.SDCountDownReducer.State, ShiDaApp.SDCountDownReducer.Action) -&gt; ComposableArchitecture.Effect&lt;ShiDaApp.SDCountDownReducer.Action&gt; in ShiDaApp.SDCountDownReducer.body.getter : some"
-                  moduleName = "ShiDaApp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/huangzhenxin/shida/ios/ShiDaApp/ShiDaApp/Reducer/Login/Page/ValidatePhone/SDCountDownReducer.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "75"
-                  endingLineNumber = "75">
-               </Location>
-               <Location
-                  uuid = "DF27DC4E-F8B6-4BBD-9B36-3DBBA876F87E - 914183dded7fb16a"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #2 @Sendable (ComposableArchitecture.Send&lt;ShiDaApp.SDCountDownReducer.Action&gt;) async -&gt; () in closure #1 (inout ShiDaApp.SDCountDownReducer.State, ShiDaApp.SDCountDownReducer.Action) -&gt; ComposableArchitecture.Effect&lt;ShiDaApp.SDCountDownReducer.Action&gt; in ShiDaApp.SDCountDownReducer.body.getter : some"
-                  moduleName = "ShiDaApp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/huangzhenxin/shida/ios/ShiDaApp/ShiDaApp/Reducer/Login/Page/ValidatePhone/SDCountDownReducer.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "75"
-                  endingLineNumber = "75">
-               </Location>
-               <Location
-                  uuid = "DF27DC4E-F8B6-4BBD-9B36-3DBBA876F87E - 3cba80646ecc6924"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(1) suspend resume partial function for closure #2 @Sendable (ComposableArchitecture.Send&lt;ShiDaApp.SDCountDownReducer.Action&gt;) async -&gt; () in closure #1 (inout ShiDaApp.SDCountDownReducer.State, ShiDaApp.SDCountDownReducer.Action) -&gt; ComposableArchitecture.Effect&lt;ShiDaApp.SDCountDownReducer.Action&gt; in ShiDaApp.SDCountDownReducer.body.getter : some"
-                  moduleName = "ShiDaApp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/huangzhenxin/shida/ios/ShiDaApp/ShiDaApp/Reducer/Login/Page/ValidatePhone/SDCountDownReducer.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "75"
-                  endingLineNumber = "75">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -222,50 +178,6 @@
             endingLineNumber = "56"
             landmarkName = "body"
             landmarkType = "24">
-            <Locations>
-               <Location
-                  uuid = "BA0B8C36-4FDC-4D5C-9E55-7A2653BCA4FA - 3cba80646ecc6b59"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(1) suspend resume partial function for closure #1 @Sendable (ComposableArchitecture.Send&lt;ShiDaApp.SDCountDownReducer.Action&gt;) async -&gt; () in closure #1 (inout ShiDaApp.SDCountDownReducer.State, ShiDaApp.SDCountDownReducer.Action) -&gt; ComposableArchitecture.Effect&lt;ShiDaApp.SDCountDownReducer.Action&gt; in ShiDaApp.SDCountDownReducer.body.getter : some"
-                  moduleName = "ShiDaApp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/huangzhenxin/shida/ios/ShiDaApp/ShiDaApp/Reducer/Login/Page/ValidatePhone/SDCountDownReducer.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "56"
-                  endingLineNumber = "56">
-               </Location>
-               <Location
-                  uuid = "BA0B8C36-4FDC-4D5C-9E55-7A2653BCA4FA - 867dfaba5de1895a"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(2) suspend resume partial function for closure #1 @Sendable (ComposableArchitecture.Send&lt;ShiDaApp.SDCountDownReducer.Action&gt;) async -&gt; () in closure #1 (inout ShiDaApp.SDCountDownReducer.State, ShiDaApp.SDCountDownReducer.Action) -&gt; ComposableArchitecture.Effect&lt;ShiDaApp.SDCountDownReducer.Action&gt; in ShiDaApp.SDCountDownReducer.body.getter : some"
-                  moduleName = "ShiDaApp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/huangzhenxin/shida/ios/ShiDaApp/ShiDaApp/Reducer/Login/Page/ValidatePhone/SDCountDownReducer.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "56"
-                  endingLineNumber = "56">
-               </Location>
-               <Location
-                  uuid = "BA0B8C36-4FDC-4D5C-9E55-7A2653BCA4FA - c834d48880f52f5b"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(3) suspend resume partial function for closure #1 @Sendable (ComposableArchitecture.Send&lt;ShiDaApp.SDCountDownReducer.Action&gt;) async -&gt; () in closure #1 (inout ShiDaApp.SDCountDownReducer.State, ShiDaApp.SDCountDownReducer.Action) -&gt; ComposableArchitecture.Effect&lt;ShiDaApp.SDCountDownReducer.Action&gt; in ShiDaApp.SDCountDownReducer.body.getter : some"
-                  moduleName = "ShiDaApp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/huangzhenxin/shida/ios/ShiDaApp/ShiDaApp/Reducer/Login/Page/ValidatePhone/SDCountDownReducer.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "56"
-                  endingLineNumber = "56">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -314,50 +226,6 @@
             endingLineNumber = "143"
             landmarkName = "body"
             landmarkType = "24">
-            <Locations>
-               <Location
-                  uuid = "0600F6D0-2490-4993-A1ED-2510B98AC22C - 2a8f540c4f030376"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (inout ShiDaApp.SDSendCodeReducer.State, ShiDaApp.SDSendCodeReducer.Action) -&gt; ComposableArchitecture.Effect&lt;ShiDaApp.SDSendCodeReducer.Action&gt; in ShiDaApp.SDSendCodeReducer.body.getter : some"
-                  moduleName = "ShiDaApp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/huangzhenxin/shida/ios/ShiDaApp/ShiDaApp/Reducer/Login/Page/ValidatePhone/SDSendCodeReducer.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "142"
-                  endingLineNumber = "142">
-               </Location>
-               <Location
-                  uuid = "0600F6D0-2490-4993-A1ED-2510B98AC22C - 4414f05501587e1b"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #3 @Sendable (ComposableArchitecture.Send&lt;ShiDaApp.SDSendCodeReducer.Action&gt;) async -&gt; () in closure #1 (inout ShiDaApp.SDSendCodeReducer.State, ShiDaApp.SDSendCodeReducer.Action) -&gt; ComposableArchitecture.Effect&lt;ShiDaApp.SDSendCodeReducer.Action&gt; in ShiDaApp.SDSendCodeReducer.body.getter : some"
-                  moduleName = "ShiDaApp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/huangzhenxin/shida/ios/ShiDaApp/ShiDaApp/Reducer/Login/Page/ValidatePhone/SDSendCodeReducer.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "142"
-                  endingLineNumber = "142">
-               </Location>
-               <Location
-                  uuid = "0600F6D0-2490-4993-A1ED-2510B98AC22C - 3f55521527864c4"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(1) suspend resume partial function for closure #3 @Sendable (ComposableArchitecture.Send&lt;ShiDaApp.SDSendCodeReducer.Action&gt;) async -&gt; () in closure #1 (inout ShiDaApp.SDSendCodeReducer.State, ShiDaApp.SDSendCodeReducer.Action) -&gt; ComposableArchitecture.Effect&lt;ShiDaApp.SDSendCodeReducer.Action&gt; in ShiDaApp.SDSendCodeReducer.body.getter : some"
-                  moduleName = "ShiDaApp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/huangzhenxin/shida/ios/ShiDaApp/ShiDaApp/Reducer/Login/Page/ValidatePhone/SDSendCodeReducer.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "142"
-                  endingLineNumber = "142">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -422,6 +290,54 @@
             endingLineNumber = "13"
             landmarkName = "SDUserEndpoint"
             landmarkType = "13">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "59F015EA-02E6-4B99-BD88-1CC673CF1D3E"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ShiDaApp/Services/NetProvider/SDAPIService.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "119"
+            endingLineNumber = "119"
+            landmarkName = "requestResult(_:result:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "1702E6A1-5CFB-4CBC-A90C-CF43EED584F1"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ShiDaApp/Services/NetProvider/SDAPIService.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "117"
+            endingLineNumber = "117"
+            landmarkName = "requestResult(_:result:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "E79F1C9C-6B35-4440-A2C4-D86F298A06B3"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ShiDaApp/Services/NetProvider/SDAPIService.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "122"
+            endingLineNumber = "122"
+            landmarkName = "requestResult(_:result:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

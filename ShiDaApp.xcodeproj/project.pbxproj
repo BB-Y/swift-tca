@@ -11,6 +11,8 @@
 		F9607AB22D7E721C0060AC51 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = F9607AB12D7E721C0060AC51 /* SDWebImageSwiftUI */; };
 		F96BB8742D71E5840004B9F6 /* CodableWrappers in Frameworks */ = {isa = PBXBuildFile; productRef = F96BB8732D71E5840004B9F6 /* CodableWrappers */; };
 		F96BB8DC2D71F9150004B9F6 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = F96BB8DB2D71F9150004B9F6 /* Moya */; };
+		F99EC7082D83B94300723A8D /* ScalingHeaderScrollView in Frameworks */ = {isa = PBXBuildFile; productRef = F99EC7072D83B94300723A8D /* ScalingHeaderScrollView */; };
+		F99EC70D2D842B3800723A8D /* ExyteGrid in Frameworks */ = {isa = PBXBuildFile; productRef = F99EC70C2D842B3800723A8D /* ExyteGrid */; };
 		F9E394F72D719F17008C2F2C /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = F9E394F62D719F17008C2F2C /* ComposableArchitecture */; };
 /* End PBXBuildFile section */
 
@@ -68,10 +70,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				F9607AB22D7E721C0060AC51 /* SDWebImageSwiftUI in Frameworks */,
+				F99EC70D2D842B3800723A8D /* ExyteGrid in Frameworks */,
 				F96BB8742D71E5840004B9F6 /* CodableWrappers in Frameworks */,
 				F953B23A2D76F2E300809311 /* SkeletonUI in Frameworks */,
 				F9E394F72D719F17008C2F2C /* ComposableArchitecture in Frameworks */,
 				F96BB8DC2D71F9150004B9F6 /* Moya in Frameworks */,
+				F99EC7082D83B94300723A8D /* ScalingHeaderScrollView in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -152,6 +156,8 @@
 				F96BB8DB2D71F9150004B9F6 /* Moya */,
 				F953B2392D76F2E300809311 /* SkeletonUI */,
 				F9607AB12D7E721C0060AC51 /* SDWebImageSwiftUI */,
+				F99EC7072D83B94300723A8D /* ScalingHeaderScrollView */,
+				F99EC70C2D842B3800723A8D /* ExyteGrid */,
 			);
 			productName = ShiDaApp;
 			productReference = F9E394E42D719BFC008C2F2C /* ShiDaApp.app */;
@@ -191,6 +197,8 @@
 				F96BB8DA2D71F9150004B9F6 /* XCRemoteSwiftPackageReference "Moya" */,
 				F953B2382D76F2E300809311 /* XCRemoteSwiftPackageReference "SkeletonUI" */,
 				F9607AB02D7E721C0060AC51 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
+				F99EC7062D83B94300723A8D /* XCRemoteSwiftPackageReference "ScalingHeaderScrollView" */,
+				F99EC70B2D842B3800723A8D /* XCRemoteSwiftPackageReference "Grid" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F9E394E52D719BFC008C2F2C /* Products */;
@@ -530,6 +538,22 @@
 				minimumVersion = 15.0.3;
 			};
 		};
+		F99EC7062D83B94300723A8D /* XCRemoteSwiftPackageReference "ScalingHeaderScrollView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "git@github.com:exyte/ScalingHeaderScrollView.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.5;
+			};
+		};
+		F99EC70B2D842B3800723A8D /* XCRemoteSwiftPackageReference "Grid" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "git@github.com:exyte/Grid.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.5.0;
+			};
+		};
 		F9E394F52D719F16008C2F2C /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "git@github.com:pointfreeco/swift-composable-architecture.git";
@@ -560,6 +584,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F96BB8DA2D71F9150004B9F6 /* XCRemoteSwiftPackageReference "Moya" */;
 			productName = Moya;
+		};
+		F99EC7072D83B94300723A8D /* ScalingHeaderScrollView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F99EC7062D83B94300723A8D /* XCRemoteSwiftPackageReference "ScalingHeaderScrollView" */;
+			productName = ScalingHeaderScrollView;
+		};
+		F99EC70C2D842B3800723A8D /* ExyteGrid */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F99EC70B2D842B3800723A8D /* XCRemoteSwiftPackageReference "Grid" */;
+			productName = ExyteGrid;
 		};
 		F9E394F62D719F17008C2F2C /* ComposableArchitecture */ = {
 			isa = XCSwiftPackageProductDependency;

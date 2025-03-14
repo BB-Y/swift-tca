@@ -132,7 +132,7 @@ public final class APIService: APIServiceType {
         try await withCheckedThrowingContinuation { continuation in
             requestResult(target) { (result: Result<T, Error>) in
                 switch result {
-                case .success(let success):
+                case .success(_):
                     continuation.resume(with: result)
 
                 case .failure(let failure):

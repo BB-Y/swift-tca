@@ -30,8 +30,10 @@ struct ShiDaApp: App {
         //appearance.backIndicatorImage = backImage
         //appearance.backIndicatorTransitionMaskImage = backImage
            // 应用到所有导航栏
-         
-           
+        appearance.shadowColor = .clear
+        appearance.shadowImage = nil
+        appearance.backgroundImage = nil
+        
            if #available(iOS 16.0, *) {
     // iOS 16 特定设置
     UINavigationBar.appearance().preferredBehavioralStyle = .pad

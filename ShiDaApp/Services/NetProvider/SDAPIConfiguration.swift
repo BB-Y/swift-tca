@@ -4,7 +4,7 @@ import Moya
 /// API 配置
 public enum APIConfiguration {
     /// 基础 URL
-    public static let baseURL = URL(string: "http://101.200.165.201:6005/")!
+    public static let baseURL = URL(string: "http://101.200.165.201:6005")!
     
     /// 默认 headers
     public static var defaultHeaders: [String: String] {

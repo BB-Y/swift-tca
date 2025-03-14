@@ -10,15 +10,17 @@ import SwiftUI
 struct SDButtonStyleConfirm: ButtonStyle {
     
     let isDisable: Bool
-    init(isDisable: Bool = false) {
+    let color: Color
+    init(isDisable: Bool = false, color: Color = SDColor.accent) {
         self.isDisable = isDisable
+        self.color = color
     }
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.sdBody1)
             .padding(.vertical, 12)
             .frame(maxWidth: .infinity)
-            .background(isDisable ? SDColor.accent.opacity(0.5) : SDColor.accent)
+            .background(isDisable ? color.opacity(0.5) : color)
             .foregroundStyle(.white)
             .clipShape(Capsule())
     }
@@ -31,7 +33,7 @@ struct SDButtonStyleGray: ButtonStyle {
             .padding(.vertical, 12)
             .frame(maxWidth: .infinity)
             .background(SDColor.buttonBackGray)
-            .foregroundStyle(SDColor.text1)
+            .foregroundStyle(SDColor.text2)
             .clipShape(Capsule())
     }
 }

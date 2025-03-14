@@ -20,6 +20,12 @@ public enum SDColor {
     /// 强调色 - 用于重点突出
     public static var accent: Color { Color("Accent", bundle: .main) }
     
+    
+    public static var blue: Color { Color("Blue", bundle: .main) }
+    public static var blueBack: Color { Color("Blue", bundle: .main).opacity(0.16) }
+
+    
+    
     // MARK: - 功能颜色
     
     /// 成功状态
@@ -57,6 +63,8 @@ public enum SDColor {
     /// 分割线 #E7E7E7
     public static var divider: Color { Color("Divider", bundle: .main) }
     
+    /// 分割线 #F5F5F5
+    public static var divider1: Color { Color(hex: "#F5F5F5") }
     /// 边框
     public static var border: Color { Color("Border", bundle: .main) }
     

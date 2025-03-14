@@ -118,9 +118,11 @@ public struct SDResponseHomeSectionBook: Codable, Equatable, Identifiable {
 }
 
 /// 教材版权团队数据传输对象
+@CustomCodable
 public struct SDResponseBookCopyrightTeam: Codable, Equatable {
     /// 创建时间
-    let createTime: String?
+    @CodingUses<TimestampStringCoder>
+    var createTime: String
     /// 创建用户ID
     let createUserId: Int?
     /// 教材ID
@@ -133,10 +135,7 @@ public struct SDResponseBookCopyrightTeam: Codable, Equatable {
     let name: String?
     /// 类型名称
     let typeName: String?
-    
-    public var identifier: Int {
-        id ?? 0
-    }
+   
 }
 
 /// 合作院校数据传输对象
