@@ -24,46 +24,49 @@ struct SDHomeView: View {
                     header
                         
                     
+                    
                     ScrollView {
                         content
                             .padding(.top, 16)
                     }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+
                     .scrollIndicators(.hidden)
-                }
-                .overlay(alignment: .bottom) {
-                    ZStack {
-                        if store.loginStatus != .login {
-                            VStack {
-                                Spacer()
-                                login
+                    .overlay(alignment: .bottom) {
+                        ZStack {
+                            if store.loginStatus != .login {
+                                VStack {
+                                    Spacer()
+                                    login
+                                }
+                                .frame(maxWidth: .infinity)
                             }
-                            .frame(maxWidth: .infinity)
+                            if store.isSearchActive {
+                                SDSearchOverlay(store: store.scope(state: \.searchOverlay, action: \.searchOverlay))
+                                    .transition(.opacity)
+                            }
+                            if store.isShowingSearchResults {
+                                searchResultsContainer
+                                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                            }
                         }
-                        if store.isSearchActive {
-                            SDSearchOverlay(store: store.scope(state: \.searchOverlay, action: \.searchOverlay))
-                                .transition(.opacity)
-                        }
-                        if store.isShowingSearchResults {
-                            searchResultsContainer
-                                .transition(.move(edge: .bottom).combined(with: .opacity))
-                        }
+                        .frame(maxWidth: .infinity)
+                        
                     }
-                    .frame(maxWidth: .infinity)
-
                 }
-
+                
+                
                 .frame(maxWidth: .infinity)
                 .background(SDColor.background)
-                
+                .navigationTitle("")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar(.hidden, for: .navigationBar)
+                .task {
+                    store.send(.onAppear)
+                }
             }
             
-            .navigationTitle("")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbarRole(.navigationStack)
-            .toolbar(.hidden, for: .navigationBar)
-            .task {
-                store.send(.onAppear)
-            }
+            
         } destination: { store in
             switch store.case {
             case .test(let store):
@@ -74,11 +77,11 @@ struct SDHomeView: View {
             case .schoolList(let store):
                 SDSchoolListView(store: store)
                     .toolbar(.hidden, for: .tabBar)
-
+                
             case .bookDetail(let store):
                 SDBookDetailView(store: store)
                     .toolbar(.hidden, for: .tabBar)
-
+                
             }
         }
     }
@@ -119,31 +122,31 @@ struct SDHomeView: View {
                 if store.isSearchActive {
                     HStack(spacing: 12) {
                         TextField("请输入书名/ISBN/作者", text: $store.searchText)
-                            
+                        
                             .onSubmit {
                                 store.send(.submitSearch)
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .foregroundStyle(SDColor.text1)
-
+                        
                             .modifier(SDTextFieldWithClearButtonModefier(text: $store.searchText))
-                            
+                        
                         SDLine(SDColor.text3, axial: .vertical)
                             .frame(height: 14)
                         Button("取消") {
                             store.send(.toggleSearch)
                         }
                         .foregroundStyle(SDColor.text1)
-
+                        
                     }
                 } else {
                     Text("请输入书名/ISBN/作者")
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .foregroundStyle(SDColor.text3)
-
+                    
                         .onTapGesture {
                             store.send(.toggleSearch)
-
+                            
                         }
                 }
             }
@@ -182,64 +185,64 @@ struct SDHomeView: View {
         }
     }
     // 搜索结果容器视图
-var searchResultsContainer: some View {
-    VStack(spacing: 0) {
-        // 搜索加载中视图
-        if store.searchResultsFeature.isSearchLoading {
-            searchLoadingView
-        }
-        
-        // 搜索结果视图
-        SDSearchResultsView(
-            store: store.scope(
-                state: \.searchResultsFeature,
-                action: \.searchResultsFeature
-            )
-        )
-//        .refreshable {
-//            await store.send(.searchResultsFeature(.submitSearch(.keyword(store.searchText)))).finish()
-//        }
-    }
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background {
-        Color.white.ignoresSafeArea()
-    }
-}
-
-// 搜索加载中视图
-var searchLoadingView: some View {
-    VStack(spacing: 16) {
-        ForEach(0..<5, id: \.self) { _ in
-            HStack {
-                Rectangle()
-                    .skeleton(with: true)
-                    .frame(width: 80, height: 120)
-                
-                VStack(alignment: .leading, spacing: 8) {
-                    Rectangle()
-                        .skeleton(with: true)
-                        .frame(height: 20)
-                    
-                    Rectangle()
-                        .skeleton(with: true)
-                        .frame(height: 16)
-                        .opacity(0.7)
-                    
-                    Rectangle()
-                        .skeleton(with: true)
-                        .opacity(0.7)
-                        .frame(width: 100)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
+    var searchResultsContainer: some View {
+        VStack(spacing: 0) {
+            // 搜索加载中视图
+            if store.searchResultsFeature.isSearchLoading {
+                searchLoadingView
             }
-            .padding(.horizontal, 16)
+            
+            // 搜索结果视图
+            SDSearchResultsView(
+                store: store.scope(
+                    state: \.searchResultsFeature,
+                    action: \.searchResultsFeature
+                )
+            )
+            //        .refreshable {
+            //            await store.send(.searchResultsFeature(.submitSearch(.keyword(store.searchText)))).finish()
+            //        }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background {
+            Color.white.ignoresSafeArea()
         }
     }
-    .padding(.vertical, 16)
-}
     
- 
-   
+    // 搜索加载中视图
+    var searchLoadingView: some View {
+        VStack(spacing: 16) {
+            ForEach(0..<5, id: \.self) { _ in
+                HStack {
+                    Rectangle()
+                        .skeleton(with: true)
+                        .frame(width: 80, height: 120)
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Rectangle()
+                            .skeleton(with: true)
+                            .frame(height: 20)
+                        
+                        Rectangle()
+                            .skeleton(with: true)
+                            .frame(height: 16)
+                            .opacity(0.7)
+                        
+                        Rectangle()
+                            .skeleton(with: true)
+                            .opacity(0.7)
+                            .frame(width: 100)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .padding(.horizontal, 16)
+            }
+        }
+        .padding(.vertical, 16)
+    }
+    
+    
+    
 }
 
 #Preview {

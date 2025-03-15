@@ -123,11 +123,11 @@ struct SDBookDetailView: View {
                 ScalingHeaderScrollView {
                     VStack(spacing: 20) {
                         bookHeaderSection(bookDetail: bookDetail)
-                            .debug(.green)
+                            
                         teacherApplyButton()
-                            .debug()
+                            
                         tab
-                            .debug(.yellow)
+                            
 
                     }
                     .frame(height: maxHeight - tabbarHeight)
@@ -135,7 +135,7 @@ struct SDBookDetailView: View {
                         SDColor.background
                     })
                     .frame(width: UIScreen.main.bounds.width, height: maxHeight)
-                    .debug(.blue)
+                    
                     
                 } content: {
                     tabViewContent(bookDetail: bookDetail)
@@ -303,7 +303,7 @@ struct SDBookDetailView: View {
             
             //.padding(.top, -safeAreaInsets.top - 44)
         }
-        .debug()
+        
 
     }
     
