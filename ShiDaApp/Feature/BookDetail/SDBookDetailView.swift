@@ -225,7 +225,6 @@ struct SDBookDetailView: View {
                                          .fill(store.selectedTab == tab ? SDColor.accent : Color.clear)
                                          .frame(height: 3)
                                          .offset(x: 0, y: 6)
-                                     //.matchedGeometryEffect(id: "underline", in: namespace)
                                  }
                                  .padding(.bottom, 8)
                          }
