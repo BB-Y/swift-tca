@@ -15,7 +15,9 @@ struct SDAuthClient{
     /// 登录
     var loginSMS: @Sendable  (_ para: SDReqParaLoginSMS) async throws -> SDResponseLogin
     var loginPassword: @Sendable  (_ para: SDReqParaLoginPassword) async throws -> SDResponseLogin
-
+    var oneKeyLogin: @Sendable  (_ para: String) async throws -> SDResponseLogin
+    
+    
     /// 注册
     var register: @Sendable (_ para: SDReqParaRegister) async throws -> SDResponseLogin
     
@@ -48,6 +50,9 @@ extension SDAuthClient: DependencyKey {
             },
             loginPassword: {
                 try await apiService.requestResult(SDAuthEndpoint.loginPassword($0))
+            },
+            oneKeyLogin: {
+                try await apiService.requestResult(SDAuthEndpoint.oneKeyLogin($0))
             },
             register: {
                 try await apiService.requestResult(SDAuthEndpoint.register($0))

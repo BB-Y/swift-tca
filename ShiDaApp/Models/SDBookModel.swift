@@ -1,8 +1,10 @@
 import Foundation
 import CodableWrappers
 /// 图书分类模型
-struct SDBookCategory: Codable, Identifiable, Equatable {
-    let createTime: String?
+@CustomCodable
+struct SDBookCategory: Codable, Identifiable, Equatable, Hashable {
+    @CodingUses<TimestampStringCoder>
+    var createTime: String
     let id: Int?
     let level: Int?
     let name: String?

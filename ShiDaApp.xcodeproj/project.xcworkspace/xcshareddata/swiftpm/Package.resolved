@@ -1,5 +1,5 @@
 {
-  "originHash" : "75244c26ebb287f2e2b7fc4bca3f28047874fdbfa7b5f382b9017291544d17ea",
+  "originHash" : "cb48f6135d65e7d5bbe11e7879f9b25815a0bb01de0c7c4b7d11d727ef6e1516",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -44,6 +44,15 @@
       "state" : {
         "revision" : "c263811c1f3dbf002be9bd83107f7cdc38992b26",
         "version" : "15.0.3"
+      }
+    },
+    {
+      "identity" : "popupview",
+      "kind" : "remoteSourceControl",
+      "location" : "git@github.com:exyte/PopupView.git",
+      "state" : {
+        "revision" : "7278a36c55c247f42e813fb390274810f082a092",
+        "version" : "4.0.2"
       }
     },
     {

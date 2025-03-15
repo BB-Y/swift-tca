@@ -16,6 +16,7 @@ struct SDAppFeature {
         var homeState: SDHomeFeature.State = .init()
         var bookState: SDBookFeature.State = .init()
         var studyState: StudyFeature.State = .init()
+        
         var myState: MyFeature.State = .init()
         @Presents var login: SDLoginHomeReducer.State?
 

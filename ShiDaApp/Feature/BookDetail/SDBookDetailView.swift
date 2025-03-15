@@ -10,6 +10,7 @@ import ComposableArchitecture
 import SDWebImageSwiftUI
 import ScalingHeaderScrollView
 import ExyteGrid
+import PopupView
 // 在文件顶部添加
 struct SafeAreaInsetsKey: PreferenceKey {
     static var defaultValue: EdgeInsets = EdgeInsets()
@@ -79,25 +80,32 @@ struct SDBookDetailView: View {
 
     
     var tabbarHeight: CGFloat {
-        50
+        40
     }
     var minHeight: CGFloat {
         UIApplication.statusBarAndNavigationBarHeight + tabbarHeight
     }
     var maxHeight: CGFloat{
-        minHeight + 235
+        minHeight + topPadding + coverHeight + spacing * 2 + teacherButtonHeight
     }
+    var topPadding : CGFloat = 16
+    var coverHeight: CGFloat = 150
+    var spacing: CGFloat  = 20
+    var teacherButtonHeight: CGFloat = 40
+    
     @State var tabFrame: CGRect = .zero
     @State var select = 0
     var isTop: Bool {
         tabFrame.origin.y < 102 && tabFrame.origin.y != 0
     }
     var body: some View {
-        ZStack(alignment: .topLeading) {
+        ZStack(alignment: .top) {
+            
             if store.isLoading {
                 ProgressView()
                     .scaleEffect(1.5)
-            } else if let errorMessage = store.errorMessage {
+            }
+            else if let errorMessage = store.errorMessage {
                 VStack(spacing: 16) {
                     Text("加载失败")
                         .font(.headline)
@@ -113,23 +121,22 @@ struct SDBookDetailView: View {
                 }
             } else if let bookDetail = store.bookDetail {
                 ScalingHeaderScrollView {
-                    VStack(spacing: 0) {
-                        VStack(spacing: 20) {
-                            bookHeaderSection(bookDetail: bookDetail)
-                                
-                            teacherApplyButton()
-                        }
-                        .frame(height: maxHeight - tabbarHeight)
-                        .background(content: {
-                            SDColor.background
-                        })
-                        
+                    VStack(spacing: 20) {
+                        bookHeaderSection(bookDetail: bookDetail)
+                            .debug(.green)
+                        teacherApplyButton()
+                            .debug()
                         tab
-                        
-                        
-                        
+                            .debug(.yellow)
+
                     }
-                    .frame(width: UIScreen.main.bounds.width)
+                    .frame(height: maxHeight - tabbarHeight)
+                    .background(content: {
+                        SDColor.background
+                    })
+                    .frame(width: UIScreen.main.bounds.width, height: maxHeight)
+                    .debug(.blue)
+                    
                 } content: {
                     tabViewContent(bookDetail: bookDetail)
                 }
@@ -138,7 +145,7 @@ struct SDBookDetailView: View {
                 .scrollToTop(resetScroll: $scrollToTop)
                 .height(min: minHeight, max: maxHeight)
                 .background(SDColor.background)
-                .ignoresSafeArea()
+                .ignoresSafeArea(edges: .top)
 //                .overlay(alignment: .bottom, content: {
 //                    bottomActionButtons()
 //                })
@@ -179,37 +186,22 @@ struct SDBookDetailView: View {
 
             }
         })
+        
         .toolbar(.hidden, for: .navigationBar)
-        
-        //        .background {
-        //            SDColor.error.ignoresSafeArea()
-        //        }
-//        .toolbar {
-//            ToolbarItem(placement: .navigationBarTrailing) {
-//                Button {
-//                    send(.favoriteButtonTapped)
-//                } label: {
-//                    Image(systemName: store.isFavorite ? "star.fill" : "star")
-//                        .foregroundColor(store.isFavorite ? .yellow : .gray)
-//                }
-//            }
-//        }
-        //.toolbarBackground(isTop ? .visible : .hidden, for: .navigationBar)
-        //.toolbarBackground(isTop ? Color.red : Color.blue, for: .navigationBar)
-        // 底部操作按钮
-        
         .navigationBarTitleDisplayMode(.inline)
+        .sdAlert(isPresented: $store.showTeacherAlert,
+                 title: "温馨提示",
+                 message: "您还不是平台的认证教师，暂时无法使用该功能。成为认证教师后，将会开放更多功能",
+                 buttons: [
+                    .init(title: "取消", style: .cancel, action: {}),
+                        .init(title: "前往认证", style: .default, action: {})
+                 ])
         
-        .onAppear {
+        .task {
             send(.onAppear)
             // 使用 UIApplication 扩展获取安全区域高度
             safeAreaInsets.top = UIApplication.safeAreaTop
             safeAreaInsets.bottom = UIApplication.safeAreaBottom
-            print("安全区域顶部高度: \(safeAreaInsets.top)")
-            print("安全区域底部高度: \(safeAreaInsets.bottom)")
-            print("statusBarAndNavigationBarHeight\(self.minHeight)")
-            print("statusBarAndNavigationBarHeight\(self.maxHeight)")
-
         }
         
         
@@ -243,22 +235,18 @@ struct SDBookDetailView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .frame(height: tabbarHeight, alignment: .bottom)
         .background {
-            if progress >= 0.99 {
+            if progress >= 0.98 {
                 Color(hex: "#E7F1EE")
             } else {
                 SDColor.background
             }
         }
     }
-    //    var content: some View {
-    //
-    //
-    //    }
-    // 图书详情内容
+ 
     @ViewBuilder
     private func bookDetailContent(bookDetail: SDBookDetailModel) -> some View {
         
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: spacing) {
             // 顶部封面和基本信息
             bookHeaderSection(bookDetail: bookDetail)
             teacherApplyButton()
@@ -273,60 +261,36 @@ struct SDBookDetailView: View {
     // 顶部封面和基本信息
     @ViewBuilder
     private func bookHeaderSection(bookDetail: SDBookDetailModel) -> some View {
-        VStack(spacing: 0) {
-            
-                        Color.clear
-                            .frame(height: safeAreaInsets.top + 44)
-            
-            HStack(alignment: .top, spacing: 16) {
-                // 封面图片
-                /*
-                 WebImage(url: URL(string:url), options: [.progressiveLoad, .delayPlaceholder], isAnimating: $isAnimating) { image in
-                 image.resizable()
-                 .scaledToFit()
-                 } placeholder: {
-                 Image.wifiExclamationmark
-                 .resizable()
-                 .scaledToFit()
-                 }
-                 */
-                WebImage(url: URL(string: bookDetail.cover ?? ""))
-                    .resizable()
+        HStack(alignment: .top, spacing: 16) {
+    
+            WebImage(url: URL(string: bookDetail.cover ?? ""))
+                .resizable()
+                .indicator(.activity)
+                .scaledToFit()
+                .frame(width: 104, height: coverHeight)
+           
+            // 书籍信息
+            VStack(alignment: .leading, spacing: 10) {
+                Text(bookDetail.name ?? "未知书名")
+                    .font(.sdLargeTitle1.bold())
+                    .lineLimit(3)
+                    .lineSpacing(8)
                 
-                
-                //                    .placeholder {
-                //                        Rectangle().foregroundColor(.gray.opacity(0.2))
-                //                    }
-                    .indicator(.activity)
-                    .transition(.fade(duration: 0.5))
-                    .scaledToFit()
-                    .frame(width: 104, height: 150)
-                    .cornerRadius(8)
-                    .shadow(radius: 2)
-                
-                // 书籍信息
-                VStack(alignment: .leading, spacing: 10) {
-                    Text(bookDetail.name ?? "未知书名")
-                        .font(.sdLargeTitle1.bold())
-                        .lineLimit(3)
-                        .lineSpacing(8)
-                    
-                    if let authors = bookDetail.authorList, !authors.isEmpty {
-                        Text(authors.map { "作者：\($0.name ?? "")" }.joined(separator: " / "))
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
-                    
-                    
-                    
-                    
+                if let authors = bookDetail.authorList, !authors.isEmpty {
+                    Text(authors.map { "作者：\($0.name ?? "")" }.joined(separator: " / "))
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                
+                
+                
+                
             }
-            .padding(.top, 16)
-            //.padding(.bottom, 20)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
+        
         .padding(.horizontal, 16)
+        .frame(height: minHeight  - tabbarHeight + topPadding + coverHeight, alignment: .bottom)
         .background {
             LinearGradient(
                 colors: [
@@ -336,8 +300,11 @@ struct SDBookDetailView: View {
                 startPoint: .top,
                 endPoint: .bottom
             )
+            
             //.padding(.top, -safeAreaInsets.top - 44)
         }
+        .debug()
+
     }
     
     
@@ -352,11 +319,11 @@ struct SDBookDetailView: View {
         }
         .font(.sdBody3)
         .foregroundStyle(SDColor.blue)
-        .padding(12)
+        .padding(.horizontal,12)
+        .frame(height: teacherButtonHeight)
         .background {SDColor.blueBack}
         .cornerRadius(8)
         .padding(.horizontal, 16)
-        
         
         .onTapGesture {
             send(.applyForTeacherBook)

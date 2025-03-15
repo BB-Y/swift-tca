@@ -16,11 +16,11 @@ public struct SDPagination: Codable, Equatable {
     public let pageSize: Int
     
     /// 默认分页参数
-    public static let `default` = SDPagination(offset: 1, pageSize: 20)
+    public static let `default` = SDPagination(offset: 1, pageSize: 10)
     
     /// 下一页的分页参数
     public var nextPage: SDPagination {
-        SDPagination(offset: offset + pageSize, pageSize: pageSize)
+        SDPagination(offset: offset + 1, pageSize: pageSize)
     }
     
     public init(offset: Int, pageSize: Int) {

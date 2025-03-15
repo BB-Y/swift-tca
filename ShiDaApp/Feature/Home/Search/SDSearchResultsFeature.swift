@@ -105,10 +105,9 @@ struct SDSearchResultsFeature {
                 state.isSearchLoading = false
                 state.searchResults = items
                 
-                // 更新是否可以加载更多
-                if let total = items.total, let rows = items.rows {
-                    state.canLoadMore = rows.count < total
-                }
+                state.canLoadMore = items.hasMoreData
+
+                
                 
                 return .none
                 
@@ -117,12 +116,12 @@ struct SDSearchResultsFeature {
                 return .none
                 
             case .loadMoreSearch:
-                guard !state.isLoadingMore,
-                      state.canLoadMore,
-                      !state.searchType.isEmpty else {
+                if !state.canLoadMore {
+                    state.isLoadingMore = false
+
                     return .none
                 }
-                
+                print("loadmore")
                 state.isLoadingMore = true
                 
                 // 使用当前分页信息创建下一页

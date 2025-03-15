@@ -8,6 +8,7 @@
 import SwiftUI
 import ComposableArchitecture
 import SkeletonUI
+import ScalingHeaderScrollView
 
 struct SDSearchResultsView: View {
     @Perception.Bindable var store: StoreOf<SDSearchResultsFeature>
@@ -34,6 +35,7 @@ struct SDSearchResultsView: View {
     // 搜索结果为空视图
     var searchEmptyResultView: some View {
         VStack(spacing: 16) {
+            Spacer()
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 50))
                 .foregroundColor(.gray)
@@ -45,41 +47,43 @@ struct SDSearchResultsView: View {
             Text("请尝试其他关键词")
                 .font(.sdBody2)
                 .foregroundColor(SDColor.text3)
+            Spacer()
+
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 100)
+        
     }
 
     // 搜索结果内容视图
     func searchResultsContentView(books: [SDResponseHomeSectionBook]) -> some View {
-        VStack(spacing: 16) {
-            ForEach(books) { book in
-                bookItemView(book: book)
-                    .onTapGesture {
-                        store.send(.delegate(.bookSelected(book)))
-                    }
-            }
-            
-            if store.canLoadMore {
-                Button {
-                    store.send(.loadMoreSearch)
-                } label: {
-                    HStack {
-                        if store.isLoadingMore {
-                            ProgressView()
-                                .frame(width: 20, height: 20)
+        ScalingHeaderScrollView {
+            Color.clear
+                .frame(height: 0)
+        } content: {
+            LazyVStack(spacing: 16) {
+                ForEach(books) { book in
+                    bookItemView(book: book)
+                        .onTapGesture {
+                            store.send(.delegate(.bookSelected(book)))
                         }
-                        Text(store.isLoadingMore ? "加载中..." : "加载更多")
-                            .font(.sdBody2)
-                            .foregroundColor(SDColor.text2)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
                 }
-                .disabled(store.isLoadingMore)
+                
             }
+            .padding(.vertical, 16)
+
         }
-        .padding(.vertical, 16)
+        .height(min: 0, max: 0)
+        //.setHeaderSnapMode(.disabled)
+        .pullToLoadMore(isLoading: $store.isLoadingMore, contentOffset: 10, perform: {
+            store.send(.loadMoreSearch)
+        })
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+
+        
+
+        
+        
     }
 
     // 图书项视图

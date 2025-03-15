@@ -41,9 +41,17 @@ struct SDBookDetailReducer {
         // 章节展开状态 (存储已展开的章节ID)
         var expandedChapters: Set<Int> = []
         
+        
+        var showTeacherAlert = false
         @Presents var login: SDLoginHomeReducer.State?
 
         @Shared(.shareLoginStatus) var loginStatus = .notLogin
+        @Shared(.shareUserInfo) var userInfoData = nil
+        
+        var userInfoModel: SDResponseLogin? {
+            guard let data = userInfoData else { return nil }
+            return try? JSONDecoder().decode(SDResponseLogin.self, from: data)
+        }
     }
     
     enum View {
@@ -123,6 +131,10 @@ struct SDBookDetailReducer {
                 case .applyForTeacherBook:
                     if state.loginStatus == .login {
                         return .send(.delegate(.navigateToTeacherApply))
+                    }
+                    if state.userInfoModel?.authStatus != .approved {
+                        state.showTeacherAlert = true
+                        return .none
                     }
                     return .send(.toLogin)
                     

@@ -102,6 +102,7 @@ struct SDBookFeature: Reducer {
             case let .fetchCategoriesResponse(.success(categories)):
                 state.isLoadingCategories = false
                 state.categories = categories
+                print("====\(categories)")
                 return .none
                 
             case .fetchCategoriesResponse(.failure):
@@ -124,7 +125,9 @@ struct SDBookFeature: Reducer {
                 } else {
                     // 从已加载的一级分类中查找对应的二级分类
                     if let selectedCategory = state.categories.first(where: { $0.id == categoryId }),
-                       let subList = selectedCategory.subList {
+                       var subList = selectedCategory.subList {
+                        let all = SDBookCategory(createTime: "", id: nil, level: nil, name: "全部", parentId: nil, subList: nil)
+                        subList.insert(all, at: 0)
                         state.subCategories = subList
                     } else {
                         state.subCategories = []

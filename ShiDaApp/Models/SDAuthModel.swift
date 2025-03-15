@@ -113,13 +113,25 @@ public enum SDThirdPartyType: Int, Codable {
     case qq = 20
     case apple = 30
 }
+/// 用户审核状态
+public enum SDTeacherAuthStatus: Int, Codable, Equatable {
+    /// 未申请
+    case notApplied = 0
+    /// 申请中
+    case pending = 1
+    /// 审核通过
+    case approved = 10
+    /// 审核拒绝
+    case rejected = 20
+}
+
 //MARK: - 响应模型
 /// 登录响应模型
 struct SDResponseLogin : Codable, Equatable {
     /// 地址
     let address : String?
-    /// 审核状态（0-未申请 1-申请中 10-审核通过 20-审核拒绝）
-    let authStatus : Int?
+    /// 审核状态
+    let authStatus : SDTeacherAuthStatus?
     /// 城市编码
     let city : Int?
     /// 创建时间

@@ -12,7 +12,7 @@ import CodableWrappers
 @Reducer
 struct SDLoginAgainReducer {
     @Dependency(\.userClient) var userClient
-    
+    @Dependency(\.authClient) var authClient
     @ObservableState
     struct State: Equatable {
         var userAvator: String = ""
@@ -37,6 +37,9 @@ struct SDLoginAgainReducer {
         case onAcceptContinueTapped
         case getUserInfoResponse(Result<SDResponseUserInfo, Error>)
         
+        
+        case oneKeyLoginResponse(Result<SDResponseLogin, Error>)
+
         // 父级处理的 Action
         case delegate(Delegate)
         
@@ -58,12 +61,17 @@ struct SDLoginAgainReducer {
                     state.showProtocol = true
                     return .none
                 } else {
-                    return .run { send in
-                        await send(.getUserInfoResponse(Result {
-                            try await userClient.getUserInfo()
-                        }))
+                    if let phone = state.userInfoModel?.phone {
+                        return .run { send in
+                            await send(.oneKeyLoginResponse(Result {
+                                try await authClient.oneKeyLogin(phone)
+                            }))
+                        }
                     }
+                    
                 }
+                return .none
+
                 
             case let .getUserInfoResponse(.success(response)):
                 if response.userType == nil {
@@ -88,6 +96,21 @@ struct SDLoginAgainReducer {
                 return .send(.onLoginTapped)
             case .binding(_):
                 return .none
+            case .oneKeyLoginResponse(let result):
+                switch result {
+                    
+                case .success(let response):
+                    if response.userType == nil {
+                        return .send(.delegate(.userTypeNil))
+                    } else {
+                        return .send(.delegate(.loginSuccess))
+                    }
+                case .failure(_):
+                    return .none
+
+                }
+                return .none
+
             }
         }
     }

@@ -50,7 +50,7 @@ extension SDSearchEndpoint: SDEndpoint {
                 "keyword": params.keyword,
                 "offset": params.pagination.offset,
                 "pageSize": params.pagination.pageSize,
-                "sortType": params.sortType
+                "sortType": params.sortType.rawValue
             ]
             
             if let categoryId = params.categoryId {

@@ -13,23 +13,24 @@ import UIKit
 class SingletonView: UIView {
     
     // Singleton instance
-        static let shared : UIView = SingletonView.sharedInstance(size: CGSize(width: 20, height: 20))
-
-        // You can modify argument list as per your need.
-        class private func sharedInstance(size : CGSize)->UIView {
-            //Putting the view in the middle, but the details falls on you.
-            let view = UIView(frame: CGRect(x: (UIScreen.main.bounds.width / 2) - size.width/2, y: 0, width: size.width, height: size.height))
-            //just so you can see something
-            view.layer.backgroundColor = UIColor.red.cgColor
-            let label = UILabel()
-            label.text = "123"
-            view.addSubview(label)
-            return view
-        }
+    static let shared : UIView = SingletonView.sharedInstance(size: CGSize(width: 20, height: 20))
+    
+    // You can modify argument list as per your need.
+    class private func sharedInstance(size : CGSize)->UIView {
+        //Putting the view in the middle, but the details falls on you.
+        let view = UIView(frame: CGRect(x: (UIScreen.main.bounds.width / 2) - size.width/2, y: 0, width: size.width, height: size.height))
+        //just so you can see something
+        view.layer.backgroundColor = UIColor.red.cgColor
+        let label = UILabel()
+        label.text = "123"
+        view.addSubview(label)
+        return view
+    }
     
 }
 struct SDBookHomeView: View {
     @Perception.Bindable var store: StoreOf<SDBookFeature>
+    @Namespace private var namespace
     
     var body: some View {
         NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
@@ -38,33 +39,26 @@ struct SDBookHomeView: View {
                     // 自定义导航栏
                     header
                     
+                    
                     // 分类标签栏
                     categoryTabBar
+                    
                     
                     // 排序选项
                     sortOptionsBar
                     
-                    // 内容区域
-                    ScrollView {
-                        
+                    Color.clear.overlay {
                         searchResultsContainer
                     }
-                    .scrollIndicators(.hidden)
-                    .refreshable {
-                        // 刷新逻辑
-                    }
-                    .onAppear{
-                              
-                              //Hide the default refresh controller, attach our uiView
-                              //Because is a singleton it wont be added several times
-                              //You can always expand your singleton to be hidden, animated, removed, etc.
-                        UIRefreshControl.appearance().tintColor = .systemRed
-                        UIRefreshControl.appearance().addSubview(SingletonView.shared)
-
-                          }
+                    
+                    
+                        
+                    // 内容区域
+                    
+                    
                     
                 }
-                .background(SDColor.background)
+                .background(Color.white.ignoresSafeArea())
             }
             .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
@@ -77,6 +71,7 @@ struct SDBookHomeView: View {
             switch store.case {
             case .bookDetail(let store):
                 SDBookDetailView(store: store)
+                    .hideToolBar()
             }
         }
     }
@@ -87,6 +82,7 @@ struct SDBookHomeView: View {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.gray)
                 .frame(width: 16, height: 16)
+            
             
             TextField("请输入书名/ISBN/作者", text: $store.searchText)
                 .onSubmit {
@@ -102,53 +98,54 @@ struct SDBookHomeView: View {
         .frame(height: 36)
         .background { SDColor.buttonBackGray }
         .clipShape(Capsule())
-        .frame(height: 44)
-
+        
         .padding(.horizontal, 16)
-        .padding(.vertical, 8)
+        
+        .frame(height: 44)
+        
         .background { Color.white.ignoresSafeArea() }
-        .debug()
-
+        
+        
     }
     
     // 分类标签栏
     @ViewBuilder var categoryTabBar: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 16) {
-                // 全部分类选项
-                categoryButton(id: nil, name: "全部")
-                
-                // 动态分类选项
-                ForEach(store.categories) { category in
-                    categoryButton(id: category.id, name: category.name ?? "")
-                }
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
-        }
-        .background(Color.white)
-        // 二级分类（如果有）
-        if !store.subCategories.isEmpty {
-            Divider()
-                .padding(.horizontal, 16)
-            
+        
+        VStack(spacing: 0) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 16) {
-                    // 全部二级分类选项
-                    categoryButton(id: nil, name: "全部", isSub: true)
-
+                    // 全部分类选项
+                    categoryButton(id: nil, name: "全部")
                     
-                    // 动态二级分类选项
-                    ForEach(store.subCategories) { category in
-                        categoryButton(id: category.id, name: category.name ?? "", isSub: true)
+                    // 动态分类选项
+                    ForEach(store.categories) { category in
+                        categoryButton(id: category.id, name: category.name ?? "")
                     }
                 }
                 .padding(.horizontal, 16)
-                .padding(.vertical, 8)
+                .padding(.vertical, 12)
+                
             }
-                   .background(Color.white)
-
+            
+            // 二级分类（如果有）
+            if !store.subCategories.isEmpty {
+                SDWrappingHStack( store.subCategories) { category in
+                    
+                    categoryButton(id: category.id, name: category.name ?? "", isSub: true)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                
+                .background(SDColor.background)
+                
+                
+            }
         }
+        
+        
+        .background(Color.white)
+        
+        
     }
     
     // 分类按钮
@@ -157,8 +154,8 @@ struct SDBookHomeView: View {
             if isSub{
                 store.send(.selectSubCategory(id))
             } else {
-            store.send(.selectCategory(id))
-
+                store.send(.selectCategory(id))
+                
             }
         } label: {
             let currentid = isSub ? store.selectedSubCategoryId : store.selectedCategoryId
@@ -172,34 +169,38 @@ struct SDBookHomeView: View {
                         .fill(currentid == id ? SDColor.primary.opacity(0.1) : SDColor.buttonBackGray)
                 )
         }
+        
     }
     
     // 排序选项栏
     @ViewBuilder var sortOptionsBar: some View {
-        HStack(spacing: 20) {
+        HStack(alignment: .top, spacing: 20) {
             ForEach(SDSearchSortType.allCases, id: \.self) { sortType in
                 Button {
                     store.send(.changeSortType(sortType))
                 } label: {
-                    HStack(spacing: 4) {
+                    VStack(spacing: 6) {
                         Text(sortType.title)
                             .font(.sdBody2)
                             .foregroundColor(store.currentSortType == sortType ? SDColor.primary : SDColor.text2)
                         
                         if store.currentSortType == sortType {
-                            Circle()
+                            Capsule()
                                 .fill(SDColor.primary)
-                                .frame(width: 6, height: 6)
+                                .frame(width: 32, height: 3)
                         }
                     }
                 }
+                
             }
             
             Spacer()
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.top, 16)
         .background(Color.white)
+        
+        
     }
     
     // 书籍列表内容
@@ -303,36 +304,33 @@ struct SDBookHomeView: View {
         .padding(.vertical, 100)
     }
     
-   
+    
     
     // 搜索结果容器视图
     var searchResultsContainer: some View {
-        VStack(spacing: 0) {
-         
-            // 搜索结果视图
-            ScrollView {
-                VStack {
-                    SDSearchResultsView(
-                        store: store.scope(
-                            state: \.searchResultsFeature,
-                            action: \.searchResultsFeature
-                        )
-                    )
-                    if store.searchResultsFeature.canLoadMore {
-                        ProgressView()
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .foregroundColor(.black)
-                            .onAppear {
-                                store.send(.searchResultsFeature(.loadMoreSearch))
-                            }
-                    }
-                }
-            }
-            .refreshable {
-                await store.send(.searchResultsFeature(.submitSearch(.keyword(store.searchText)))).finish()
-            }
+        // 搜索结果视图
+        SDSearchResultsView(
+            store: store.scope(
+                state: \.searchResultsFeature,
+                action: \.searchResultsFeature
+            )
+        )
+        .scrollIndicators(.hidden)
+        
+        .onAppear{
+            
+            //Hide the default refresh controller, attach our uiView
+            //Because is a singleton it wont be added several times
+            //You can always expand your singleton to be hidden, animated, removed, etc.
+            UIRefreshControl.appearance().tintColor = .systemRed
+            UIRefreshControl.appearance().addSubview(SingletonView.shared)
+            
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        
+//        .refreshable {
+//            await store.send(.searchResultsFeature(.submitSearch(.keyword(store.searchText)))).finish()
+//        }
+        //.frame(maxWidth: .infinity, maxHeight: .infinity)
         .background {
             Color.white.ignoresSafeArea()
         }
@@ -379,6 +377,7 @@ struct SDBookHomeView: View {
                 SDBookFeature()
                     .dependency(\.bookClient, .liveValue)
                     .dependency(\.searchClient, .liveValue)
+                    ._printChanges()
             }
         )
     )

@@ -32,6 +32,9 @@ enum SDAuthEndpoint {
 
     ///验证码
     case sendPhoneCode(SDReqParaSendCode)
+    
+    /// 手机号一键登录
+    case oneKeyLogin(_ phone: String)
 }
 
 extension SDAuthEndpoint: SDEndpoint {
@@ -47,6 +50,7 @@ extension SDAuthEndpoint: SDEndpoint {
         case .thirdpartylogin:  return "/app/portal/thirdpartylogin"
         case .thirdpartyregist: return "/app/portal/thirdpartyregist"
         case .sendPhoneCode:    return "/app/sms" // 更新路径
+        case .oneKeyLogin:      return "/app/portal/onkeylogin"
         }
     }
     
@@ -86,6 +90,12 @@ extension SDAuthEndpoint: SDEndpoint {
             
         case let .sendPhoneCode(model):
             return .requestJSONEncodable(model)
+            
+        case let .oneKeyLogin(phone):
+            return .requestParameters(
+                parameters: ["phone": phone],
+                encoding: JSONEncoding.default
+            )
         }
     }
 }

@@ -22,33 +22,39 @@ struct SDHomeView: View {
                 VStack(spacing: 0) {
                     // 自定义导航栏
                     header
-                        .debug()
+                        
                     
                     ScrollView {
                         content
                             .padding(.top, 16)
                     }
                     .scrollIndicators(.hidden)
-                    .overlay(alignment: .bottom) {
-                        ZStack {
-                            if store.loginStatus != .login {
-                                VStack {
-                                    Spacer()
-                                    login
-                                }
+                }
+                .overlay(alignment: .bottom) {
+                    ZStack {
+                        if store.loginStatus != .login {
+                            VStack {
+                                Spacer()
+                                login
                             }
-                            if store.isSearchActive {
-                                SDSearchOverlay(store: store.scope(state: \.searchOverlay, action: \.searchOverlay))
-                                    .transition(.opacity)
-                            }
-                            if store.isShowingSearchResults {
-                                searchResultsContainer
-                                    .transition(.move(edge: .bottom).combined(with: .opacity))
-                            }
+                            .frame(maxWidth: .infinity)
+                        }
+                        if store.isSearchActive {
+                            SDSearchOverlay(store: store.scope(state: \.searchOverlay, action: \.searchOverlay))
+                                .transition(.opacity)
+                        }
+                        if store.isShowingSearchResults {
+                            searchResultsContainer
+                                .transition(.move(edge: .bottom).combined(with: .opacity))
                         }
                     }
+                    .frame(maxWidth: .infinity)
+
                 }
+
+                .frame(maxWidth: .infinity)
                 .background(SDColor.background)
+                
             }
             
             .navigationTitle("")
@@ -64,10 +70,15 @@ struct SDHomeView: View {
                 SDHomeTestView(store: store)
             case .bookList(let store):
                 SDBookListView(store: store)
+                    .toolbar(.hidden, for: .tabBar)
             case .schoolList(let store):
                 SDSchoolListView(store: store)
+                    .toolbar(.hidden, for: .tabBar)
+
             case .bookDetail(let store):
                 SDBookDetailView(store: store)
+                    .toolbar(.hidden, for: .tabBar)
+
             }
         }
     }
@@ -142,7 +153,7 @@ struct SDHomeView: View {
             .frame(height: 32)
             .background { SDColor.buttonBackGray }
             .clipShape(Capsule())
-            .debug(.blue)
+            
         }
         .frame(height: 44)
         .padding(.horizontal, 16)
@@ -179,29 +190,15 @@ var searchResultsContainer: some View {
         }
         
         // 搜索结果视图
-        ScrollView {
-            VStack {
-                SDSearchResultsView(
-                    store: store.scope(
-                        state: \.searchResultsFeature,
-                        action: \.searchResultsFeature
-                    )
-                )
-                if store.searchResultsFeature.canLoadMore {
-                         ProgressView()
-                           .frame(maxWidth: .infinity, maxHeight: .infinity)
-                           .foregroundColor(.black)
-                           .foregroundColor(.red)
-                           .onAppear {
-                               store.send(.searchResultsFeature(.loadMoreSearch))
-                           }
-                       }
-            }
-            
-        }
-        .refreshable {
-            await store.send(.searchResultsFeature(.submitSearch(.keyword(store.searchText)))).finish()
-        }
+        SDSearchResultsView(
+            store: store.scope(
+                state: \.searchResultsFeature,
+                action: \.searchResultsFeature
+            )
+        )
+//        .refreshable {
+//            await store.send(.searchResultsFeature(.submitSearch(.keyword(store.searchText)))).finish()
+//        }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background {
