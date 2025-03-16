@@ -11,74 +11,19 @@ import SDWebImageSwiftUI
 import ScalingHeaderScrollView
 import ExyteGrid
 import PopupView
-// 在文件顶部添加
-struct SafeAreaInsetsKey: PreferenceKey {
-    static var defaultValue: EdgeInsets = EdgeInsets()
-    
-    static func reduce(value: inout EdgeInsets, nextValue: () -> EdgeInsets) {
-        value = nextValue()
-    }
-}
-
-struct SafeAreaInsetsModifier: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .background(
-                GeometryReader { geometry in
-                    Color.clear
-                        .preference(key: SafeAreaInsetsKey.self, value: geometry.safeAreaInsets)
-                }
-            )
-    }
-}
-
-// 在文件顶部添加
-import UIKit
-
-// 在 SDBookDetailView 外部添加这个扩展
-extension UIApplication {
-    static var safeAreaTop: CGFloat {
-        let scenes = UIApplication.shared.connectedScenes
-        let windowScene = scenes.first as? UIWindowScene
-        let window = windowScene?.windows.first
-        return window?.safeAreaInsets.top ?? 0
-    }
-    
-    static var safeAreaBottom: CGFloat {
-        let scenes = UIApplication.shared.connectedScenes
-        let windowScene = scenes.first as? UIWindowScene
-        let window = windowScene?.windows.first
-        return window?.safeAreaInsets.bottom ?? 0
-    }
-    
-    // 获取状态栏高度
-    static var statusBarHeight: CGFloat {
-        let scenes = UIApplication.shared.connectedScenes
-        let windowScene = scenes.first as? UIWindowScene
-        return windowScene?.statusBarManager?.statusBarFrame.height ?? 0
-    }
-    
-    // 获取导航栏高度
-    static var navigationBarHeight: CGFloat {
-        return 44.0 // 标准导航栏高度
-    }
-    
-    // 获取状态栏+导航栏的总高度
-    static var statusBarAndNavigationBarHeight: CGFloat {
-        return statusBarHeight + navigationBarHeight
-    }
-}
 
 @ViewAction(for: SDBookDetailReducer.self)
 struct SDBookDetailView: View {
     @Perception.Bindable var store: StoreOf<SDBookDetailReducer>
-    @State private var safeAreaInsets: (top: CGFloat, bottom: CGFloat) = (0, 0)
-    @Namespace private var namespace  // 添加这一行
-    @State private var position: Int?
+    
+    
     @State var progress: CGFloat = 0
     @State private var scrollToTop: Bool = false
 
     
+    var safeAreaHeight: CGFloat {
+        UIApplication.statusBarAndNavigationBarHeight
+    }
     var tabbarHeight: CGFloat {
         40
     }
@@ -86,26 +31,28 @@ struct SDBookDetailView: View {
         UIApplication.statusBarAndNavigationBarHeight + tabbarHeight
     }
     var maxHeight: CGFloat{
-        minHeight + topPadding + coverHeight + spacing * 2 + teacherButtonHeight
+        if store.userInfoModel?.userType == .teacher {
+            return safeAreaHeight + tabbarHeight + topPadding + coverHeight + spacing * 2 + teacherButtonHeight
+
+        }
+        return safeAreaHeight + tabbarHeight + topPadding + coverHeight + spacing
     }
     var topPadding : CGFloat = 16
     var coverHeight: CGFloat = 150
     var spacing: CGFloat  = 20
     var teacherButtonHeight: CGFloat = 40
     
-    @State var tabFrame: CGRect = .zero
-    @State var select = 0
-    var isTop: Bool {
-        tabFrame.origin.y < 102 && tabFrame.origin.y != 0
+    var headerBookHeight: CGFloat {
+        safeAreaHeight + topPadding + coverHeight
     }
+   
     var body: some View {
         ZStack(alignment: .top) {
+            SDColor.background.ignoresSafeArea()
+            content
+            bar
             
-            if store.isLoading {
-                ProgressView()
-                    .scaleEffect(1.5)
-            }
-            else if let errorMessage = store.errorMessage {
+            if let errorMessage = store.errorMessage {
                 VStack(spacing: 16) {
                     Text("加载失败")
                         .font(.headline)
@@ -119,62 +66,6 @@ struct SDBookDetailView: View {
                     }
                     .buttonStyle(.bordered)
                 }
-            } else if let bookDetail = store.bookDetail {
-                ScalingHeaderScrollView {
-                    VStack(spacing: 20) {
-                        bookHeaderSection(bookDetail: bookDetail)
-                            
-                        teacherApplyButton()
-                            
-                        tab
-                            
-
-                    }
-                    .frame(height: maxHeight - tabbarHeight)
-                    .background(content: {
-                        SDColor.background
-                    })
-                    .frame(width: UIScreen.main.bounds.width, height: maxHeight)
-                    
-                    
-                } content: {
-                    tabViewContent(bookDetail: bookDetail)
-                }
-                .collapseProgress($progress)
-
-                .scrollToTop(resetScroll: $scrollToTop)
-                .height(min: minHeight, max: maxHeight)
-                .background(SDColor.background)
-                .ignoresSafeArea(edges: .top)
-//                .overlay(alignment: .bottom, content: {
-//                    bottomActionButtons()
-//                })
-                .safeAreaInset(edge: .bottom) {
-                    bottomActionButtons()
-                }
-                .scrollIndicators(.hidden)
-
-                HStack {
-                    Button {
-                        send(.onBackTapped)
-                    } label: {
-                        Image("back")
-                    }
-                    Spacer()
-                    Text(bookDetail.name)
-                        .font(.sdTitle)
-                        .foregroundStyle(SDColor.text1)
-                        .opacity(progress)
-                    Spacer()
-                    Button {
-                        send(.favoriteButtonTapped)
-                    } label: {
-                        Image("star")
-                    }
-                }
-                .frame(height: 44)
-                .padding(.horizontal, 16)
-                .background(Color(hex: "#E7F1EE").opacity(progress))
             }
             
             
@@ -196,15 +87,78 @@ struct SDBookDetailView: View {
                     .init(title: "取消", style: .cancel, action: {}),
                         .init(title: "前往认证", style: .default, action: {})
                  ])
-        
         .task {
             send(.onAppear)
-            // 使用 UIApplication 扩展获取安全区域高度
-            safeAreaInsets.top = UIApplication.safeAreaTop
-            safeAreaInsets.bottom = UIApplication.safeAreaBottom
         }
+        .sdLoadingToast(isPresented: $store.isLoading)
         
         
+    }
+    var bar: some View {
+        HStack {
+            Button {
+                send(.onBackTapped)
+            } label: {
+                Image("back")
+            }
+            Spacer()
+            if let bookDetail = store.bookDetail {
+                Text(bookDetail.name)
+                    .font(.sdTitle)
+                    .foregroundStyle(SDColor.text1)
+                    .opacity(progress)
+            }
+            
+            Spacer()
+            Button {
+                send(.favoriteButtonTapped)
+            } label: {
+                Image("star")
+            }
+        }
+        .frame(height: 44)
+        .padding(.horizontal, 16)
+        .background(Color(hex: "#E7F1EE").opacity(progress))
+    }
+    @ViewBuilder var content: some View {
+        if let bookDetail = store.bookDetail {
+            ScalingHeaderScrollView {
+                VStack(spacing: 20) {
+                    bookHeaderSection(bookDetail: bookDetail)
+                    
+                    if store.userInfoModel?.userType == .teacher {
+                        teacherApplyButton()
+                    }
+                    
+                    
+                    tab
+                    
+                    
+                }
+                .frame(height: maxHeight - tabbarHeight)
+                .background(content: {
+                    SDColor.background
+                })
+                .frame(width: UIScreen.main.bounds.width, height: maxHeight)
+                
+                
+            } content: {
+                tabViewContent(bookDetail: bookDetail)
+            }
+            .collapseProgress($progress)
+            
+            .scrollToTop(resetScroll: $scrollToTop)
+            .height(min: minHeight, max: maxHeight)
+            .background(SDColor.background)
+            .ignoresSafeArea(edges: .top)
+            //                .overlay(alignment: .bottom, content: {
+            //                    bottomActionButtons()
+            //                })
+            .safeAreaInset(edge: .bottom) {
+                bottomActionButtons()
+            }
+            .scrollIndicators(.hidden)
+        }
     }
     var tab: some View {
         HStack(spacing: 24) {
@@ -289,7 +243,7 @@ struct SDBookDetailView: View {
         }
         
         .padding(.horizontal, 16)
-        .frame(height: minHeight  - tabbarHeight + topPadding + coverHeight, alignment: .bottom)
+        .frame(height: headerBookHeight, alignment: .bottom)
         .background {
             LinearGradient(
                 colors: [

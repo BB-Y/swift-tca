@@ -187,11 +187,27 @@ struct MyView: View {
     }
 }
 
+
+@available(iOS 18.0, *)
 #Preview {
-    MyView(
-        store: Store(
+        
+    @Previewable @State var store = Store(
             initialState: MyFeature.State(),
             reducer: { MyFeature() }
         )
-    )
+    NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
+        MyView(
+            store: Store(
+                initialState: MyFeature.State(),
+                reducer: { MyFeature() }
+            )
+        )
+    } destination: { store in
+        switch store.case {
+            
+        default:
+            EmptyView()
+        }
+    }
+  
 }

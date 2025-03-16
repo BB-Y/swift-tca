@@ -33,6 +33,9 @@ struct SDHomeFeature {
         
         @Shared(.shareUserToken) var token: String? = nil
         @Shared(.shareLoginStatus) var loginStatus = .notLogin
+        
+        // 添加加载状态
+        var isLoading = false
     }
     
     @Reducer(state: .equatable)
@@ -94,6 +97,8 @@ struct SDHomeFeature {
                 
                 //MARK: - home data
             case .onAppear:
+                // 开始加载时设置isLoading为true
+                state.isLoading = true
                 return .run { send in
                     await send(.fetchHomeDataResponse(
                         Result { try await homeClient.getSectionList() }
@@ -105,10 +110,14 @@ struct SDHomeFeature {
 
             case let .fetchHomeDataResponse(.success(sections)):
                 state.homeData = sections
+                // 加载完成后设置isLoading为false
+                state.isLoading = false
                 return .none
                 
             case .fetchHomeDataResponse(.failure):
                 // 处理错误情况
+                // 加载失败也需要设置isLoading为false
+                state.isLoading = false
                 return .none
                 
                 

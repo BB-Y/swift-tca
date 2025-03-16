@@ -16,16 +16,15 @@ struct SDBookListView: View {
 
     var body: some View {
         WithPerceptionTracking {
-            
-            VStack {
-                if store.isLoading {
-                    loadingView
-                } else if store.hasError {
-                    errorView
-                } else {
-                    contentView
-                }
+            ZStack {
                 
+                if store.bookList?.isEmpty == false {
+                    contentView
+                        .searchable(text: $store.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "搜索")
+                }
+            }
+            .onAppear {
+                store.send(.onAppear)
             }
             .navigationTitle(store.sectionTitle)
             .navigationBarTitleDisplayMode(.inline)
@@ -39,69 +38,10 @@ struct SDBookListView: View {
                 SDColor.background
                     .ignoresSafeArea()
             }
-            .task {
-                store.send(.onAppear)
-            }
-            .searchable(text: $store.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "搜索")
-          
-        }
-    }
-    
-    // 加载中视图
-    var loadingView: some View {
-        VStack(spacing: 16) {
-            ForEach(0..<10, id: \.self) { _ in
-                HStack {
-                    Rectangle()
-                        
-                        
-                        .frame(width: 80, height: 120)
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        Rectangle()
-                            
-                            
-                            .frame(height: 20)
-                        
-                        Rectangle()
-                            
-                            .frame(height: 16)
-                            .opacity(0.7)
-                        
-                        Rectangle()
-                            
-                            
-                            .frame(height: 16)
-                            .opacity(0.7)
-                            .frame(width: 100)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .padding(.horizontal, 16)
-            }
-        }
-    }
-    
-    // 错误视图
-    @ViewBuilder var errorView: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "exclamationmark.triangle")
-                .font(.system(size: 50))
-                .foregroundColor(.gray)
+            .sdLoadingToast(isPresented: $store.isLoading)
             
-            Text("加载失败，请重试")
-                .font(.sdBody1)
-                .foregroundColor(SDColor.text2)
-            
-            Button {
-                store.send(.onAppear)
-            } label: {
-                Text("重新加载")
-                    .padding(.horizontal, 32)
-            }
-            .buttonStyle(SDButtonStyleConfirm(isDisable: false))
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        
     }
     
     // 内容视图
@@ -161,13 +101,13 @@ struct SDBookListView: View {
         SDBookListView(
             store: Store(
                 initialState: SDBookListFeature.State(
-                    sectionId: 31,
+                    sectionId: 27,
                     sectionTitle: "十四五规划精品教材"
                 ),
                 reducer: {
                     SDBookListFeature()
                         ._printChanges()
-                        .dependency(\.homeClient, .previewValue)
+                        .dependency(\.homeClient, .liveValue)
                 }
             )
         )

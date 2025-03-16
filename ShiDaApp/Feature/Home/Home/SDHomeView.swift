@@ -53,6 +53,7 @@ struct SDHomeView: View {
                         .frame(maxWidth: .infinity)
                         
                     }
+                    .sdLoadingToast(isPresented: $store.isLoading)
                 }
                 
                 

@@ -148,16 +148,13 @@ struct SDAppView: View {
     }
     // 首页
     var homeView: some View {
-        NavigationStack {
-            WithPerceptionTracking {
-                SDHomeView(
-                    store: store.scope(
-                        state: \.homeState,
-                        action: \.home
-                    )
+        WithPerceptionTracking {
+            SDHomeView(
+                store: store.scope(
+                    state: \.homeState,
+                    action: \.home
                 )
-            }
-            
+            )
         }
         .tabItem {
             
@@ -168,16 +165,13 @@ struct SDAppView: View {
     
     // 书籍
     var bookView: some View {
-        NavigationStack {
-            WithPerceptionTracking {
-                SDBookHomeView(
-                    store: store.scope(
-                        state: \.bookState,
-                        action: \.book
-                    )
+        WithPerceptionTracking {
+            SDBookHomeView(
+                store: store.scope(
+                    state: \.bookState,
+                    action: \.book
                 )
-            }
-            
+            )
         }
         .tabItem {
             Label("书籍", image: store.selectedTab == .book ? "book_tab_select" : "book_tab_deselect")
@@ -187,16 +181,13 @@ struct SDAppView: View {
     
     // 学习
     var studyView: some View {
-        NavigationStack {
-            WithPerceptionTracking {
-                StudyView(
-                    store: store.scope(
-                        state: \.studyState,
-                        action: \.study
-                    )
+        WithPerceptionTracking {
+            StudyView(
+                store: store.scope(
+                    state: \.studyState,
+                    action: \.study
                 )
-            }
-            
+            )
         }
         .tabItem {
             Label("学习", image: store.selectedTab == .study ? "study_tab_select" : "study_tab_deselect")
