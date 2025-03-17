@@ -7,6 +7,7 @@
 
 import SwiftUI
 import ComposableArchitecture
+import AuthenticationServices
 
 @ViewAction(for: SDLoginReducer.self)
 struct SDLoginView: View {
@@ -193,10 +194,17 @@ struct SDLoginView: View {
     // 其他登录方式部分
     private var otherLoginMethodsSection: some View {
         VStack(spacing: 40) {
+            
             HStack(spacing: 40){
                 Image("login_weixin")
                 Image("login_qq")
+               
                 Image("login_apple")
+                    .onTapGesture {
+                        AppleLoginService.shared.startLogin(with: .apple) {_ in 
+                            
+                        }
+                    }
             }
             .background(alignment: .top) {
                 HStack {
@@ -210,6 +218,17 @@ struct SDLoginView: View {
                 }
                 .offset(x:0, y: -50)
             }
+            SignInWithAppleButton(.continue,
+                        onRequest: { request in
+                            
+                        },
+                        onCompletion: { result in
+                            
+                        }
+                    )
+            //.signInWithAppleButtonStyle(.black)
+            .frame(width: 66,height: 66)
+            .clipShape(Capsule())
         }
     }
     

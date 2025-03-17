@@ -27,7 +27,15 @@ extension View {
         }
     }
 }
-
+extension View {
+    @ViewBuilder func hidden(_ hide: Bool) -> some View {
+        if hide {
+            hidden()
+        } else {
+            self
+        }
+    }
+}
 extension View {
     @ViewBuilder func hideToolBar() -> some View {
         if #available(iOS 16, *) {

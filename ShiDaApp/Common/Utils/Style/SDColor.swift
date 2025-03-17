@@ -40,6 +40,15 @@ public enum SDColor {
     /// 信息提示
     public static var info: Color { Color("Info", bundle: .main) }
     
+    /// 随机色
+    public static var random: Color {
+        Color(
+            red: Double.random(in: 0...1),
+            green: Double.random(in: 0...1),
+            blue: Double.random(in: 0...1)
+        )
+    }
+    
     // MARK: - 中性色
     
     /// 背景色 - 主要

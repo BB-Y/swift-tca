@@ -434,6 +434,36 @@
             endingLineNumber = "100"
             landmarkName = "body"
             landmarkType = "24">
+            <Locations>
+               <Location
+                  uuid = "75BA4EA1-7BE2-4B45-933C-1B8C2DB598D6 - 51baee9983c707ed"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (inout ShiDaApp.SDLoginAgainReducer.State, ShiDaApp.SDLoginAgainReducer.Action) -&gt; ComposableArchitecture.Effect&lt;ShiDaApp.SDLoginAgainReducer.Action&gt; in ShiDaApp.SDLoginAgainReducer.body.getter : some"
+                  moduleName = "ShiDaApp.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/huangzhenxin/shida/ios/ShiDaApp/ShiDaApp/Feature/Login/LoginAgain/SDLoginAgainView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "102"
+                  endingLineNumber = "102">
+               </Location>
+               <Location
+                  uuid = "75BA4EA1-7BE2-4B45-933C-1B8C2DB598D6 - 51baee9983c707ed"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (inout ShiDaApp.SDLoginAgainReducer.State, ShiDaApp.SDLoginAgainReducer.Action) -&gt; ComposableArchitecture.Effect&lt;ShiDaApp.SDLoginAgainReducer.Action&gt; in ShiDaApp.SDLoginAgainReducer.body.getter : some"
+                  moduleName = "ShiDaApp.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/huangzhenxin/shida/ios/ShiDaApp/ShiDaApp/Feature/Login/LoginAgain/SDLoginAgainView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "102"
+                  endingLineNumber = "102">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -466,6 +496,22 @@
             endingLineNumber = "109"
             landmarkName = "body"
             landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "1B5FDF50-DCB9-4449-9F54-F3CDCAC46C67"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ShiDaApp/Feature/Login/AppleLogin/AppleLoginService.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "128"
+            endingLineNumber = "128"
+            landmarkName = "authorizationController(controller:didCompleteWithAuthorization:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
