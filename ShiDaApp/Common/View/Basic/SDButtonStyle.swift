@@ -18,7 +18,7 @@ struct SDButtonStyleConfirm: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.sdBody1)
-            .padding(.vertical, 12)
+            .padding(.vertical, 10)
             .frame(maxWidth: .infinity)
             .background(isDisable ? color.opacity(0.5) : color)
             .foregroundStyle(.white)
@@ -30,7 +30,7 @@ struct SDButtonStyleGray: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.sdBody1)
-            .padding(.vertical, 12)
+            .padding(.vertical, 10)
             .frame(maxWidth: .infinity)
             .background(SDColor.buttonBackGray)
             .foregroundStyle(SDColor.text2)

@@ -175,7 +175,8 @@ struct SDLoginAgainView: View {
             
         }
         .padding(.horizontal, 40.pad(134))
-        
+        .ignoresSafeArea(.keyboard, edges:  .bottom)
+
         .sheet(isPresented: $store.showProtocol) {
             WithPerceptionTracking {
                 SDProtocolConfirmView {

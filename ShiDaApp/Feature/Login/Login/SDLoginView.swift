@@ -26,50 +26,59 @@ struct SDLoginView: View {
     
     var body: some View {
         WithPerceptionTracking {
-            VStack(spacing: 0) {
-                // 标题部分
-                titleSection
+            ScrollView {
                 
-                Spacer()
-                    .frame(height: 16)
-                
-                // 输入部分
-                inputSection
-                
-                Spacer()
-                    .frame(height: 16)
-                
-                // 登录方式切换部分
-                loginTypeToggleSection
-                
-                Spacer()
-                    .frame(height: 30)
-                
-                // 登录按钮部分
-                loginButtonSection
-                
-                Spacer()
-                    .frame(height: 24)
-                
-                // 协议部分
-                protocolSection
-                
-                
-                
-                Spacer()
-                
-                // 其他登录方式部分
-                otherLoginMethodsSection
-                
-                Spacer()
-                    .frame(height: 100)
-                
-                
+                    
+                VStack(spacing: 0) {
+                    // 标题部分
+                    titleSection
+                    
+                    Spacer()
+                        .frame(height: 16)
+                    
+                    // 输入部分
+                    inputSection
+                    
+                    Spacer()
+                        .frame(height: 16)
+                    
+                    // 登录方式切换部分
+                    loginTypeToggleSection
+                    
+                    Spacer()
+                        .frame(height: 40)
+                    
+                    // 登录按钮部分
+                    loginButtonSection
+                    
+                    Spacer()
+                        .frame(height: 24)
+                    
+                    // 协议部分
+                    protocolSection
+                    
+                    
+                    
+                    Spacer()
+                        .frame(height: 90)
+
+                    // 其他登录方式部分
+                    otherLoginMethodsSection
+                        
+                        
+                    
+
+                    
+                    //                Spacer()
+                    //                    .frame(height: 100)
+                    
+                    
+                }
             }
+            
+            .frame(maxHeight: .infinity, alignment: .top)
+            .scrollIndicators(.hidden)
             .padding(.horizontal, 40.pad(134))
-            //        .background(content: {
-            //            Color.blue
-            //        })
             
             // 添加协议弹窗
             .sheet(isPresented: $store.showProtocolSheet) {
@@ -82,6 +91,8 @@ struct SDLoginView: View {
                 }
             }
             .navigationTitle("")
+            .ignoresSafeArea(.keyboard, edges:  .bottom)
+            //.ignoresSafeArea(edges: .bottom)
         }
         
         
@@ -91,14 +102,14 @@ struct SDLoginView: View {
     
     // 标题部分
     private var titleSection: some View {
-        Group {
-            Spacer()
-                .frame(height: 48)
+        VStack(spacing: 0) {
+            
             Text(title)
                 .font(.largeTitle.bold())
                 .foregroundStyle(SDColor.text1)
-            Spacer()
-                .frame(height: 4)
+                .padding(.top, 48)
+                .padding(.bottom, 4)
+            
                 
             bottomTextSection
         }
@@ -108,11 +119,10 @@ struct SDLoginView: View {
     
     // 输入部分
     private var inputSection: some View {
-        Group {
+        VStack(spacing: 24) {
             SDPhoneInputView("请输入手机号", phone: $store.phone)
             
-            Spacer()
-                .frame(height: 24)
+            
             
             HStack {
                 SDSecureField(passwordPlaceholder, text: $store.password, isSecure: !store.isSMSLogin)
@@ -193,8 +203,17 @@ struct SDLoginView: View {
     
     // 其他登录方式部分
     private var otherLoginMethodsSection: some View {
-        VStack(spacing: 40) {
-            
+        VStack(spacing: 24) {
+            HStack {
+                SDLine(SDColor.divider)
+                Text("其它登录方式")
+                    .font(.sdSmall1)
+                    .foregroundStyle(SDColor.text3)
+                    .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
+                SDLine(SDColor.divider)
+            }
+            .frame(width: 200)
             HStack(spacing: 40){
                 Image("login_weixin")
                 Image("login_qq")
@@ -206,29 +225,18 @@ struct SDLoginView: View {
                         }
                     }
             }
-            .background(alignment: .top) {
-                HStack {
-                    SDLine(SDColor.divider)
-                    Text("其它登录方式")
-                        .font(.sdSmall1)
-                        .foregroundStyle(SDColor.text3)
-                        .lineLimit(1)
-                        .fixedSize(horizontal: true, vertical: false)
-                    SDLine(SDColor.divider)
-                }
-                .offset(x:0, y: -50)
-            }
-            SignInWithAppleButton(.continue,
-                        onRequest: { request in
-                            
-                        },
-                        onCompletion: { result in
-                            
-                        }
-                    )
-            //.signInWithAppleButtonStyle(.black)
-            .frame(width: 66,height: 66)
-            .clipShape(Capsule())
+            
+//            SignInWithAppleButton(.continue,
+//                        onRequest: { request in
+//                            
+//                        },
+//                        onCompletion: { result in
+//                            
+//                        }
+//                    )
+//            //.signInWithAppleButtonStyle(.black)
+//            .frame(width: 66,height: 66)
+//            .clipShape(Capsule())
         }
     }
     
@@ -237,6 +245,7 @@ struct SDLoginView: View {
         Text("未注册的手机登录后会自动注册")
             .foregroundStyle(SDColor.text3)
             .font(.sdSmall1)
+            .hidden(!store.isSMSLogin)
     }
 }
 

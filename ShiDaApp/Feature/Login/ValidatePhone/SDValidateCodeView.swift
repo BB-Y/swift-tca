@@ -54,7 +54,9 @@ struct SDValidateCodeView: View {
                 Spacer()
             }
         }
-        
+        .frame(maxHeight: .infinity)
+        .ignoresSafeArea(.keyboard, edges: .bottom)
+        .toolbarRole(.editor)
         .padding(.horizontal, 40)
         .onDisappear {
             store.send(.onDisappear)

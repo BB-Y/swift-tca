@@ -62,6 +62,8 @@ struct SDHomeView: View {
                 .navigationTitle("")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar(.hidden, for: .navigationBar)
+                .ignoresSafeArea(.keyboard, edges:  .bottom)
+
                 .task {
                     store.send(.onAppear)
                 }

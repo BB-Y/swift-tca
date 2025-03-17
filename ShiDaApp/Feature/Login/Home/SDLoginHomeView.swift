@@ -18,6 +18,11 @@ struct SDLoginHomeView: View {
         ) {
             WithPerceptionTracking {
                 content
+                    //.frame(maxHeight: .infinity)
+                    .ignoresSafeArea(.keyboard, edges:  .bottom)
+
+                    
+
             }
             
         } destination: { state in
@@ -36,6 +41,8 @@ struct SDLoginHomeView: View {
             }
         }
         .sdTint(SDColor.accent)
+        .ignoresSafeArea(.keyboard, edges:  .bottom)
+
     }
     @ViewBuilder
     private var content: some View {
@@ -69,42 +76,7 @@ struct SDLoginHomeView: View {
             }
         }
     }
-    // 未登录状态的视图
-//    @ViewBuilder
-//    private var notLoginContent: some View {
-//        VStack(spacing: 16) {
-//            Button {
-//                store.send(.showLogin)
-//            } label: {
-//                HStack {
-//                    Image("icon_login")
-//                    Text("登录")
-//                }
-//            }
-//            .buttonStyle(SDButtonStyleConfirm())
-//            Button {
-//                store.send(.showSignup(.student))
-//            } label: {
-//                HStack {
-//                    Image("icon_signup_student")
-//                    Text("学生注册")
-//                }
-//            }
-//            .buttonStyle(SDButtonStyleGray())
-//            Button {
-//                store.send(.showSignup(.teacher))
-//            } label: {
-//                HStack {
-//                    Image("icon_signup_teacher")
-//                    Text("教师注册")
-//                }
-//            }
-//            .buttonStyle(SDButtonStyleGray())
-//        }
-//        .padding(.horizontal, 40.pad(134))
-//    }
-    
-   
+ 
     
    
 

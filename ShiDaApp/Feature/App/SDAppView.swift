@@ -134,6 +134,10 @@ struct SDAppView: View {
                 .sdTint(SDColor.accent)
                 
             }
+            .ignoresSafeArea(.keyboard, edges:  .bottom)
+
+            
+
         }
         
         

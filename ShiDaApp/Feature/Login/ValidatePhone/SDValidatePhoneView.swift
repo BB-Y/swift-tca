@@ -187,6 +187,7 @@ struct SDValidatePhoneView: View {
                     .font(.sdBody3)
                     .foregroundStyle(SDColor.error)
                     .frame(height: 10)
+                    .padding(.bottom, 2)
                 Button {
                     store.send(.onSendTapped)
                 } label: {
@@ -206,6 +207,8 @@ struct SDValidatePhoneView: View {
                     SDValidateCodeView(store: store)
                 }
             }
+            .ignoresSafeArea(.keyboard, edges:  .bottom)
+
             
             //            .navigationDestination(isPresented: $store.showCodeInput) {
             //                WithPerceptionTracking {
