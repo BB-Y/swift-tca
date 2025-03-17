@@ -7,7 +7,7 @@
 
 import Foundation
 import SwiftUI
-
+import UIKit
 // MARK: - backport
 extension View {
     @ViewBuilder func sdSheetBackground<Content: View>(_ content: () -> Content) -> some View {
@@ -26,6 +26,16 @@ extension View {
             accentColor(color)
         }
     }
+}
+extension View {
+    func hideKeyboardWhenTap() -> some View {
+        self.contentShape(Rectangle())
+            .onTapGesture {
+                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                
+            }
+    }
+    
 }
 extension View {
     @ViewBuilder func hidden(_ hide: Bool) -> some View {

@@ -208,7 +208,7 @@ struct SDValidatePhoneView: View {
                 }
             }
             .ignoresSafeArea(.keyboard, edges:  .bottom)
-
+            .hideKeyboardWhenTap()
             
             //            .navigationDestination(isPresented: $store.showCodeInput) {
             //                WithPerceptionTracking {

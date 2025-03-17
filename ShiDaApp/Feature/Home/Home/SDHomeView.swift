@@ -15,7 +15,7 @@ struct SDHomeView: View {
     var listData: [SDResponseHomeSection] {
         store.homeData ?? []
     }
-    
+    @FocusState var focusState
     var body: some View {
         NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
             WithPerceptionTracking {
@@ -24,38 +24,40 @@ struct SDHomeView: View {
                     header
                         
                     
-                    
-                    ScrollView {
-                        content
-                            .padding(.top, 16)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-                    .scrollIndicators(.hidden)
-                    .overlay(alignment: .bottom) {
-                        ZStack {
-                            if store.loginStatus != .login {
-                                VStack {
-                                    Spacer()
-                                    login
-                                }
-                                .frame(maxWidth: .infinity)
-                            }
-                            if store.isSearchActive {
-                                SDSearchOverlay(store: store.scope(state: \.searchOverlay, action: \.searchOverlay))
-                                    .transition(.opacity)
-                            }
-                            if store.isShowingSearchResults {
-                                searchResultsContainer
-                                    .transition(.move(edge: .bottom).combined(with: .opacity))
-                            }
+                    ZStack {
+                        ScrollView {
+                            content
+                                .padding(.top, 16)
                         }
-                        .frame(maxWidth: .infinity)
-                        
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                        .scrollIndicators(.hidden)
+                        if store.loginStatus != .login {
+                            VStack {
+                                Spacer()
+                                login
+                            }
+                            .frame(maxWidth: .infinity)
+                        }
+                        if store.isSearchActive {
+                            SDSearchOverlay(store: store.scope(state: \.searchOverlay, action: \.searchOverlay))
+                                .ignoresSafeArea(edges: .bottom)
+                                .transition(.opacity)
+                                .hideKeyboardWhenTap()
+
+                        }
+                        if store.isShowingSearchResults {
+                            searchResultsContainer
+                                .ignoresSafeArea(edges: .bottom)
+                                .transition(.move(edge: .bottom).combined(with: .opacity))
+                                .hideKeyboardWhenTap()
+
+                        }
                     }
-                    .sdLoadingToast(isPresented: $store.isLoading)
+                    
                 }
-                
+                .sdLoadingToast(isPresented: $store.isLoading)
+
                 
                 .frame(maxWidth: .infinity)
                 .background(SDColor.background)
@@ -129,6 +131,7 @@ struct SDHomeView: View {
                             .onSubmit {
                                 store.send(.submitSearch)
                             }
+                            .focused($focusState)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .foregroundStyle(SDColor.text1)
                         
@@ -149,7 +152,7 @@ struct SDHomeView: View {
                     
                         .onTapGesture {
                             store.send(.toggleSearch)
-                            
+                            focusState.toggle()
                         }
                 }
             }
@@ -191,9 +194,9 @@ struct SDHomeView: View {
     var searchResultsContainer: some View {
         VStack(spacing: 0) {
             // 搜索加载中视图
-            if store.searchResultsFeature.isSearchLoading {
-                searchLoadingView
-            }
+//            if store.searchResultsFeature.isSearchLoading {
+//                searchLoadingView
+//            }
             
             // 搜索结果视图
             SDSearchResultsView(

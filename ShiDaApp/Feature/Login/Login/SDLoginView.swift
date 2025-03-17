@@ -92,6 +92,8 @@ struct SDLoginView: View {
             }
             .navigationTitle("")
             .ignoresSafeArea(.keyboard, edges:  .bottom)
+            .scrollDismissesKeyboard(.immediately)
+            .hideKeyboardWhenTap()
             //.ignoresSafeArea(edges: .bottom)
         }
         

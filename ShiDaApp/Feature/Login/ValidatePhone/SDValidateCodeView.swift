@@ -53,14 +53,17 @@ struct SDValidateCodeView: View {
                 
                 Spacer()
             }
+            .hideKeyboardWhenTap()
+            .frame(maxHeight: .infinity)
+            .ignoresSafeArea(.keyboard, edges: .bottom)
+            .toolbarRole(.editor)
+            .padding(.horizontal, 40)
+            .onDisappear {
+                store.send(.onDisappear)
+            }
         }
-        .frame(maxHeight: .infinity)
-        .ignoresSafeArea(.keyboard, edges: .bottom)
-        .toolbarRole(.editor)
-        .padding(.horizontal, 40)
-        .onDisappear {
-            store.send(.onDisappear)
-        }
+       
+        
     }
 }
 

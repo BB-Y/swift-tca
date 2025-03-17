@@ -7,7 +7,7 @@
 
 import Foundation
 import ComposableArchitecture
-
+import UIKit
 @Reducer
 struct SDSearchOverlayFeature {
     @ObservableState
@@ -33,7 +33,7 @@ struct SDSearchOverlayFeature {
     }
     
     @Dependency(\.searchClient) var searchClient
-    
+    @Dependency(\.continuousClock) var clock
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
@@ -68,7 +68,12 @@ struct SDSearchOverlayFeature {
                         state.$searchHistoryString.withLock { $0 = $0.limitCommaSeparatedItems(to: 10) }
                     }
                 }
-                return .none
+
+                return .run { send in
+                    try await clock.sleep(for: .seconds(0.2))
+                    await UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+
+                }
             }
         }
     }
