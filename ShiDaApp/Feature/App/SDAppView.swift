@@ -203,7 +203,7 @@ struct SDAppView: View {
     var myView: some View {
         NavigationStack {
             WithPerceptionTracking {
-                MyView(
+                SDMyView(
                     store: store.scope(
                         state: \.myState,
                         action: \.my

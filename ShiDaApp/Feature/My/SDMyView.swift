@@ -31,9 +31,12 @@ struct MyFeature {
     
     @Reducer(state: .equatable)
     enum Path {
-        
-
-      
+        case favorites
+        case corrections
+        case accountSettings
+        case teacherCertification
+        case helpFeedback
+        case aboutUs
     }
     
     
@@ -41,6 +44,12 @@ struct MyFeature {
         case onAppear
         case onLogoutTapped
         case onRemoveUserTapped
+        case onFavoritesTapped
+        case onCorrectionsTapped
+        case onAccountSettingsTapped
+        case onTeacherCertificationTapped
+        case onHelpFeedbackTapped
+        case onAboutUsTapped
     }
     
     enum Action: ViewAction {
@@ -87,6 +96,24 @@ struct MyFeature {
 
                 case .onAppear:
                     return .none
+                case .onFavoritesTapped:
+                    state.path.append(.favorites)
+                    return .none
+                case .onCorrectionsTapped:
+                    state.path.append(.corrections)
+                    return .none
+                case .onAccountSettingsTapped:
+                    state.path.append(.accountSettings)
+                    return .none
+                case .onTeacherCertificationTapped:
+                    state.path.append(.teacherCertification)
+                    return .none
+                case .onHelpFeedbackTapped:
+                    state.path.append(.helpFeedback)
+                    return .none
+                case .onAboutUsTapped:
+                    state.path.append(.aboutUs)
+                    return .none
 
                 }
                 return .none
@@ -108,83 +135,168 @@ struct MyFeature {
     }
 }
 
+// 菜单行组件
+private struct MenuRow: View {
+    let icon: String
+    let title: String
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack {
+                Image(systemName: icon)
+                    .foregroundColor(.blue)
+                    .frame(width: 24)
+                Text(title)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.gray)
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+// 通知红点组件
+private struct NotificationBadge: View {
+    var body: some View {
+        Circle()
+            .fill(Color.red)
+            .frame(width: 8, height: 8)
+            .offset(x: 2, y: -4)
+    }
+}
+
 @ViewAction(for: MyFeature.self)
-struct MyView: View {
+struct SDMyView: View {
     @Perception.Bindable var store: StoreOf<MyFeature>
     
     var body: some View {
         WithPerceptionTracking {
-            VStack {
-                Text("个人中心")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                Button("退出登陆") {
-                    send(.onLogoutTapped)
-                }
-                
-                Button("退出登陆,清除用户信息") {
-                    send(.onRemoveUserTapped)
-                }
-                Spacer()
-                
-                VStack(spacing: 20) {
-                    // 用户信息
+            NavigationStackStore(self.store.scope(state: \.path, action: \.path)) {
+                VStack(spacing: 0) {
+                    // 顶部导航
                     HStack {
-                        Image(systemName: "person.circle.fill")
-                            .resizable()
-                            .frame(width: 60, height: 60)
-                            .foregroundColor(.blue)
+                        Spacer()
+                        Button(action: {
+                            // 消息按钮动作
+                        }) {
+                            Image(systemName: "envelope")
+                                .foregroundColor(.primary)
+                                .overlay(NotificationBadge())
+                        }
+                    }
+                    .padding()
+                    
+                    // 用户信息区域
+                    HStack(alignment: .top, spacing: 16) {
+                        AsyncImage(url: URL(string: /*store.userInfoModel?.avatar ??*/ "")) { image in
+                            image.resizable()
+                                .aspectRatio(contentMode: .fill)
+                        } placeholder: {
+                            Image(systemName: "person.circle.fill")
+                                .resizable()
+                                .foregroundColor(.gray)
+                        }
+                        .frame(width: 80, height: 80)
+                        .clipShape(Circle())
                         
-                        VStack(alignment: .leading) {
-                            Text("用户名")
-                                .font(.title2)
-                                .fontWeight(.bold)
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack(spacing: 8) {
+                                Text(/*store.userInfoModel?.realName ??*/ "")
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+                                
+                                if /*store.userInfoModel?.isTeacherCertified ??*/ false {
+                                    Image(systemName: "checkmark.seal.fill")
+                                        .foregroundColor(.blue)
+                                } else {
+                                    Text("未认证")
+                                        .font(.caption)
+                                        .foregroundColor(.red)
+                                }
+                            }
                             
-                            Text(store.userInfoModel?.phone ?? "")
+                            Text(/*store.userInfoModel?.organization ??*/ "广西师范大学")
                                 .font(.subheadline)
                                 .foregroundColor(.gray)
                         }
                         
                         Spacer()
-                    }
-                    .padding()
-                    .background(Color.gray.opacity(0.1))
-                    .cornerRadius(10)
-                    
-                    // 菜单项
-                    List {
-                        ForEach(["我的学习", "我的收藏", "学习记录", "设置"], id: \.self) { item in
-                            WithPerceptionTracking {
-                                HStack {
-                                    Text(item)
-                                        .font(.headline)
-                                    
-                                    Spacer()
-                                    
-                                    Image(systemName: "chevron.right")
-                                        .foregroundColor(.gray)
-                                }
-                                .padding(.vertical, 8)
-                            }
-                            
+                        
+                        Button(action: {
+                            // 编辑资料动作
+                        }) {
+                            Image(systemName: "pencil.circle")
+                                .font(.title2)
                         }
                     }
-                    .listStyle(PlainListStyle())
-                    .frame(height: 250)
+                    .padding()
+                    
+                    // 菜单列表
+                    List {
+                        Section {
+                            MenuRow(icon: "star.fill", title: "我的收藏") {
+                                send(.onFavoritesTapped)
+                            }
+                            MenuRow(icon: "xmark.circle.fill", title: "我的纠错") {
+                                send(.onCorrectionsTapped)
+                            }
+                            MenuRow(icon: "gear", title: "账号设置") {
+                                send(.onAccountSettingsTapped)
+                            }
+                            MenuRow(icon: "link", title: "教师认证") {
+                                send(.onTeacherCertificationTapped)
+                            }
+                        }
+                        
+                        Section {
+                            MenuRow(icon: "questionmark.circle", title: "帮助反馈") {
+                                send(.onHelpFeedbackTapped)
+                            }
+                            MenuRow(icon: "info.circle", title: "关于我们") {
+                                send(.onAboutUsTapped)
+                            }
+                        }
+                    }
+                    .listStyle(.insetGrouped)
+                    
+                    // 版权信息
+                    VStack(spacing: 8) {
+                        Text("广西师范大学出版社 版权所有")
+                            .font(.caption2)
+                        Text("Copyright© DXY.All Right Reserved")
+                            .font(.caption2)
+                    }
+                    .foregroundColor(.gray)
+                    .padding(.vertical)
                 }
-                .padding()
-                
-                Spacer()
+            } destination: { state in
+                switch state {
+                case .favorites:
+                    Text("我的收藏页面")
+                case .corrections:
+                    Text("我的纠错页面")
+                case .accountSettings:
+                    Text("账号设置页面")
+                case .teacherCertification:
+                    Text("教师认证页面")
+                case .helpFeedback:
+                    Text("帮助反馈页面")
+                case .aboutUs:
+                    Text("关于我们页面")
+                }
             }
-        }
-        
-        .fullScreenCover(item: $store.scope(state: \.login, action: \.login), content: { item in
-            WithPerceptionTracking {
-                SDLoginHomeView(store: item)
+            
+            .fullScreenCover(item: $store.scope(state: \.login, action: \.login), content: { item in
+                WithPerceptionTracking {
+                    SDLoginHomeView(store: item)
+                }
+            })
+            .onAppear {
+                send(.onAppear)
             }
-        })
-        .onAppear {
-            send(.onAppear)
         }
     }
 }
@@ -192,24 +304,10 @@ struct MyView: View {
 
 @available(iOS 18.0, *)
 #Preview {
-        
-    @Previewable @State var store = Store(
+    SDMyView(
+        store: Store(
             initialState: MyFeature.State(),
             reducer: { MyFeature() }
         )
-    NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
-        MyView(
-            store: Store(
-                initialState: MyFeature.State(),
-                reducer: { MyFeature() }
-            )
-        )
-    } destination: { store in
-        switch store.case {
-            
-        default:
-            EmptyView()
-        }
-    }
-  
+    )
 }
