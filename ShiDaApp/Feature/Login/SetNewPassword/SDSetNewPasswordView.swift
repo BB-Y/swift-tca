@@ -64,10 +64,11 @@ struct SDSetNewPasswordView: View {
                             .progressViewStyle(CircularProgressViewStyle(tint: .white))
                     } else {
                         Text("确定")
+                            
                     }
                 }
         
-                .buttonStyle(SDButtonStyleConfirm(isDisable: !store.canSubmit))
+                .buttonStyle(.sdConfirm(isDisable: !store.canSubmit))
             }
             
             

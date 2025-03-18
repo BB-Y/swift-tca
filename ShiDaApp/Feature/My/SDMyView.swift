@@ -68,6 +68,8 @@ struct MyFeature {
                 switch viewAction {
                 case .onLogoutTapped:
                     state.$loginStatus.withLock({$0 = .logout})
+                    state.$token.withLock({$0 = nil})
+
                     state.$acceptProtocol.withLock({$0 = false})
                     state.path.removeAll()
                     state.login = SDLoginHomeReducer.State()

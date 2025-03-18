@@ -6,23 +6,83 @@
 //
 
 import SwiftUI
+extension ButtonStyle where Self == SDButtonStyleConfirm<Capsule> {
 
-struct SDButtonStyleConfirm: ButtonStyle {
+    static func sdConfirm(isDisable: Bool = false) -> Self {
+        SDButtonStyleConfirm(
+            isDisable: isDisable,
+            background: SDColor.accent,
+            foreground: .white,
+            height: 46,
+            font: .sdBody1.weight(.medium),
+            shape: Capsule()
+        )
+    }
     
+    static func sdMiddle(
+          isDisable: Bool = false,
+          background: Color = SDColor.accent,
+          foreground: Color = .white
+      ) -> Self {
+          SDButtonStyleConfirm(
+              isDisable: isDisable,
+              background: background,
+              foreground: foreground,
+              height: 42,
+              font: .sdBody1.weight(.medium),
+              shape: Capsule())
+      }
+    static func sdSmall(
+          isDisable: Bool = false
+      ) -> Self {
+          SDButtonStyleConfirm(
+              isDisable: isDisable,
+              background: SDColor.accent,
+              foreground: .white,
+              height: 36,
+              font: .sdBody3.weight(.medium),
+              shape: Capsule())
+      }
+    
+//    static func sdCustom(isDisable: Bool = false,color: Color = SDColor.accent) -> Self {
+//        Self(isDisable: isDisable, color: color, buttonType: .custom)
+//    }
+}
+struct SDButtonStyleConfirm<S: Shape>: ButtonStyle {
+    enum ButtonType {
+        case confirm
+        
+        case middle
+        case small
+        
+        case custom
+
+        
+    }
     let isDisable: Bool
-    let color: Color
-    init(isDisable: Bool = false, color: Color = SDColor.accent) {
+    let background: Color
+    let foreground: Color
+    let height: CGFloat?
+    let font: Font?
+    let shape: S
+    
+    init(isDisable: Bool = false, background: Color = SDColor.accent,foreground: Color = .white, height: CGFloat? = 46, font: Font? = nil, shape: S = Capsule()) {
         self.isDisable = isDisable
-        self.color = color
+        self.background = background
+        self.foreground = foreground
+        self.font = font
+        self.height = height
+        self.shape = shape
+
     }
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.sdBody1)
-            .padding(.vertical, 10)
+            .frame(height: height)
+            .font(font)
             .frame(maxWidth: .infinity)
-            .background(isDisable ? color.opacity(0.5) : color)
-            .foregroundStyle(.white)
-            .clipShape(Capsule())
+            .background(isDisable ? background.opacity(0.5) : background)
+            .foregroundStyle(foreground)
+            .clipShape(shape)
     }
 }
 struct SDButtonStyleGray: ButtonStyle {

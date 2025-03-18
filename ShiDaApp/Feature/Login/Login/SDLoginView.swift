@@ -186,11 +186,13 @@ struct SDLoginView: View {
                     ProgressView()
                 } else {
                     Text("登录")
+                    .padding(.vertical, 14)
+
                 }
 
                 
             }
-            .buttonStyle(SDButtonStyleConfirm(isDisable: store.isLoading || !store.isValid))
+            .buttonStyle(.sdConfirm(isDisable: store.isLoading || !store.isValid))
         }
     }
     

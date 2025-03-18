@@ -101,9 +101,11 @@ struct SDHomeView: View {
                 store.send(.onLoginTapped)
             } label: {
                 Text("立即登录")
+                    .font(.sdBody3)
+                    .padding(.vertical, 10)
                     .padding(.horizontal, 32)
             }
-            .buttonStyle(SDButtonStyleConfirm(isDisable: false))
+            .buttonStyle(.sdConfirm(isDisable: false))
         }
         .frame(height: 50)
         .frame(maxWidth: .infinity)

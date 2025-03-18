@@ -33,10 +33,9 @@ struct SDValidateCodeView: View {
                 } label: {
                     WithPerceptionTracking {
                         Text("确定")
-
                     }
                 }
-                .buttonStyle(SDButtonStyleConfirm(isDisable: !store.isValidCode))
+                .buttonStyle(.sdConfirm(isDisable: !store.isValidCode))
                 Spacer()
                     .frame(height: 24)
                 Button {

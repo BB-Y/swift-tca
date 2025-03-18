@@ -2,6 +2,7 @@ import Foundation
 import Moya
 import ComposableArchitecture
 import SwiftUI
+import UIKit
 /// API 端点基础协议
 public protocol SDEndpoint: TargetType {
     
@@ -24,6 +25,8 @@ public extension SDEndpoint {
         if let token {
             headers["token"] = token
         }
+        // 添加设备号
+        headers["deviceNo"] = UIDevice.current.identifierForVendor?.uuidString ?? ""
         return headers
     }
    

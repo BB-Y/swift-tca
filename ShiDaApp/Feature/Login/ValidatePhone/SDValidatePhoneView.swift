@@ -194,9 +194,10 @@ struct SDValidatePhoneView: View {
                     //Text("发送验证码")
                     WithPerceptionTracking {
                         Text(store.buttonTitle)
+                            
                     }
                 }
-                .buttonStyle(SDButtonStyleConfirm(isDisable: !store.isValidButton))
+                .buttonStyle(.sdConfirm(isDisable: !store.isValidButton))
                 Spacer()
                 
                 

@@ -33,7 +33,7 @@ struct SDProtocolConfirmView: View {
                 Text("同意并继续")
                     .frame(maxWidth: .infinity)
             }
-            .buttonStyle(SDButtonStyleConfirm())
+            .buttonStyle(.sdConfirm())
             
             Spacer()
             

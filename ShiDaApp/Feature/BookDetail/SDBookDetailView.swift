@@ -449,18 +449,22 @@ struct SDBookDetailView: View {
                 send(.buyPaperBook)
             } label: {
                 Text("购买纸书")
+                    .font(.sdBody1.weight(.medium))
+                    .padding(.vertical, 12)
                     .frame(maxWidth: .infinity)
             }
-            .buttonStyle(SDButtonStyleGray())
+            .buttonStyle(.sdMiddle(background: SDColor.buttonBackGray, foreground: SDColor.text2))
             
             Button {
                 send(.startReading)
             } label: {
                 Text(confimButtonTitle)
+                    
+                    
                     .frame(maxWidth: .infinity)
                     
             }
-            .buttonStyle(SDButtonStyleConfirm(color: confimButtonColor))
+            .buttonStyle(.sdMiddle(foreground: confimButtonColor))
         }
         .frame(height: 56)
 

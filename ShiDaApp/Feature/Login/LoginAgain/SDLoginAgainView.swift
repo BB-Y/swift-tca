@@ -151,9 +151,10 @@ struct SDLoginAgainView: View {
                     store.send(.onLoginTapped)
                 } label: {
                     Text("登录此帐号")
+                        .padding(.vertical, 14)
                     
                 }
-                .buttonStyle(SDButtonStyleConfirm())
+                .buttonStyle(.sdConfirm())
                 
                 Button {
                     store.send(.onOtherLoginTapped)

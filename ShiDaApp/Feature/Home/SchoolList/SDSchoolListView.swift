@@ -82,9 +82,11 @@ struct SDSchoolListView: View {
                 store.send(.onAppear)
             } label: {
                 Text("重新加载")
+                    .padding(.vertical, 6)
+
                     .padding(.horizontal, 32)
             }
-            .buttonStyle(SDButtonStyleConfirm(isDisable: false))
+            .buttonStyle(.sdConfirm(isDisable: false))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

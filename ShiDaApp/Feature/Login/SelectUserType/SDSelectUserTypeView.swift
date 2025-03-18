@@ -124,9 +124,9 @@ struct SDSelectUserTypeView: View {
             }
         } label: {
             Text("确定")
-                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
         }
-        .buttonStyle(SDButtonStyleConfirm(isDisable: store.selectedType == nil))
+        .buttonStyle(.sdConfirm(isDisable: store.selectedType == nil))
     }
 }
 
