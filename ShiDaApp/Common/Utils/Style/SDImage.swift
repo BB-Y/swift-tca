@@ -52,6 +52,25 @@ public enum SDImage {
         public static let more = "icon_more"
     }
     
+    // MARK: - 个人中心模块
+    public enum My {
+        public static let myHeader = "bg_my_header"
+
+        
+        /// 我的收藏图标
+        public static let favorites = "icon_favorites_star"
+        /// 我的纠错图标
+        public static let corrections = "icon_corrections_mark"
+        /// 账号设置图标
+        public static let accountSettings = "icon_account_settings"
+        /// 教师认证图标
+        public static let teacherCertification = "icon_teacher_certification"
+        /// 帮助反馈图标
+        public static let helpFeedback = "icon_help_feedback"
+        /// 关于我们图标
+        public static let aboutUs = "icon_about_us"
+    }
+    
     // MARK: - 占位图
     public enum Placeholder {
         /// 空状态占位图

@@ -34,7 +34,7 @@ struct MyFeature {
         case favorites
         case corrections
         case accountSettings
-        case teacherCertification
+        case teacherCertification(TeacherCertificationFeature)
         case helpFeedback
         case aboutUs
     }
@@ -52,10 +52,10 @@ struct MyFeature {
         case onAboutUsTapped
     }
     
-    enum Action: ViewAction {
+    enum Action: BindableAction, ViewAction {
         // 我的页面的动作
        
-        
+        case binding(BindingAction<State>)
         case path(StackActionOf<Path>)
 
         case view(View)
@@ -68,9 +68,11 @@ struct MyFeature {
     }
     
     var body: some ReducerOf<Self> {
+        BindingReducer()
         Reduce { state, action in
             switch action {
-                
+            case .binding:
+                return .none
             case .logout:
                 return .none
             case let .view(viewAction):
@@ -106,7 +108,7 @@ struct MyFeature {
                     state.path.append(.accountSettings)
                     return .none
                 case .onTeacherCertificationTapped:
-                    state.path.append(.teacherCertification)
+                    state.path.append(.teacherCertification(TeacherCertificationFeature.State()))
                     return .none
                 case .onHelpFeedbackTapped:
                     state.path.append(.helpFeedback)
@@ -116,7 +118,7 @@ struct MyFeature {
                     return .none
 
                 }
-                return .none
+                
                 
             case .login(_):
                 return .none
@@ -144,17 +146,26 @@ private struct MenuRow: View {
     var body: some View {
         Button(action: action) {
             HStack {
-                Image(systemName: icon)
-                    .foregroundColor(.blue)
-                    .frame(width: 24)
+                Image(icon)
+                    
+                    
                 Text(title)
+                    .font(.sdBody2.weight(.medium))
+                    .foregroundStyle(SDColor.text1)
                 Spacer()
-                Image(systemName: "chevron.right")
-                    .foregroundColor(.gray)
+                Image("arrow_right")
+                    
             }
             .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())
+        .frame(height: 54)  // 添加固定行高
+        .alignmentGuide(.listRowSeparatorLeading) { viewDimensions in
+            return 0
+        }
+        .alignmentGuide(.listRowSeparatorTrailing) { viewDimensions in
+            return viewDimensions[.listRowSeparatorTrailing]
+        }
     }
 }
 
@@ -174,11 +185,133 @@ struct SDMyView: View {
     
     var body: some View {
         WithPerceptionTracking {
-            NavigationStackStore(self.store.scope(state: \.path, action: \.path)) {
-                VStack(spacing: 0) {
-                    // 顶部导航
-                    HStack {
+            
+            
+            NavigationStack (path: $store.scope(state: \.path, action: \.path)) {
+                ZStack(alignment: .top) {
+                    SDColor.background.ignoresSafeArea()
+                    
+                    Image(SDImage.My.myHeader)
+                        .resizable()
+                        .scaledToFit()
+                        .ignoresSafeArea()
+
+                    VStack(spacing: 0) {
+                        
+                        
+                        // 用户信息区域
+                        HStack(alignment: .center, spacing: 16) {
+                            AsyncImage(url: URL(string: /*store.userInfoModel?.avatar ??*/ "")) { image in
+                                image.resizable()
+                                    .aspectRatio(contentMode: .fill)
+                            } placeholder: {
+                                Image(systemName: "person.circle.fill")
+                                    .resizable()
+                                    .foregroundColor(.gray)
+                            }
+                            .frame(width: 64, height: 64)
+                            .clipShape( Circle())
+                            .background {
+                                Circle()
+                                    .stroke(lineWidth: 2)
+                                    .foregroundStyle(Color.white)
+                            }
+                            
+                            
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack(spacing: 8) {
+                                    Text(/*store.userInfoModel?.realName ??*/ "123")
+                                        .font(.sdLargeTitle1)
+                                        .fontWeight(.bold)
+                                        .foregroundStyle(SDColor.text1)
+                                    
+                                    if /*store.userInfoModel?.isTeacherCertified ??*/ false {
+                                        Image(systemName: "checkmark.seal.fill")
+                                            .foregroundColor(.blue)
+                                    } else {
+                                        Text("未认证")
+                                            .font(.caption)
+                                            .foregroundColor(.red)
+                                    }
+                                }
+                                
+                                Text(/*store.userInfoModel?.organization ??*/ "广西师范大学")
+                                    .font(.sdBody2)
+                                    .foregroundStyle(SDColor.text2)
+                            }
+                            
+                            Spacer()
+                            
+                            Button(action: {
+                                // 编辑资料动作
+                            }) {
+                                Image(systemName: "pencil.circle")
+                                    .font(.title2)
+                            }
+                        }
+                        .padding(.top, 16)
+                        .padding(.horizontal, 16)
+                        
+
+                        // 菜单列表
+                        List {
+                            Section {
+                                MenuRow(icon: SDImage.My.favorites, title: "我的收藏") {
+                                    send(.onFavoritesTapped)
+                                }
+                                MenuRow(icon: SDImage.My.corrections, title: "我的纠错") {
+                                    send(.onCorrectionsTapped)
+                                }
+                                MenuRow(icon: SDImage.My.accountSettings, title: "账号设置") {
+                                    send(.onAccountSettingsTapped)
+                                }
+                                MenuRow(icon: SDImage.My.teacherCertification, title: "教师认证") {
+                                    send(.onTeacherCertificationTapped)
+                                }
+                                
+                            }
+                            .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                            
+                            
+                            
+                            Section {
+                                
+                                MenuRow(icon: SDImage.My.helpFeedback, title: "帮助反馈") {
+                                    send(.onHelpFeedbackTapped)
+                                }
+                                
+                                MenuRow(icon: SDImage.My.aboutUs, title: "关于我们") {
+                                    send(.onAboutUsTapped)
+                                }
+                            }
+                            .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                            
+                        }
+                        .scrollDisabled(true)
+                        .scrollContentBackground(.hidden)
+                        .listRowInsets(EdgeInsets())
+                        .listRowSpacing(0)
+                        .listStyle(.insetGrouped)
+                        .listRowBackground(Color.clear)
+                        .sdListSectionSpacing(16)
+                
+                        //.environment(\.defaultMinListHeaderHeight, 0.1) // <-- 2
+
                         Spacer()
+                        // 版权信息
+                        VStack(spacing: 6) {
+                            Text("广西师范大学出版社 版权所有")
+                            Text("Copyright© DXY.All Right Reserved")
+                        }
+                        .font(.sdSmall1)
+                        .foregroundColor(SDColor.text3)
+                        .padding(.bottom, 24)
+                    }
+                    
+                    
+                }
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
                         Button(action: {
                             // 消息按钮动作
                         }) {
@@ -187,108 +320,32 @@ struct SDMyView: View {
                                 .overlay(NotificationBadge())
                         }
                     }
-                    .padding()
-                    
-                    // 用户信息区域
-                    HStack(alignment: .top, spacing: 16) {
-                        AsyncImage(url: URL(string: /*store.userInfoModel?.avatar ??*/ "")) { image in
-                            image.resizable()
-                                .aspectRatio(contentMode: .fill)
-                        } placeholder: {
-                            Image(systemName: "person.circle.fill")
-                                .resizable()
-                                .foregroundColor(.gray)
-                        }
-                        .frame(width: 80, height: 80)
-                        .clipShape(Circle())
-                        
-                        VStack(alignment: .leading, spacing: 4) {
-                            HStack(spacing: 8) {
-                                Text(/*store.userInfoModel?.realName ??*/ "")
-                                    .font(.title2)
-                                    .fontWeight(.bold)
-                                
-                                if /*store.userInfoModel?.isTeacherCertified ??*/ false {
-                                    Image(systemName: "checkmark.seal.fill")
-                                        .foregroundColor(.blue)
-                                } else {
-                                    Text("未认证")
-                                        .font(.caption)
-                                        .foregroundColor(.red)
-                                }
-                            }
+                }
+                .toolbarBackground(.hidden, for: .navigationBar)
+            } destination: { store in
+                Group {
+                    switch store.case {
+                    case .favorites:
+                        Text("我的收藏页面")
+                    case .corrections:
+                        Text("我的纠错页面")
+                    case .accountSettings:
+                        Text("账号设置页面")
+                    case .teacherCertification(let store):
+                        TeacherCertificationView(store: store)
                             
-                            Text(/*store.userInfoModel?.organization ??*/ "广西师范大学")
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                        }
-                        
-                        Spacer()
-                        
-                        Button(action: {
-                            // 编辑资料动作
-                        }) {
-                            Image(systemName: "pencil.circle")
-                                .font(.title2)
-                        }
+
+                    case .helpFeedback:
+                        Text("帮助反馈页面")
+                    case .aboutUs:
+                        Text("关于我们页面")
                     }
-                    .padding()
-                    
-                    // 菜单列表
-                    List {
-                        Section {
-                            MenuRow(icon: "star.fill", title: "我的收藏") {
-                                send(.onFavoritesTapped)
-                            }
-                            MenuRow(icon: "xmark.circle.fill", title: "我的纠错") {
-                                send(.onCorrectionsTapped)
-                            }
-                            MenuRow(icon: "gear", title: "账号设置") {
-                                send(.onAccountSettingsTapped)
-                            }
-                            MenuRow(icon: "link", title: "教师认证") {
-                                send(.onTeacherCertificationTapped)
-                            }
-                        }
-                        
-                        Section {
-                            MenuRow(icon: "questionmark.circle", title: "帮助反馈") {
-                                send(.onHelpFeedbackTapped)
-                            }
-                            MenuRow(icon: "info.circle", title: "关于我们") {
-                                send(.onAboutUsTapped)
-                            }
-                        }
-                    }
-                    .listStyle(.insetGrouped)
-                    
-                    // 版权信息
-                    VStack(spacing: 8) {
-                        Text("广西师范大学出版社 版权所有")
-                            .font(.caption2)
-                        Text("Copyright© DXY.All Right Reserved")
-                            .font(.caption2)
-                    }
-                    .foregroundColor(.gray)
-                    .padding(.vertical)
                 }
-            } destination: { state in
-                switch state {
-                case .favorites:
-                    Text("我的收藏页面")
-                case .corrections:
-                    Text("我的纠错页面")
-                case .accountSettings:
-                    Text("账号设置页面")
-                case .teacherCertification:
-                    Text("教师认证页面")
-                case .helpFeedback:
-                    Text("帮助反馈页面")
-                case .aboutUs:
-                    Text("关于我们页面")
-                }
+                .toolbar(.hidden, for: .tabBar)
+                .toolbarRole(.editor)
+                
             }
-            
+            .toolbarRole(.editor)
             .fullScreenCover(item: $store.scope(state: \.login, action: \.login), content: { item in
                 WithPerceptionTracking {
                     SDLoginHomeView(store: item)

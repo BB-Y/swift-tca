@@ -3,6 +3,7 @@ import ComposableArchitecture
 
 @Reducer
 struct TeacherCertificationFeature {
+    @ObservableState
     struct State: Equatable {
         // User info
         var name: String = "任怡"
@@ -29,7 +30,9 @@ struct TeacherCertificationFeature {
         var alertMessage: String?
     }
     
-    enum Action {
+    enum Action: BindableAction {
+        
+        case binding(BindingAction<State>)
         // Input actions
         case emailChanged(String)
         case schoolChanged(String)
@@ -57,8 +60,12 @@ struct TeacherCertificationFeature {
     @Dependency(\.dismiss) var dismiss
     
     var body: some Reducer<State, Action> {
+        BindingReducer()
         Reduce { state, action in
             switch action {
+            case .binding(_):
+                return .none
+
             case let .emailChanged(email):
                 state.email = email
                 return .none

@@ -109,5 +109,13 @@ extension ForEach {
 }
 
 
-
+extension View {
+    @ViewBuilder func sdListSectionSpacing(_ spacing: CGFloat) -> some View {
+        if #available(iOS 17, *) {
+            self.listSectionSpacing(spacing)
+        } else {
+            self
+        }
+    }
+}
 
