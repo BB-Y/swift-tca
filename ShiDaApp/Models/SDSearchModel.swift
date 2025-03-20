@@ -181,10 +181,13 @@ public enum SDBookType: Int, Codable, Equatable {
 
 
 /// 图书搜索结果
-public typealias SDBookSearchResult = SDPageResponse<SDResponseHomeSectionBook>
+public typealias SDBookSearchResult = SDPageResponse<SDResponseBookInfo>
 
 // MARK: - Mock数据
-extension SDBookSearchResult: SDMockable {
+extension SDBookSearchResult {
+    static var mock: Self {
+        return try! JSONDecoder().decode(Self.self, from: jsonModel.data(using: .utf8)!)
+    }
     static var jsonModel: String {
         """
 {

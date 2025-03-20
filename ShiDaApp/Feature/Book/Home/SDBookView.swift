@@ -240,7 +240,7 @@ struct SDBookHomeView: View {
     }
     
     // 图书项视图
-    func bookItemView(book: SDResponseHomeSectionBook) -> some View {
+    func bookItemView(book: SDResponseBookInfo) -> some View {
         HStack(spacing: 16) {
             // 图书封面
             WebImage(url: book.cover?.url)

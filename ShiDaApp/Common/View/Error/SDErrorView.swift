@@ -85,70 +85,87 @@ struct SDErrorView: View {
     let config: SDErrorConfig
     
     var body: some View {
-        VStack(spacing: 16) {
-            // 错误图标
-            if let image = config.image {
-                image
-//                    .resizable()
-//                    .scaledToFit()
-//                    .frame(width: 80, height: 80)
-//                    .foregroundColor(.gray)
-            } else {
-                // 根据错误类型显示默认图标
-                switch config.style {
-                case .networkError:
-                    Image(systemName: "wifi.slash")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 80, height: 80)
-                        .foregroundColor(.gray)
-                case .emptyData:
-                    Image(systemName: "tray")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 80, height: 80)
-                        .foregroundColor(.gray)
+        ZStack {
+            config.backgroundColor ?? Color.clear  // 使用配置的背景色或默认透明
+
+            VStack(spacing: 16) {
+                // 错误图标
+                if let image = config.image {
+                    image
+                    //                    .resizable()
+                    //                    .scaledToFit()
+                    //                    .frame(width: 80, height: 80)
+                    //                    .foregroundColor(.gray)
+                } else {
+                    // 根据错误类型显示默认图标
+                    switch config.style {
+                    case .networkError:
+                        Image(systemName: "wifi.slash")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 80, height: 80)
+                            .foregroundColor(.gray)
+                    case .emptyData:
+                        Image(systemName: "tray")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 80, height: 80)
+                            .foregroundColor(.gray)
+                    }
                 }
-            }
-            
-            // 错误标题
-            Text(config.title)
-                .font(.system(size: 13))
-                .foregroundColor(SDColor.text3)
-            
-            // 错误信息
-            if !config.message.isEmpty {
-                Text(config.message)
+                
+                // 错误标题
+                Text(config.title)
                     .font(.system(size: 13))
                     .foregroundColor(SDColor.text3)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 32)
+                
+                // 错误信息
+                if !config.message.isEmpty {
+                    Text(config.message)
+                        .font(.system(size: 13))
+                        .foregroundColor(SDColor.text3)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 32)
+                }
+                
+                // 操作按钮
+                //            if let buttonTitle = config.buttonTitle {
+                //                Button(action: {
+                //                    config.action?()
+                //                }) {
+                //                    Text(buttonTitle)
+                //                        .font(.system(size: 16, weight: .medium))
+                //                        .foregroundColor(.white)
+                //                        .padding(.horizontal, 24)
+                //                        .padding(.vertical, 10)
+                //                        .background(Color.blue)
+                //                        .cornerRadius(8)
+                //                }
+                //                .padding(.top, 8)
+                //            }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             
-            // 操作按钮
-//            if let buttonTitle = config.buttonTitle {
-//                Button(action: {
-//                    config.action?()
-//                }) {
-//                    Text(buttonTitle)
-//                        .font(.system(size: 16, weight: .medium))
-//                        .foregroundColor(.white)
-//                        .padding(.horizontal, 24)
-//                        .padding(.vertical, 10)
-//                        .background(Color.blue)
-//                        .cornerRadius(8)
-//                }
-//                .padding(.top, 8)
-//            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(config.backgroundColor ?? Color.clear)  // 使用配置的背景色或默认透明
         .onTapGesture {
             config.action?()
         }
     }
 }
-
+struct SDErrorOverlayModifier<T: View>: ViewModifier {
+    @Binding var isPresented: Bool
+    let config: SDErrorConfig
+    @ViewBuilder let overlay: () -> T
+    func body(content: Content) -> some View {
+        ZStack {
+            content
+            if isPresented {
+                overlay()
+                    .transition(.opacity)
+            }
+        }
+    }
+}
 // 扩展 View 以便于使用
 public extension View {
     func sdErrorOverlay<T: View>(
@@ -156,14 +173,15 @@ public extension View {
         config: SDErrorConfig,
         @ViewBuilder content: @escaping () -> T
     ) -> some View {
-        ZStack {
-            self
-            
-            if isPresented.wrappedValue {
-                content()
-                    .transition(.opacity)
-            }
-        }
+        modifier(SDErrorOverlayModifier(isPresented: isPresented, config: config, overlay: content))
+//        ZStack {
+//            self
+//            
+//            if isPresented.wrappedValue {
+//                content()
+//                    .transition(.opacity)
+//            }
+//        }
     }
     
     // 便捷方法 - 显示网络错误
@@ -184,7 +202,7 @@ public extension View {
     func sdEmptyDataOverlay(
         isPresented: Binding<Bool>,
         message: String = "",
-        backgroundColor: Color? = nil,
+        backgroundColor: Color? = SDColor.background,
         action: (() -> Void)? = nil
     ) -> some View {
         self.sdErrorOverlay(

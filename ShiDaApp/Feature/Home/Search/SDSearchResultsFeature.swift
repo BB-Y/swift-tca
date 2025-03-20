@@ -53,7 +53,7 @@ struct SDSearchResultsFeature {
         case delegate(Delegate)
         
         enum Delegate {
-            case bookSelected(SDResponseHomeSectionBook)
+            case bookSelected(SDResponseBookInfo)
         }
     }
     

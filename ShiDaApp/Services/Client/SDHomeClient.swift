@@ -15,11 +15,11 @@ struct SDHomeClient {
     /// 获取首页栏目列表
     var getSectionList: @Sendable () async throws -> [SDResponseHomeSection]
     /// 获取栏目详情书籍列表
-    var getSectionDetailBookList: @Sendable (Int) async throws -> [SDResponseHomeSectionBook]
+    var getSectionDetailBookList: @Sendable (Int) async throws -> [SDResponseBookInfo]
     /// 获取栏目详情合作院校列表
     var getSectionDetailSchoolList: @Sendable (Int) async throws -> [SDResponseHomeSectionSchool]
     /// 获取学校图书列表
-    var getSchoolBookList: @Sendable (Int) async throws -> [SDResponseHomeSectionBook]
+    var getSchoolBookList: @Sendable (Int) async throws -> [SDResponseBookInfo]
 }
 
 extension SDHomeClient: DependencyKey {
@@ -51,16 +51,16 @@ extension SDHomeClient: DependencyKey {
                 return SDResponseHomeSection.mockArray
             },
             getSectionDetailBookList: { _ in
-                // 使用SDResponseHomeSectionBook的mockArray数据
-                return SDResponseHomeSectionBook.mockArray
+                // 使用SDResponseBookInfo的mockArray数据
+                return SDResponseBookInfo.mockArray
             },
             getSectionDetailSchoolList: { _ in
                 // 使用SDResponseHomeSectionSchool的mockArray数据
                 return SDResponseHomeSectionSchool.mockArray
             },
             getSchoolBookList: { _ in
-                // 使用SDResponseHomeSectionBook的mockArray数据
-                return SDResponseHomeSectionBook.mockArray
+                // 使用SDResponseBookInfo的mockArray数据
+                return SDResponseBookInfo.mockArray
             }
         )
     }

@@ -9,8 +9,8 @@ protocol SDBookItemProtocol {
     var isbn: String? { get }
 }
 
-// 在 SDResponseHomeSectionBook 结构体定义后添加扩展
-extension SDResponseHomeSectionBook: SDBookItemProtocol {
+// 在 SDResponseBookInfo 结构体定义后添加扩展
+extension SDResponseBookInfo: SDBookItemProtocol {
     // 协议要求的属性已经在结构体中实现，不需要额外实现
 }
 // 通用图书项视图组件
@@ -60,6 +60,6 @@ struct SDBookItemView<Book: SDBookItemProtocol>: View {
         .padding(16)
         .background(Color.white)
         .cornerRadius(8)
-        .padding(.horizontal, 16)
+        
     }
 }

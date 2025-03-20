@@ -1,7 +1,7 @@
 
 
 /// 分页数据结构
-public struct SDPageResponse<T: Codable & Equatable>: Codable, Equatable {
+public struct SDPageResponse<T: Codable & Equatable>: Codable, Equatable,SDMockable {
     /// 当前页码
     public var currentPage: Int?
     /// 偏移量，初始值为1

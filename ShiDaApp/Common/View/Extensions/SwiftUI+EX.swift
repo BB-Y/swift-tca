@@ -117,5 +117,14 @@ extension View {
             self
         }
     }
+    
+    
+    @ViewBuilder func sdContentMargins(_ spacing: CGFloat) -> some View {
+        if #available(iOS 17, *) {
+            self.contentMargins(.horizontal, 50)
+        } else {
+            self
+        }
+    }
 }
 

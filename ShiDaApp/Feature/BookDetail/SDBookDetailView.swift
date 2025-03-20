@@ -53,19 +53,8 @@ struct SDBookDetailView: View {
             bar
             
             if let errorMessage = store.errorMessage {
-                VStack(spacing: 16) {
-                    Text("加载失败")
-                        .font(.headline)
-                    Text(errorMessage)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
-                    Button("重试") {
-                        send(.onAppear)
-                    }
-                    .buttonStyle(.bordered)
-                }
+                SDErrorView(config: .networkError())
+                
             }
             
             
@@ -113,7 +102,7 @@ struct SDBookDetailView: View {
             Button {
                 send(.favoriteButtonTapped)
             } label: {
-                Image("star")
+                Image(store.isFavorite ? "star_fill" : "star")
             }
         }
         .frame(height: 44)
@@ -464,7 +453,7 @@ struct SDBookDetailView: View {
                     .frame(maxWidth: .infinity)
                     
             }
-            .buttonStyle(.sdMiddle(foreground: confimButtonColor))
+            .buttonStyle(.sdMiddle(background: confimButtonColor))
         }
         .frame(height: 56)
 
@@ -550,6 +539,7 @@ struct ChapterRowView: View {
                 reducer: {
                     SDBookDetailReducer()
                         .dependency(\.bookClient, .liveValue)
+                        ._printChanges()
                     
                 }
             )

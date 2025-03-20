@@ -83,6 +83,8 @@ struct ShiDaApp: App {
                     reducer: { SDAppFeature() }
                 )
             )
+            .preferredColorScheme(.light)
+
         }
     }
 }

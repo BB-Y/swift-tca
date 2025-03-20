@@ -17,8 +17,17 @@ extension SDMockable {
 }
 extension SDMockable where Self: Codable{
     static var mock: Self {
-        try! JSONDecoder().decode(Self.self, from: jsonModel.data(using: .utf8)!)
+        do {
+            let string = Self.jsonModel
+            return try JSONDecoder().decode(Self.self, from: string.data(using: .utf8)!)
+        } catch {
+            print("JSON 解码错误: \(error)")
+            fatalError("JSON 解码失败")
+        }
     }
+//    static var mock: Self {
+//        try! JSONDecoder().decode(Self.self, from: jsonModel.data(using: .utf8)!)
+//    }
     
     static var mockArray: [Self] {
         try! JSONDecoder().decode([Self].self, from: jsonArray.data(using: .utf8)!)
@@ -358,8 +367,8 @@ extension SDResponseHomeSectionSchool: SDMockable {
     }
 }
 
-// 添加SDResponseHomeSectionBook的mock数据
-extension SDResponseHomeSectionBook: SDMockable {
+// 添加SDResponseBookInfo的mock数据
+extension SDResponseBookInfo: SDMockable {
     static var jsonArray: String {
         """
 [
@@ -473,3 +482,112 @@ extension SDResponseHomeSectionBook: SDMockable {
  
   */
  */
+extension SDPageResponse<SDResponseCorrectionInfo>
+ {
+    static var mock: Self {
+        return try! JSONDecoder().decode(Self.self, from: jsonModel.data(using: .utf8)!)
+    }
+    static var jsonModel: String {
+        """
+{
+    "currentPage": 1,
+    "offset": 1,
+    "pageSize": 10,
+    "realSize": 10,
+    "total": 3,
+    "totalPage": 1,
+    "rows": [
+        {
+            "articleId": 101,
+            "articleNumber": 1,
+            "chapterId": 201,
+            "chapterName": "第一章 基础概念",
+            "content": "页面中的闭包应该是闭包Closure，建议添加英文术语",
+            "dbookId": 301,
+            "dbookName": "Swift编程实战",
+            "id": 1001,
+            "position": "P15",
+            "replyContent": "感谢反馈，已修改",
+            "replyStatus": 20,
+            "text": "闭包是引用类型",
+            "createDatetime": "2015-12-13",
+            "type": 20
+        },
+        {
+            "articleId": 102,
+            "articleNumber": 2,
+            "chapterId": 202,
+            "chapterName": "第二章 高级特性",
+            "content": "这里的属性观察器的示例代码有误",
+            "dbookId": 301,
+            "dbookName": "Swift编程实战",
+            "id": 1002,
+            "position": "P45",
+            "replyContent": null,
+            "replyStatus": 10,
+            "text": "willSet print(newValue)",
+            "createDatetime": "2015-12-13",
+
+            "type": 20
+        },
+        {
+            "articleId": 103,
+            "articleNumber": 3,
+            "chapterId": 203,
+            "chapterName": "第三章 函数式编程",
+            "content": "map的示意图显示不清晰",
+            "dbookId": 301,
+            "dbookName": "Swift编程实战",
+            "id": 1003,
+            "position": "P78",
+            "replyContent": "已更新为高清图片",
+            "replyStatus": 20,
+            "text": "图3-5 map函数示意图",
+            "createDatetime": "2015-12-13",
+
+            "type": 30
+        }
+    ]
+}
+"""
+    }
+    
+    static var jsonArray: String {
+        """
+[
+    {
+        "currentPage": 1,
+        "offset": 1,
+        "pageSize": 10,
+        "realSize": 3,
+        "total": 3,
+        "totalPage": 1,
+        "rows": [
+            {
+                "articleId": 101,
+                "articleNumber": 1,
+                "chapterId": 201,
+                "chapterName": "第一章 基础概念",
+                "content": "页面中的闭包应该是闭包Closure，建议添加英文术语",
+                "dbookId": 301,
+                "dbookName": "Swift编程实战",
+                "id": 1001,
+                "position": "P15",
+                "replyContent": "感谢反馈，已修改",
+                "replyStatus": 20,
+                "text": "闭包是引用类型",
+                "type": 20
+            }
+        ]
+    }
+]
+"""
+    }
+}
+
+/*
+ /*
+ 
+  */
+ */
+

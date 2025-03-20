@@ -46,7 +46,18 @@ extension SDBookEndpoint: SDEndpoint {
                 "bookId": bookId,
                 "status": status
             ]
+            // 使用 ParameterEncoding.urlEncoded 确保参数以表单格式发送
             return .requestParameters(parameters: parameters, encoding: JSONEncoding.default)
         }
     }
+    
+    // 添加自定义头部，确保Content-Type正确
+//    public var headers: [String: String]? {
+//        switch self {
+//        case .toggleFavorite:
+//            return ["Content-Type": "application/x-www-form-urlencoded"]
+//        default:
+//            return nil
+//        }
+//    }
 }

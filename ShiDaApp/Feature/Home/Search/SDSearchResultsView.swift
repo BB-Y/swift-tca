@@ -55,7 +55,7 @@ struct SDSearchResultsView: View {
     }
 
     // 搜索结果内容视图
-    func searchResultsContentView(books: [SDResponseHomeSectionBook]) -> some View {
+    func searchResultsContentView(books: [SDResponseBookInfo]) -> some View {
         ScalingHeaderScrollView {
             Color.clear
                 .frame(height: 0)
@@ -67,6 +67,7 @@ struct SDSearchResultsView: View {
                             store.send(.delegate(.bookSelected(book)))
                         }
                 }
+                Text("加载更多")
                 
             }
             .padding(.vertical, 16)
@@ -87,7 +88,7 @@ struct SDSearchResultsView: View {
     }
 
     // 图书项视图
-    func bookItemView(book: SDResponseHomeSectionBook) -> some View {
+    func bookItemView(book: SDResponseBookInfo) -> some View {
         HStack(spacing: 16) {
             // 图书封面
             WebImage(url: book.cover?.url)

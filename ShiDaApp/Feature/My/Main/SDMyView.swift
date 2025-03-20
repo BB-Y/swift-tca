@@ -31,12 +31,14 @@ struct MyFeature {
     
     @Reducer(state: .equatable)
     enum Path {
-        case favorites
-        case corrections
+        case favorites(SDFavoritesFeature)
+        case corrections(SDCorrectionsFeature)
         case accountSettings
         case teacherCertification(TeacherCertificationFeature)
         case helpFeedback
         case aboutUs
+        case bookDetail(SDBookDetailReducer)
+
     }
     
     
@@ -99,10 +101,10 @@ struct MyFeature {
                 case .onAppear:
                     return .none
                 case .onFavoritesTapped:
-                    state.path.append(.favorites)
+                    state.path.append(.favorites(SDFavoritesFeature.State()))
                     return .none
                 case .onCorrectionsTapped:
-                    state.path.append(.corrections)
+                    state.path.append(.corrections(SDCorrectionsFeature.State()))
                     return .none
                 case .onAccountSettingsTapped:
                     state.path.append(.accountSettings)
@@ -225,9 +227,22 @@ struct SDMyView: View {
                                         .fontWeight(.bold)
                                         .foregroundStyle(SDColor.text1)
                                     
-                                    if /*store.userInfoModel?.isTeacherCertified ??*/ false {
-                                        Image(systemName: "checkmark.seal.fill")
-                                            .foregroundColor(.blue)
+                                    if /*store.userInfoModel?.isTeacherCertified ??*/ true {
+                                        HStack {
+                                            Text("教师")
+                                                .font(.sdSmall1.weight(.medium))
+                                                .foregroundStyle(Color.white)
+                                            Image(SDImage.My.teacherTag)
+
+                                        }
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 4)
+
+                                        .background {
+                                            Capsule()
+                                                .fill(SDColor.blue)
+                                        }
+                                            
                                     } else {
                                         Text("未认证")
                                             .font(.caption)
@@ -245,12 +260,11 @@ struct SDMyView: View {
                             Button(action: {
                                 // 编辑资料动作
                             }) {
-                                Image(systemName: "pencil.circle")
-                                    .font(.title2)
+                                Image(SDImage.My.edit)
                             }
                         }
                         .padding(.top, 16)
-                        .padding(.horizontal, 16)
+                        .padding(.horizontal, 20)
                         
 
                         // 菜单列表
@@ -271,7 +285,8 @@ struct SDMyView: View {
                                 
                             }
                             .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
-                            
+                            .listRowSeparatorTint(SDColor.divider)
+
                             
                             
                             Section {
@@ -285,14 +300,14 @@ struct SDMyView: View {
                                 }
                             }
                             .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
-                            
+                            .listRowSeparatorTint(SDColor.divider)
+                            //.listRowBackground(Color.white)
+
                         }
                         .scrollDisabled(true)
                         .scrollContentBackground(.hidden)
-                        .listRowInsets(EdgeInsets())
                         .listRowSpacing(0)
                         .listStyle(.insetGrouped)
-                        .listRowBackground(Color.clear)
                         .sdListSectionSpacing(16)
                 
                         //.environment(\.defaultMinListHeaderHeight, 0.1) // <-- 2
@@ -315,30 +330,33 @@ struct SDMyView: View {
                         Button(action: {
                             // 消息按钮动作
                         }) {
-                            Image(systemName: "envelope")
-                                .foregroundColor(.primary)
-                                .overlay(NotificationBadge())
+                            Image(SDImage.My.message)
+                                .overlay(alignment: .topTrailing) {
+                                    NotificationBadge()
+                                }
                         }
+                        .frame(width: 32, height: 32, alignment: .center)
+                        .padding(.trailing, 10)
                     }
                 }
                 .toolbarBackground(.hidden, for: .navigationBar)
             } destination: { store in
                 Group {
                     switch store.case {
-                    case .favorites:
-                        Text("我的收藏页面")
-                    case .corrections:
-                        Text("我的纠错页面")
+                    case .favorites(let store):
+                        SDFavoritesView(store: store)
+                    case .corrections(let store):
+                        SDCorrectionsView(store: store)
                     case .accountSettings:
                         Text("账号设置页面")
                     case .teacherCertification(let store):
                         TeacherCertificationView(store: store)
-                            
-
                     case .helpFeedback:
                         Text("帮助反馈页面")
                     case .aboutUs:
                         Text("关于我们页面")
+                    case .bookDetail(let store):
+                        SDBookDetailView(store: store)
                     }
                 }
                 .toolbar(.hidden, for: .tabBar)
@@ -351,7 +369,7 @@ struct SDMyView: View {
                     SDLoginHomeView(store: item)
                 }
             })
-            .onAppear {
+            .task {
                 send(.onAppear)
             }
         }

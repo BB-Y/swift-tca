@@ -83,7 +83,7 @@ struct SDBookListView: View {
     
     // 图书项视图
     // 替换原有的 bookItemView 函数
-    private func bookItemView(book: SDResponseHomeSectionBook) -> some View {
+    private func bookItemView(book: SDResponseBookInfo) -> some View {
         
         NavigationLink(state: SDHomeFeature.Path.State.bookDetail(SDBookDetailReducer.State(id: book.id))) {
             WithPerceptionTracking {

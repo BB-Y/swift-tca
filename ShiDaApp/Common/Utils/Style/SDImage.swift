@@ -55,6 +55,9 @@ public enum SDImage {
     // MARK: - 个人中心模块
     public enum My {
         public static let myHeader = "bg_my_header"
+        public static let edit = "icon_edit"
+        public static let message = "icon_message"
+        public static let teacherTag = "icon_teacher_tag"
 
         
         /// 我的收藏图标

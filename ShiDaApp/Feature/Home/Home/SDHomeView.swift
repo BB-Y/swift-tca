@@ -105,7 +105,7 @@ struct SDHomeView: View {
                     .padding(.vertical, 10)
                     .padding(.horizontal, 32)
             }
-            .buttonStyle(.sdConfirm(isDisable: false))
+            .buttonStyle(.sdSmall())
         }
         .frame(height: 50)
         .frame(maxWidth: .infinity)
@@ -259,7 +259,7 @@ struct SDHomeView: View {
             initialState: SDHomeFeature.State(),
             reducer: {
                 SDHomeFeature()
-                    .dependency(\.homeClient, .liveValue)
+                    .dependency(\.homeClient, .previewValue)
                     ._printChanges()
                     .dependency(\.searchClient, .liveValue)
             }

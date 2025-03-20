@@ -26,7 +26,7 @@ struct SDBookListFeature {
         // 栏目标题
         let sectionTitle: String
         // 图书列表数据
-        var bookList: [SDResponseHomeSectionBook]?
+        var bookList: [SDResponseBookInfo]?
         // 是否正在加载
         var isLoading: Bool = false
         // 是否出现错误
@@ -34,7 +34,7 @@ struct SDBookListFeature {
         // 搜索文本
         var searchText: String = ""
         // 搜索结果
-        var searchResults: [SDResponseHomeSectionBook] = []
+        var searchResults: [SDResponseBookInfo] = []
         // 是否正在搜索
         var isSearching: Bool = false
         
@@ -55,7 +55,7 @@ struct SDBookListFeature {
         // 页面出现
         case onAppear
         // 获取图书列表响应
-        case fetchBookListResponse(Result<[SDResponseHomeSectionBook], Error>)
+        case fetchBookListResponse(Result<[SDResponseBookInfo], Error>)
         
         // 执行搜索
         case performSearch

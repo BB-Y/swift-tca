@@ -86,7 +86,7 @@ public enum SDHomeSectionDataType: Int, Codable, Equatable {
 
 /// 栏目详情书籍列表数据传输对象
 @CustomCodable
-public struct SDResponseHomeSectionBook: Codable, Equatable, Identifiable {
+public struct SDResponseBookInfo: Codable, Equatable, Identifiable {
     /// 教材作者信息
     let authorList: [SDResponseBookCopyrightTeam]?
     /// 教材封面
@@ -121,8 +121,9 @@ public struct SDResponseHomeSectionBook: Codable, Equatable, Identifiable {
 @CustomCodable
 public struct SDResponseBookCopyrightTeam: Codable, Equatable {
     /// 创建时间
-    @CodingUses<TimestampStringCoder>
-    var createTime: String
+    //@CodingUses<TimestampStringCoder>
+    @OptionalCoding<CodingUses<TimestampStringCoder>>
+    var createTime: String?
     /// 创建用户ID
     let createUserId: Int?
     /// 教材ID
