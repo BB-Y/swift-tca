@@ -21,7 +21,6 @@ struct MyFeature {
         @Shared(.shareAcceptProtocol) var acceptProtocol = false
         @Shared(.shareUserToken) var token = nil
 
-        @Presents var login: SDLoginHomeReducer.State?
 
         var userInfoModel: SDResponseLogin? {
             guard let data = userInfo else { return nil }
@@ -33,7 +32,7 @@ struct MyFeature {
     enum Path {
         case favorites(SDFavoritesFeature)
         case corrections(SDCorrectionsFeature)
-        case accountSettings
+        case accountSettings(SDAccountSettingReducer)
         case teacherCertification(TeacherCertificationFeature)
         case helpFeedback
         case aboutUs
@@ -44,8 +43,7 @@ struct MyFeature {
     
     enum View {
         case onAppear
-        case onLogoutTapped
-        case onRemoveUserTapped
+        
         case onFavoritesTapped
         case onCorrectionsTapped
         case onAccountSettingsTapped
@@ -62,10 +60,6 @@ struct MyFeature {
 
         case view(View)
         
-        case login(PresentationAction<SDLoginHomeReducer.Action>)
-
-        case logout
-        
         
     }
     
@@ -73,29 +67,10 @@ struct MyFeature {
         BindingReducer()
         Reduce { state, action in
             switch action {
-            case .binding:
-                return .none
-            case .logout:
-                return .none
+           
             case let .view(viewAction):
                 switch viewAction {
-                case .onLogoutTapped:
-                    state.$loginStatus.withLock({$0 = .logout})
-                    state.$token.withLock({$0 = nil})
-
-                    state.$acceptProtocol.withLock({$0 = false})
-                    state.path.removeAll()
-                    state.login = SDLoginHomeReducer.State()
-                    return .send(.logout)
-                case .onRemoveUserTapped:
-                    state.$loginStatus.withLock({$0 = .notLogin})
-                    state.$userInfo.withLock({$0 = nil})
-                    state.$acceptProtocol.withLock({$0 = false})
-                    state.$token.withLock({$0 = ""})
-
-                    state.path.removeAll()
-                    state.login = SDLoginHomeReducer.State()
-                    return .send(.logout)
+                
 
 
                 case .onAppear:
@@ -107,7 +82,7 @@ struct MyFeature {
                     state.path.append(.corrections(SDCorrectionsFeature.State()))
                     return .none
                 case .onAccountSettingsTapped:
-                    state.path.append(.accountSettings)
+                    state.path.append(.accountSettings(SDAccountSettingReducer.State()))
                     return .none
                 case .onTeacherCertificationTapped:
                     state.path.append(.teacherCertification(TeacherCertificationFeature.State()))
@@ -120,20 +95,15 @@ struct MyFeature {
                     return .none
 
                 }
+     
                 
-                
-            case .login(_):
-                return .none
-                
-            case .path:
+            case .path, .binding:
                 return .none
 
             }
         
         }
-        .ifLet(\.$login, action: \.login) {
-            SDLoginHomeReducer()
-        }
+       
         .forEach(\.path, action: \.path)
 
     }
@@ -347,8 +317,8 @@ struct SDMyView: View {
                         SDFavoritesView(store: store)
                     case .corrections(let store):
                         SDCorrectionsView(store: store)
-                    case .accountSettings:
-                        Text("账号设置页面")
+                    case .accountSettings(let store):
+                        SDAccountSettingView(store: store)
                     case .teacherCertification(let store):
                         TeacherCertificationView(store: store)
                     case .helpFeedback:
@@ -364,11 +334,7 @@ struct SDMyView: View {
                 
             }
             .toolbarRole(.editor)
-            .fullScreenCover(item: $store.scope(state: \.login, action: \.login), content: { item in
-                WithPerceptionTracking {
-                    SDLoginHomeView(store: item)
-                }
-            })
+    
             .task {
                 send(.onAppear)
             }

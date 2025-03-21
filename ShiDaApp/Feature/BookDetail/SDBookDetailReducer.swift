@@ -82,7 +82,7 @@ struct SDBookDetailReducer {
         case login(PresentationAction<SDLoginHomeReducer.Action>)
         case toLogin
         enum Delegate {
-            case navigateToChapterDetail(Int)
+            case navigateToChapterDetail(SDBookDetailModel,Int)
             case navigateToTeacherApply
             case navigateToBuyPaperBook
         }
@@ -119,6 +119,7 @@ struct SDBookDetailReducer {
                         } else {
                             state.expandedChapters.insert(chapterId)
                         }
+                        return .send(.delegate(.navigateToChapterDetail(state.bookDetail!,chapterId)))
                     } else {
                         return .send(.toLogin)
                     }
@@ -146,7 +147,7 @@ struct SDBookDetailReducer {
 
                 case .startReading:
                     if state.loginStatus == .login {
-                        return .send(.delegate(.navigateToChapterDetail(1)))
+                        return .send(.delegate(.navigateToChapterDetail(state.bookDetail!,0)))
                     }
                     return .send(.toLogin)
                 }

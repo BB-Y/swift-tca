@@ -12,7 +12,7 @@ import Moya
 /// 用户相关的客户端接口
 struct SDUserClient {
     /// 获取用户信息
-    var getUserInfo: @Sendable () async throws -> SDResponseUserInfo
+    var getUserSettings: @Sendable () async throws -> SDResponseUserInfo
 }
 
 extension SDUserClient: DependencyKey {
@@ -21,28 +21,52 @@ extension SDUserClient: DependencyKey {
         let apiService = APIService()
         
         return Self(
-            getUserInfo: {
-                try await apiService.requestResult(SDUserEndpoint.getUserInfo)
+            getUserSettings: {
+                try await apiService.requestResult(SDUserEndpoint.getUserSettings)
             }
         )
     }
     
-//    /// 提供测试用的模拟实现
-//    static var testValue: Self {
-//        Self(
-//            getUserInfo: {
-//                return SDResponseUserInfo(
-//                    id: 1,
-//                    name: "测试用户",
-//                    phone: "13800138000",
-//                    thirdparthAccountList: [],
-//                    userType: .student
-//                )
-//            }
-//        )
-//    }
-//    
-//    static var previewValue: SDUserClient {
-//        testValue
-//    }
+    /// 提供测试用的模拟实现
+    static var testValue: Self {
+        Self(
+            getUserSettings: {
+                // 创建测试用的第三方账号列表
+                let wechatAccount = SDThirdPartyAccountInfo(
+                    id: 1,
+                    thirdpartyAccount: "wx_test_account",
+                    thirdpartyAvatarUrl: "https://example.com/avatar.jpg",
+                    thirdpartyBindTime: "2025-03-15 10:00:00",
+                    thirdpartyBindType: .wechat,
+                    thirdpartyMailbox: "test@example.com",
+                    thirdpartyNickName: "微信昵称",
+                    userId: 1
+                )
+                
+                let appleAccount = SDThirdPartyAccountInfo(
+                    id: 2,
+                    thirdpartyAccount: "apple_test_id",
+                    thirdpartyAvatarUrl: nil,
+                    thirdpartyBindTime: "2025-03-16 15:30:00",
+                    thirdpartyBindType: .apple,
+                    thirdpartyMailbox: "apple@example.com",
+                    thirdpartyNickName: "Apple用户",
+                    userId: 1
+                )
+                
+                // 返回测试用户信息
+                return SDResponseUserInfo(
+                    id: 1,
+                    name: "测试用户",
+                    phone: "13800138000",
+                    thirdparthAccountList: [wechatAccount, appleAccount],
+                    userType: .teacher
+                )
+            }
+        )
+    }
+    
+    static var previewValue: SDUserClient {
+        testValue
+    }
 }

@@ -7,16 +7,22 @@
 
 import Foundation
 
+
+
+
+
 /// 第三方账号信息模型
 public struct SDThirdPartyAccountInfo: Codable, Equatable {
     let id: Int?
     let thirdpartyAccount: String?
     let thirdpartyAvatarUrl: String?
     let thirdpartyBindTime: String?
-    let thirdpartyBindType: Int?
+    let thirdpartyBindType: SDThirdPartyType?
     let thirdpartyMailbox: String?
     let thirdpartyNickName: String?
     let userId: Int?
+    
+    
 }
 
 /// 用户信息响应模型

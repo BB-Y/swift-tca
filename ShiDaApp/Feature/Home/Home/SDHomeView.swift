@@ -92,26 +92,8 @@ struct SDHomeView: View {
     }
     
     var login: some View {
-        HStack {
-            Text("登录体验更多精彩内容！")
-                .font(.sdBody2)
-                .foregroundStyle(Color.white)
-            Spacer()
-            Button {
-                store.send(.onLoginTapped)
-            } label: {
-                Text("立即登录")
-                    .font(.sdBody3)
-                    .padding(.vertical, 10)
-                    .padding(.horizontal, 32)
-            }
-            .buttonStyle(.sdSmall())
-        }
-        .frame(height: 50)
-        .frame(maxWidth: .infinity)
-        .padding(.horizontal, 16)
-        .background {
-            SDColor.text1.opacity(0.8)
+        SDLoginNoticeView {
+            store.send(.onLoginTapped)
         }
     }
     

@@ -39,12 +39,15 @@ struct SDBookFeature: Reducer {
         
         // 共享状态
         @Shared(.shareSearchHistory) var searchHistoryString = ""
+        //
+        var bookDetailFeature = SDBookDetailReducer.State(id: 0)
     }
     
     @Reducer(state: .equatable)
     enum Path {
         case bookDetail(SDBookDetailReducer)
         // 可能需要的其他导航目标
+        case bookReader(SDBookReaderReducer)
     }
     
     enum Action: BindableAction {
@@ -53,7 +56,8 @@ struct SDBookFeature: Reducer {
         
         // 页面生命周期
         case onAppear
-        
+        case onLoginTapped
+
         // 分类相关
         case fetchCategoriesResponse(Result<[SDBookCategory], Error>)
         case selectCategory(Int?)
@@ -72,6 +76,7 @@ struct SDBookFeature: Reducer {
         
         //  初始化页面时触发
         case fetchBookList
+       
     }
     
     @Dependency(\.bookClient) var bookClient
@@ -85,7 +90,7 @@ struct SDBookFeature: Reducer {
         Scope(state: \.searchResultsFeature, action: \.searchResultsFeature) {
             SDSearchResultsFeature()
         }
-        
+       
         Reduce { state, action in
             switch action {
             case .onAppear:
@@ -136,7 +141,7 @@ struct SDBookFeature: Reducer {
                 
                 // 获取书籍列表
                 return .send(.fetchBookList)
-            
+                
             case let .selectSubCategory(subCategoryId):
                 // 如果点击的是已选中的二级分类，不做任何操作
                 if state.selectedSubCategoryId == subCategoryId {
@@ -145,13 +150,13 @@ struct SDBookFeature: Reducer {
                 
                 state.selectedSubCategoryId = subCategoryId
                 return .send(.fetchBookList)
-            
+                
             case let .changeSortType(sortType):
                 state.currentSortType = sortType
                 // 这里可以添加根据排序方式重新获取书籍的逻辑
                 return .send(.fetchBookList)
                 
-       
+                
                 
             case .binding(\.searchText):
                 
@@ -174,14 +179,12 @@ struct SDBookFeature: Reducer {
                 
                 // 委托给搜索结果组件执行搜索
                 return .send(.fetchBookList)
-          
+                
                 
             case let .searchResultsFeature(.delegate(.bookSelected(book))):
                 // 处理图书选择，跳转到详情页
                 state.path.append(.bookDetail(SDBookDetailReducer.State(id: book.id)))
                 return .none
-                
-           
             case .fetchBookList:
                 // 创建搜索参数，考虑一级和二级分类
                 let categoryId: Int?
@@ -192,12 +195,26 @@ struct SDBookFeature: Reducer {
                 } else {
                     categoryId = state.selectedCategoryId
                 }
-           
+                
                 // 委托给搜索结果组件执行搜索
                 return .send(.searchResultsFeature(.submitSearch(.category(keyword: state.searchText, categoryId: categoryId, sortType: state.currentSortType))))
+            case .path(.element(id: _, action: .bookDetail(.delegate(let action)))):
+                switch action {
                 
-            case .binding, .path, .searchResultsFeature:
+                case .navigateToTeacherApply:
+                    return .none
+                case .navigateToBuyPaperBook:
+                    return .none
+                
+                case .navigateToChapterDetail(let bookDetail,let chapterId):
+                    state.path.append(.bookReader(SDBookReaderReducer.State(id: bookDetail.id, chapterId: chapterId, bookDetail: bookDetail )))
+                    return .none
+                }
+            case .path:
                 return .none
+            case .binding, .searchResultsFeature, .onLoginTapped:
+                return .none
+            
             }
         }
         .forEach(\.path, action: \.path)

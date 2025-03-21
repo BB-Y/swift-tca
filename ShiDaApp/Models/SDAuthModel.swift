@@ -108,10 +108,20 @@ public enum SDUserType: Int, Codable {
     case student = 20
     case teacher = 10
 }
-public enum SDThirdPartyType: Int, Codable {
+public enum SDThirdPartyType: Int, Codable,CaseIterable {
     case wechat = 10
     case qq = 20
     case apple = 30
+    var title: String {
+        switch self {
+        case .wechat:
+            return "微信"
+        case .qq:
+            return "QQ"
+        case .apple:
+            return "Apple"
+        }
+    }
 }
 /// 用户审核状态
 public enum SDTeacherAuthStatus: Int, Codable, Equatable {

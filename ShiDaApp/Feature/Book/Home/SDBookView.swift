@@ -59,6 +59,11 @@ struct SDBookHomeView: View {
                     
                 }
                 .background(Color.white.ignoresSafeArea())
+                .overlay(alignment: .bottom) {
+                    SDLoginNoticeView {
+                        store.send(.onLoginTapped)
+                    }
+                }
             }
             .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
@@ -71,6 +76,9 @@ struct SDBookHomeView: View {
             switch store.case {
             case .bookDetail(let store):
                 SDBookDetailView(store: store)
+                    .hideToolBar()
+            case .bookReader(let store):
+                SDBookReaderView(store: store)
                     .hideToolBar()
             }
         }

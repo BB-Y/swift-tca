@@ -10,8 +10,9 @@ import Moya
 
 /// 用户相关的 API 端点
 enum SDUserEndpoint {
-    /// 获取用户信息
-    case getUserInfo
+    
+    /// 获取用户设置信息
+    case getUserSettings
     /// 获取我的收藏列表
     case getMyCollections(params: SDReqParaMyCollection)
     /// 获取我的纠错列表
@@ -21,7 +22,8 @@ enum SDUserEndpoint {
 extension SDUserEndpoint: SDEndpoint {
     public var path: String {
         switch self {
-        case .getUserInfo:
+        
+        case .getUserSettings:
             return "/app/my/usersetting/get"
         case .getMyCollections:
             return "/app/my/collection/list"
@@ -32,14 +34,14 @@ extension SDUserEndpoint: SDEndpoint {
     
     public var method: Moya.Method {
         switch self {
-        case .getUserInfo, .getMyCollections, .getMyCorrections:
+        case .getUserSettings, .getMyCollections, .getMyCorrections:
             return .get
         }
     }
     
     public var task: Task {
         switch self {
-        case .getUserInfo:
+        case .getUserSettings:
             return .requestPlain
             
         case let .getMyCollections(params):

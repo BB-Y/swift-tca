@@ -22,7 +22,10 @@ struct SDAppFeature {
 
         
         @Shared(.shareLoginStatus) var loginStatus = .notLogin
-        
+        @Shared(.shareUserToken) var token = nil
+        @Shared(.shareUserInfo) var userInfo = nil
+        @Shared(.shareAcceptProtocol) var acceptProtocol = false
+
 
     }
 //    @Dependency(\.navigation) var navigation
@@ -43,6 +46,9 @@ struct SDAppFeature {
         
         case login(PresentationAction<SDLoginHomeReducer.Action>)
 
+        case clearLoginStatus
+        case resetNavigation
+        case showLogin
 
     }
     
@@ -61,9 +67,7 @@ struct SDAppFeature {
                     if tab == .study || tab == .my {
                         //state.selectedTab = .home
                         state.selectedTab = current
-
-                        state.login = SDLoginHomeReducer.State()
-
+                        return .send(.showLogin)
                     } else {
                         state.selectedTab = tab
                     }
@@ -72,11 +76,34 @@ struct SDAppFeature {
                 }
                 return .none
             case .home(.onLoginTapped):
-                state.login = SDLoginHomeReducer.State()
+                return .send(.showLogin)
+            case .book(.onLoginTapped):
+                return .send(.showLogin)
+            case .my(MyFeature.Action.path(StackAction.element(id: _, action: .accountSettings(.delegate(.logout))))):
+                
+                return .run { send in
+                    await send(.clearLoginStatus)
+                    await send(.resetNavigation)
+                    //await send(.showLogin)
+                }
+                
+            case .clearLoginStatus:
+                state.$loginStatus.withLock({$0 = .logout})
+                state.$token.withLock({$0 = nil})
+
+                state.$acceptProtocol.withLock({$0 = false})
+                
                 return .none
-            case .my(MyFeature.Action.logout):
-                print("logpout")
+            case .resetNavigation:
+                state.homeState.path.removeAll()
+                state.bookState.path.removeAll()
+                state.myState.path.removeAll()
+                //state.studyState.path.removeAll()
                 state.selectedTab = .home
+
+                return .none
+            case .showLogin:
+                state.login = SDLoginHomeReducer.State()
                 return .none
                 
             case .home, .book, .study, .my, .login:
@@ -201,16 +228,13 @@ struct SDAppView: View {
     
     // 我的
     var myView: some View {
-        NavigationStack {
-            WithPerceptionTracking {
-                SDMyView(
-                    store: store.scope(
-                        state: \.myState,
-                        action: \.my
-                    )
+        WithPerceptionTracking {
+            SDMyView(
+                store: store.scope(
+                    state: \.myState,
+                    action: \.my
                 )
-            }
-            
+            )
         }
         .tabItem {
             Label("我的", image: store.selectedTab == .my ? "my_tab_select" : "my_tab_deselect")
