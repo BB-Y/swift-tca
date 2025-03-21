@@ -182,6 +182,9 @@ struct SDResponseLogin : Codable, Equatable {
     let province : Int?
     /// 学校ID
     let schoolId : Int?
+    
+    let schoolName : String?
+
     /// 用户状态（10-正常 20-禁用 30-锁定）
     let status : Int?
     

@@ -22,6 +22,7 @@ struct MyFeature {
         @Shared(.shareUserToken) var token = nil
 
 
+        var showFeedBack: Bool = false
         var userInfoModel: SDResponseLogin? {
             guard let data = userInfo else { return nil }
             return try? JSONDecoder().decode(SDResponseLogin.self, from: data)
@@ -34,7 +35,6 @@ struct MyFeature {
         case corrections(SDCorrectionsFeature)
         case accountSettings(SDAccountSettingReducer)
         case teacherCertification(TeacherCertificationFeature)
-        case helpFeedback
         case aboutUs
         case bookDetail(SDBookDetailReducer)
 
@@ -43,6 +43,8 @@ struct MyFeature {
     
     enum View {
         case onAppear
+        
+        case onEditTapped
         
         case onFavoritesTapped
         case onCorrectionsTapped
@@ -72,6 +74,8 @@ struct MyFeature {
                 switch viewAction {
                 
 
+                case .onEditTapped:
+                    return .none
 
                 case .onAppear:
                     return .none
@@ -88,7 +92,7 @@ struct MyFeature {
                     state.path.append(.teacherCertification(TeacherCertificationFeature.State()))
                     return .none
                 case .onHelpFeedbackTapped:
-                    state.path.append(.helpFeedback)
+                    state.showFeedBack = true
                     return .none
                 case .onAboutUsTapped:
                     state.path.append(.aboutUs)
@@ -192,35 +196,50 @@ struct SDMyView: View {
                             
                             VStack(alignment: .leading, spacing: 8) {
                                 HStack(spacing: 8) {
-                                    Text(/*store.userInfoModel?.realName ??*/ "123")
+                                    Text(store.userInfoModel?.name ?? "")
                                         .font(.sdLargeTitle1)
                                         .fontWeight(.bold)
                                         .foregroundStyle(SDColor.text1)
                                     
-                                    if /*store.userInfoModel?.isTeacherCertified ??*/ true {
-                                        HStack {
-                                            Text("教师")
-                                                .font(.sdSmall1.weight(.medium))
-                                                .foregroundStyle(Color.white)
-                                            Image(SDImage.My.teacherTag)
+                                    if store.userInfoModel?.userType == .teacher {
+                                        if let authStatus = store.userInfoModel?.authStatus {
+                                            switch authStatus {
+                                            case .notApplied:
+                                                Text("未认证")
+                                                    .font(.sdSmall1.weight(.medium))
+                                                    .foregroundColor(SDColor.error)
+                                            case .pending:
+                                                Text("认证中")
+                                                    .font(.sdSmall1.weight(.medium))
+                                                    .foregroundColor(SDColor.error)
+                                            case .approved:
+                                                HStack {
+                                                    Text("教师")
+                                                        .font(.sdSmall1.weight(.medium))
+                                                        .foregroundStyle(Color.white)
+                                                    Image(SDImage.My.teacherTag)
 
-                                        }
-                                        .padding(.horizontal, 8)
-                                        .padding(.vertical, 4)
+                                                }
+                                                .padding(.horizontal, 8)
+                                                .padding(.vertical, 4)
 
-                                        .background {
-                                            Capsule()
-                                                .fill(SDColor.blue)
+                                                .background {
+                                                    Capsule()
+                                                        .fill(SDColor.blue)
+                                                }
+                                            case .rejected:
+                                                Text("未通过审核")
+                                                    .font(.sdSmall1.weight(.medium))
+                                                    .foregroundColor(SDColor.error)
+                                            }
                                         }
+                                       
+                                        
                                             
-                                    } else {
-                                        Text("未认证")
-                                            .font(.caption)
-                                            .foregroundColor(.red)
                                     }
                                 }
                                 
-                                Text(/*store.userInfoModel?.organization ??*/ "广西师范大学")
+                                Text(store.userInfoModel?.schoolName ?? "")
                                     .font(.sdBody2)
                                     .foregroundStyle(SDColor.text2)
                             }
@@ -229,6 +248,7 @@ struct SDMyView: View {
                             
                             Button(action: {
                                 // 编辑资料动作
+                                send(.onEditTapped)
                             }) {
                                 Image(SDImage.My.edit)
                             }
@@ -310,6 +330,11 @@ struct SDMyView: View {
                     }
                 }
                 .toolbarBackground(.hidden, for: .navigationBar)
+                .sheet(isPresented: $store.showFeedBack, content: {
+                    SDHelpFeedbackView()
+                        .presentationDetents([.height(300)])
+                        .presentationDragIndicator(.hidden)
+                })
             } destination: { store in
                 Group {
                     switch store.case {
@@ -321,8 +346,7 @@ struct SDMyView: View {
                         SDAccountSettingView(store: store)
                     case .teacherCertification(let store):
                         TeacherCertificationView(store: store)
-                    case .helpFeedback:
-                        Text("帮助反馈页面")
+                   
                     case .aboutUs:
                         Text("关于我们页面")
                     case .bookDetail(let store):
@@ -334,7 +358,7 @@ struct SDMyView: View {
                 
             }
             .toolbarRole(.editor)
-    
+            
             .task {
                 send(.onAppear)
             }
