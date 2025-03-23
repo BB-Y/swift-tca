@@ -9,7 +9,7 @@ import Foundation
 import ComposableArchitecture
 import Moya
 
-/// 用户相关的客户端接口
+/// 用户账号相关的客户端接口
 struct SDUserClient {
     /// 获取用户信息
     var getUserSettings: @Sendable () async throws -> SDResponseUserInfo
@@ -19,6 +19,8 @@ struct SDUserClient {
     var resetPasswordByOld: @Sendable (_ newPassword: String, _ oldPassword: String) async throws -> Bool
     /// 通过短信验证码重置密码
     var resetPasswordByCode: @Sendable (_ newPassword: String, _ smsCode: String) async throws -> Bool
+    /// 获取我的消息列表
+    var getMyMessages: @Sendable (_ pagination: SDPagination) async throws -> SDMessageListResult
 }
 
 extension SDUserClient: DependencyKey {
@@ -39,6 +41,9 @@ extension SDUserClient: DependencyKey {
             resetPasswordByCode: { newPassword, smsCode in
                 let params = SDReqParaResetPasswordByCode(newPassword: newPassword, smsCode: smsCode)
                 return try await apiService.requestResult(SDUserEndpoint.resetPasswordByCode(params: params))
+            },
+            getMyMessages: { pagination in
+                try await apiService.requestResult(SDUserEndpoint.getMyMessages(pagination: pagination))
             }
         )
     }
@@ -89,6 +94,10 @@ extension SDUserClient: DependencyKey {
             resetPasswordByCode: { _, _ in
                 // 模拟重置密码成功
                 return true
+            },
+            getMyMessages: { _ in
+                // 模拟获取消息列表成功
+                return SDMessageListResult.mock
             }
         )
     }

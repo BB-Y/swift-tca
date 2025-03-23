@@ -23,6 +23,7 @@ struct MyFeature {
 
 
         var showFeedBack: Bool = false
+        var unreadMessageCount: Int = 0  // 添加未读消息数量状态
         var userInfoModel: SDResponseLogin? {
             guard let data = userInfo else { return nil }
             return try? JSONDecoder().decode(SDResponseLogin.self, from: data)
@@ -38,6 +39,7 @@ struct MyFeature {
         case aboutUs(AboutUsFeature)  // 修改这里
         case bookDetail(SDBookDetailReducer)
         case accountDelete(SDAccountDeleteFeature)  // 添加注销账号路由
+        case messages(SDMessagesFeature)  // 添加消息页面路由
 
         case phoneValidate(SDValidatePhoneReducer)
         case codeValidate(SDValidateCodeReducer)
@@ -69,7 +71,11 @@ struct MyFeature {
 
         case view(View)
         
+        // 添加获取未读消息数量的 Action
+        case fetchUnreadMessageCountResponse(Result<Int, Error>)
     }
+    
+    @Dependency(\.myClient) var myClient
     
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -80,11 +86,20 @@ struct MyFeature {
                 switch viewAction {
                 
 
-                case .onEditTapped, .onMessageTapped:
+                case .onEditTapped:
+                    return .none
+                    
+                case .onMessageTapped:
+                    state.path.append(.messages(SDMessagesFeature.State()))
                     return .none
 
                 case .onAppear:
-                    return .none
+                    return .run { send in
+                        await send(.fetchUnreadMessageCountResponse(
+                            Result { try await myClient.getUnreadMessageCount() }
+                        ))
+                    }
+                   
                 case .onFavoritesTapped:
                     state.path.append(.favorites(SDFavoritesFeature.State()))
                     return .none
@@ -134,6 +149,15 @@ struct MyFeature {
             case .path, .binding:
                 return .none
 
+                // 处理获取未读消息数量的响应
+                         case let .fetchUnreadMessageCountResponse(.success(count)):
+                             state.unreadMessageCount = count
+                             return .none
+                             
+                         case .fetchUnreadMessageCountResponse(.failure):
+                             // 处理错误，可以选择不做任何事或者设置默认值
+                             
+                             return .none
             }
         
         }
@@ -313,7 +337,7 @@ struct SDMyView: View {
                         }) {
                             Image(SDImage.My.message)
                                 .overlay(alignment: .topTrailing) {
-                                    NotificationBadge()
+                                    NotificationBadge(count: store.unreadMessageCount)  // 传入未读消息数量
                                 }
                         }
                         .frame(width: 32, height: 32, alignment: .center)
@@ -337,7 +361,8 @@ struct SDMyView: View {
                         SDAccountSettingView(store: store)
                     case .teacherCertification(let store):
                         TeacherCertificationView(store: store)
-                   
+                    case .messages(let store):
+                        SDMessagesView(store: store)
                     case .aboutUs(let store):
                         SDAboutUsView(store: store)
                     case .bookDetail(let store):
@@ -414,10 +439,22 @@ private struct MenuRow: View {
 
 // 通知红点组件
 private struct NotificationBadge: View {
+    var count: Int = 0
+    
     var body: some View {
-        Circle()
-            .fill(Color.red)
-            .frame(width: 8, height: 8)
+        if count > 0 {
+            ZStack {
+                Circle()
+                    .fill(Color.red)
+                    .frame(width: count > 9 ? 16 : 8, height: count > 9 ? 16 : 8)
+                
+                if count > 9 {
+                    Text("9+")
+                        .font(.system(size: 8))
+                        .foregroundColor(.white)
+                }
+            }
             .offset(x: 2, y: -4)
+        }
     }
 }

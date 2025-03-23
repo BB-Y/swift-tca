@@ -35,6 +35,10 @@ enum SDUserEndpoint {
     case resetPasswordByOld(params: SDReqParaResetPasswordByOld)
     /// 通过短信验证码重置密码
     case resetPasswordByCode(params: SDReqParaResetPasswordByCode)
+    /// 获取我的消息列表
+    case getMyMessages(pagination: SDPagination)
+    /// 获取未读消息数
+    case getUnreadMessageCount
 }
 
 extension SDUserEndpoint: SDEndpoint {
@@ -51,17 +55,21 @@ extension SDUserEndpoint: SDEndpoint {
             return "/app/my/usersetting/delete"
         case .resetPasswordByOld, .resetPasswordByCode:
             return "/app/my/usersetting/resetpassword"
+        case .getMyMessages:
+            return "/app/my/message/list"
+        case .getUnreadMessageCount:
+            return "/app/my/message/unread"
         }
     }
     
     public var method: Moya.Method {
         switch self {
-        case .getUserSettings, .getMyCollections, .getMyCorrections:
-            return .get
-        case .deleteAccount:
+        case .getUserSettings, .getMyCollections, .getMyCorrections, .getMyMessages, 
+             .deleteAccount, .getUnreadMessageCount:
             return .get
         case .resetPasswordByOld, .resetPasswordByCode:
             return .post
+       
         }
     }
     
@@ -86,21 +94,18 @@ extension SDUserEndpoint: SDEndpoint {
             )
             
         case let .getMyCorrections(pagination):
-            let parameters: [String: Any] = [
-                "offset": pagination.offset,
-                "pageSize": pagination.pageSize
-            ]
-            
-            return .requestParameters(
-                parameters: parameters,
-                encoding: URLEncoding.queryString
-            )
+            return .requestJSONEncodable(pagination)
+        case let .getMyMessages(pagination):
+            return .requestJSONEncodable(pagination)
         case .deleteAccount:
             return .requestPlain
         case let .resetPasswordByOld(params):
             return .requestJSONEncodable(params)
         case let .resetPasswordByCode(params):
             return .requestJSONEncodable(params)
+        case .getUnreadMessageCount:
+            return .requestPlain
+
         }
     }
 }

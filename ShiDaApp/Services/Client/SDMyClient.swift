@@ -14,6 +14,7 @@ struct SDMyClient {
     var getFavoritesList: @Sendable(_ params: SDReqParaMyCollection) async throws -> SDBookSearchResult
     var searchFavoritesList: @Sendable (_ params: SDReqParaMyCollection) async throws -> SDBookSearchResult
     var getCorrectionList: @Sendable (_ pagination: SDPagination) async throws -> SDCorrectionListResult
+    var getUnreadMessageCount: @Sendable () async throws -> Int
 }
 
 extension SDMyClient: DependencyKey {
@@ -29,6 +30,9 @@ extension SDMyClient: DependencyKey {
             },
             getCorrectionList: { pagination in
                 try await apiService.requestResult(SDUserEndpoint.getMyCorrections(pagination: pagination))
+            },
+            getUnreadMessageCount: {
+                try await apiService.requestResult(SDUserEndpoint.getUnreadMessageCount)
             }
         )
     }
@@ -43,6 +47,9 @@ extension SDMyClient: DependencyKey {
             },
             getCorrectionList: { _ in
                 return SDCorrectionListResult.mock
+            },
+            getUnreadMessageCount: {
+                return 5
             }
         )
     }
