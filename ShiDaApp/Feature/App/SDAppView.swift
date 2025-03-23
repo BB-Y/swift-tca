@@ -86,6 +86,14 @@ struct SDAppFeature {
                     await send(.resetNavigation)
                     //await send(.showLogin)
                 }
+            case .my(MyFeature.Action.path(StackAction.element(id: _, action: .accountDelete(.delegate(.deleteSuccess))))):
+                
+                state.$loginStatus.withLock({$0 = .notLogin})
+                state.$token.withLock({$0 = nil})
+                state.$userInfo.withLock({$0 = nil})
+                state.$acceptProtocol.withLock({$0 = false})
+                
+                return .send(.resetNavigation)
                 
             case .clearLoginStatus:
                 state.$loginStatus.withLock({$0 = .logout})
@@ -249,7 +257,7 @@ struct SDAppView: View {
     SDAppView(
         store: Store(
             initialState: SDAppFeature.State(),
-            reducer: { SDAppFeature() }
+            reducer: { SDAppFeature()._printChanges() }
         )
     )
 }

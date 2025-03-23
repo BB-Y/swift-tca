@@ -69,10 +69,9 @@ struct SDAccountSettingView: View {
             
             SDLine(SDColor.divider1)
             
-            settingRow(title: "修改密码", value: "", showArrow: true)
-                .onTapGesture {
-                    send(.modifyPasswordTapped)
-                }
+            NavigationLink(state: MyFeature.Path.State.verificationType) {
+                settingRow(title: "修改密码", value: "", showArrow: true)
+            }
         }
         .padding(.horizontal, 16)
         .background(Color.white)
@@ -127,7 +126,7 @@ struct SDAccountSettingView: View {
         VStack(spacing: 0) {
             settingRow(title: "注销账号", value: "", showArrow: true)
                 .onTapGesture {
-                    
+                    send(.deleteAccountTapped)
                 }
             SDLine(SDColor.divider1)
 

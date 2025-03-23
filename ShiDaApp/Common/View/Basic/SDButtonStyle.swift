@@ -18,6 +18,16 @@ extension ButtonStyle where Self == SDButtonStyleConfirm<Capsule> {
             shape: Capsule()
         )
     }
+    static func sdConfirmRed(isDisable: Bool = false) -> Self {
+        SDButtonStyleConfirm(
+            isDisable: isDisable,
+            background: SDColor.warning,
+            foreground: .white,
+            height: 46,
+            font: .sdBody1.weight(.medium),
+            shape: Capsule()
+        )
+    }
     
     static func sdMiddle(
           isDisable: Bool = false,

@@ -47,6 +47,7 @@ struct SDLoginHomeReducer {
         case phoneValidate(SDValidatePhoneReducer)
         case selectUserType(SDSelectUserTypeReducer)
         case resetPassword(SDSetNewPasswordReducer)
+        case codeValidate(SDValidateCodeReducer)
     }
     
     enum Action {
@@ -78,11 +79,15 @@ struct SDLoginHomeReducer {
             // 手机号验证成功后跳转到重置密码页面
             case let .path(StackAction.element(id: _, action: .phoneValidate(.delegate(action)))):
                 switch action {
-                case .validateSuccess(phone: let phone, code: let code):
-                    state.path.append(.resetPassword(SDSetNewPasswordReducer.State(phone: phone, code: code)))
+                case let .sendSuccess(phone, type):
+                    state.path.append(.codeValidate(SDValidateCodeReducer.State(phone: phone, sendCodeType: type)))
                     return .none
 
                 }
+            case let .path(StackAction.element(id: _, action: .codeValidate(.delegate(.validateSuccess(phone, code, sendCodeType))))):
+                state.path.append(.resetPassword(SDSetNewPasswordReducer.State(scene: .resetByForget, phone: phone, code: code)))
+                return .none
+
 //            case .resetPassword(.delegate(.resetPasswordSuccess)):
 //                state.path.removeAll()
 //                return .none

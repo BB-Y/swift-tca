@@ -10,21 +10,33 @@ struct SDValidateCodeReducer {
         var nation: String = "+86"
         var code: String = ""
         var isValidCode: Bool = false
-        var errorMsg = ""
+        var errorMsg: String? = nil
+        var sendCodeType: SDSendCodeType
+        var isCounting: Bool = false
+        var currentNumber: Int = 0
         
-        @Shared var isCounting: Bool
-        @Shared var currentNumber: Int
+        var firstAppear = true
+        @Shared(.shareUserInfo) var userInfo = nil
+
+        var userInfoModel: SDResponseLogin? {
+            guard let data = userInfo else { return nil }
+            return try? JSONDecoder().decode(SDResponseLogin.self, from: data)
+        }
         
-        
-        // 添加初始化方法接收共享状态
-        init(phone: String, isCounting: Shared<Bool>, currentNumber: Shared<Int>) {
+        init(phone: String, sendCodeType: SDSendCodeType) {
+            self.sendCodeType = sendCodeType
             self.phone = phone
-            self._isCounting = isCounting
-            self._currentNumber = currentNumber
+            if sendCodeType == .changePassword, let phone = userInfoModel?.phone {
+                self.phone = phone
+            }
         }
     }
     
     enum Action: BindableAction {
+        case onAppear
+        
+        case subcribeCountdown
+        
         case onConfirmTapped
         case onSendAgainTapped
         case setCode(String)
@@ -32,15 +44,17 @@ struct SDValidateCodeReducer {
         case checkCodeResponse(Result<Bool, Error>)
         case binding(BindingAction<State>)
         case delegate(Delegate)
-        case onDisappear
+        case countdownUpdated(isCounting: Bool, seconds: Int)
+        case sendCodeResponse(Result<Bool, Error>)
+        
+        
         enum Delegate {
-           case validateSuccess(phone: String, code: String)
-            case onSendAgainTapped
+           case validateSuccess(phone: String, code: String, sendCodeType: SDSendCodeType)
        }
     }
     
-    
-    @Dependency(\.continuousClock) var clock
+    @Dependency(\.verificationCodeClient) var verificationCodeClient
+
     @Dependency(\.authClient) var authClient
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -48,7 +62,33 @@ struct SDValidateCodeReducer {
         
         Reduce { state, action in
             switch action {
-            
+            case .onAppear:
+                if state.firstAppear {
+                    state.firstAppear.toggle()
+                    return .merge(.send(.onSendAgainTapped), .send(.subcribeCountdown))
+                }
+                return .send(.subcribeCountdown)
+            case .subcribeCountdown :
+                return   .publisher {
+                        verificationCodeClient.countdownPublisher
+                            .map { Action.countdownUpdated(isCounting: $0.isCounting, seconds: $0.seconds) }
+                    }
+            case let .countdownUpdated(isCounting, seconds):
+                state.isCounting = isCounting
+                state.currentNumber = seconds
+                return .none
+                
+            case .sendCodeResponse(.success):
+                state.errorMsg = nil
+                return .none
+                
+            case .sendCodeResponse(.failure(let error)):
+//                if let verificationError = error as? VerificationCodeError {
+//                    state.errorMessage = verificationError.errorDescription
+//                } else {
+//                    state.errorMessage = "发送失败，请稍后重试"
+//                }
+                return .none
             case .binding(\.code):
                 let code = state.code
                 
@@ -64,7 +104,18 @@ struct SDValidateCodeReducer {
                 return .none
 
             case .onSendAgainTapped:
-                return .send(.delegate(.onSendAgainTapped))
+                let phone = state.phone
+                // 如果正在倒计时，不允许发送
+                if state.isCounting {
+                    return .none
+                }
+               
+
+                return .run { [phone = state.phone, type = state.sendCodeType] send in
+                    await send(.sendCodeResponse(
+                        Result { try await verificationCodeClient.sendCode(phone: phone, type: type) }
+                    ))
+                }
 
             case .onConfirmTapped:
                 return .run { [phone = state.phone, code = state.code] send in
@@ -73,7 +124,7 @@ struct SDValidateCodeReducer {
                 
             case .checkCodeResponse(.success(let check)):
                 if check {
-                    return .send(.delegate(.validateSuccess(phone: state.phone, code: state.code)))
+                    return .send(.delegate(.validateSuccess(phone: state.phone, code: state.code, sendCodeType: state.sendCodeType)))
                 }
                 state.errorMsg = "验证失败"
                 return .none

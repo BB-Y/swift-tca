@@ -22,7 +22,7 @@ struct SDAccountSettingReducer {
         var isQQBound: Bool = false
         var isAppleBound: Bool = false
         
-       
+        
         
         // 弹窗状态
         var showLogoutAlert: Bool = false
@@ -38,7 +38,7 @@ struct SDAccountSettingReducer {
         @Shared(.shareLoginStatus) var loginStatus = .notLogin
         @Shared(.shareUserInfo) var userInfoData = nil
         @Shared(.shareUserToken) var userToken = nil
-
+        
         var userInfoModel: SDResponseLogin? {
             guard let data = userInfoData else { return nil }
             return try? JSONDecoder().decode(SDResponseLogin.self, from: data)
@@ -73,15 +73,18 @@ struct SDAccountSettingReducer {
         
         enum Delegate {
             case logout
+            case deleteAccount  // 添加注销账号委托事件
             case navigateToModifyPassword
             case navigateToBindAccount(SDThirdPartyType)
         }
+        
         enum View {
             case onAppear
             case modifyPasswordTapped
             case bindAccountTapped(SDThirdPartyType)
             case unbindAccountTapped(SDThirdPartyType)
             case logoutTapped
+            case deleteAccountTapped  // 添加注销账号点击事件
             case confirmLogout
             case confirmUnbind
             case cancelAlert
@@ -97,6 +100,9 @@ struct SDAccountSettingReducer {
             switch action {
             case let .view(viewAction):
                 switch viewAction {
+                    
+                case .deleteAccountTapped:
+                    return .send(.delegate(.deleteAccount))
                 case .onAppear:
                     return .send(.fetchUserInfo)
                     
@@ -196,12 +202,17 @@ struct SDAccountSettingReducer {
             case .unbindAccountResponse(.success):
                 return .send(.fetchUserInfo)
                 
-          
                 
-           
+                
+                
                 
             case .delegate, .binding, .bindAccountResponse(.failure), .unbindAccountResponse(.failure):
                 return .none
+                
+                
+                
+                
+                
             }
         }
     }

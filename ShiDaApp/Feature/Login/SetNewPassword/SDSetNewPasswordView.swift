@@ -18,7 +18,7 @@ struct SDSetNewPasswordView: View {
             Group {
                 SDVSpacer(48)
 
-                Text("重置密码")
+                Text(titleForScene)
                     .font(.largeTitle.bold())
                     .foregroundStyle(SDColor.text1)
                
@@ -27,7 +27,15 @@ struct SDSetNewPasswordView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             
             VStack(alignment: .leading, spacing: 24) {
-                
+                // 仅在通过旧密码重置时显示旧密码输入框
+                if store.scene == .resetByOld {
+                    SDSecureField("请输入旧密码", text: $store.oldPassword, isSecure: true)
+                        .padding(.horizontal, 16)
+                        .background {
+                            SDColor.background
+                                .clipShape(Capsule())
+                        }
+                }
                 
                 SDSecureField("请输入新密码", text: $store.password, isSecure: true)
                     .padding(.horizontal, 16)
@@ -63,20 +71,50 @@ struct SDSetNewPasswordView: View {
                         ProgressView()
                             .progressViewStyle(CircularProgressViewStyle(tint: .white))
                     } else {
-                        Text("确定")
-                            
+                        Text(buttonTextForScene)
                     }
                 }
         
                 .buttonStyle(.sdConfirm(isDisable: !store.canSubmit))
             }
             
-            
-            
             Spacer()
         }
         .padding(.horizontal, 40.pad(134))
-        
+        .navigationTitle(navigationTitle)
+        .navigationBarTitleDisplayMode(.inline)
+    }
+    // 根据场景返回不同的标题
+    private var navigationTitle: String {
+        switch store.scene {
+        case .resetByForget:
+            return ""
+        case .resetByCode:
+            return "设置新密码"
+        case .resetByOld:
+            return "设置新密码"
+        }
+    }
+    // 根据场景返回不同的标题
+    private var titleForScene: String {
+        switch store.scene {
+        case .resetByForget:
+            return "重置密码"
+        case .resetByCode:
+            return "请输入密码"
+        case .resetByOld:
+            return "设置新密码"
+        }
+    }
+    
+    // 根据场景返回不同的按钮文本
+    private var buttonTextForScene: String {
+        switch store.scene {
+        case .resetByForget, .resetByCode:
+            return "确定"
+        case .resetByOld:
+            return "确定"
+        }
     }
 }
 
@@ -84,7 +122,11 @@ struct SDSetNewPasswordView: View {
     NavigationStack {
         SDSetNewPasswordView(
             store: Store(
-                initialState: SDSetNewPasswordReducer.State(phone: "19992223333", code: "999999"),
+                initialState: SDSetNewPasswordReducer.State(
+                    scene: .resetByOld,
+                    phone: "19992223333",
+                    code: "999999"
+                ),
                 reducer: { SDSetNewPasswordReducer() }
             )
         )

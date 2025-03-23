@@ -13,21 +13,36 @@ import Moya
 struct SDUserClient {
     /// 获取用户信息
     var getUserSettings: @Sendable () async throws -> SDResponseUserInfo
+    /// 注销账号
+    var deleteAccount: @Sendable () async throws -> Bool
+    /// 通过旧密码重置密码
+    var resetPasswordByOld: @Sendable (_ newPassword: String, _ oldPassword: String) async throws -> Bool
+    /// 通过短信验证码重置密码
+    var resetPasswordByCode: @Sendable (_ newPassword: String, _ smsCode: String) async throws -> Bool
 }
 
 extension SDUserClient: DependencyKey {
-    /// 提供实际的用户客户端实现
     static var liveValue: Self {
         let apiService = APIService()
         
         return Self(
             getUserSettings: {
                 try await apiService.requestResult(SDUserEndpoint.getUserSettings)
+            },
+            deleteAccount: {
+                try await apiService.requestResult(SDUserEndpoint.deleteAccount)
+            },
+            resetPasswordByOld: { newPassword, oldPassword in
+                let params = SDReqParaResetPasswordByOld(newPassword: newPassword, oldPassword: oldPassword)
+                return try await apiService.requestResult(SDUserEndpoint.resetPasswordByOld(params: params))
+            },
+            resetPasswordByCode: { newPassword, smsCode in
+                let params = SDReqParaResetPasswordByCode(newPassword: newPassword, smsCode: smsCode)
+                return try await apiService.requestResult(SDUserEndpoint.resetPasswordByCode(params: params))
             }
         )
     }
     
-    /// 提供测试用的模拟实现
     static var testValue: Self {
         Self(
             getUserSettings: {
@@ -62,6 +77,18 @@ extension SDUserClient: DependencyKey {
                     thirdparthAccountList: [wechatAccount, appleAccount],
                     userType: .teacher
                 )
+            },
+            deleteAccount: {
+                // 模拟注销成功
+                return true
+            },
+            resetPasswordByOld: { _, _ in
+                // 模拟重置密码成功
+                return true
+            },
+            resetPasswordByCode: { _, _ in
+                // 模拟重置密码成功
+                return true
             }
         )
     }

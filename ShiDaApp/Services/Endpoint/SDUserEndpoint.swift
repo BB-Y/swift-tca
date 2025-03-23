@@ -8,6 +8,18 @@
 import Foundation
 import Moya
 
+/// 重置密码通过旧密码的请求参数
+struct SDReqParaResetPasswordByOld: Encodable {
+    let newPassword: String
+    let oldPassword: String
+}
+
+/// 重置密码通过验证码的请求参数
+struct SDReqParaResetPasswordByCode: Encodable {
+    let newPassword: String
+    let smsCode: String
+}
+
 /// 用户相关的 API 端点
 enum SDUserEndpoint {
     
@@ -17,6 +29,12 @@ enum SDUserEndpoint {
     case getMyCollections(params: SDReqParaMyCollection)
     /// 获取我的纠错列表
     case getMyCorrections(pagination: SDPagination)
+    /// 注销账号
+    case deleteAccount
+    /// 通过旧密码重置密码
+    case resetPasswordByOld(params: SDReqParaResetPasswordByOld)
+    /// 通过短信验证码重置密码
+    case resetPasswordByCode(params: SDReqParaResetPasswordByCode)
 }
 
 extension SDUserEndpoint: SDEndpoint {
@@ -29,6 +47,10 @@ extension SDUserEndpoint: SDEndpoint {
             return "/app/my/collection/list"
         case .getMyCorrections:
             return "/app/my/correction/list"
+        case .deleteAccount:
+            return "/app/my/usersetting/delete"
+        case .resetPasswordByOld, .resetPasswordByCode:
+            return "/app/my/usersetting/resetpassword"
         }
     }
     
@@ -36,6 +58,10 @@ extension SDUserEndpoint: SDEndpoint {
         switch self {
         case .getUserSettings, .getMyCollections, .getMyCorrections:
             return .get
+        case .deleteAccount:
+            return .get
+        case .resetPasswordByOld, .resetPasswordByCode:
+            return .post
         }
     }
     
@@ -69,6 +95,12 @@ extension SDUserEndpoint: SDEndpoint {
                 parameters: parameters,
                 encoding: URLEncoding.queryString
             )
+        case .deleteAccount:
+            return .requestPlain
+        case let .resetPasswordByOld(params):
+            return .requestJSONEncodable(params)
+        case let .resetPasswordByCode(params):
+            return .requestJSONEncodable(params)
         }
     }
 }

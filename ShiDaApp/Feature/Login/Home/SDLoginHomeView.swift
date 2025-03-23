@@ -26,19 +26,24 @@ struct SDLoginHomeView: View {
             }
             
         } destination: { state in
-            switch state.case {
-//            case .login(let store):
-//                SDLoginView(store: store)
-           
-            case .phoneValidate(let store):
-                SDValidatePhoneView(store: store)
-//            case .loginAgain(let store):
-//                SDLoginAgainView(store: store)
-            case .selectUserType(let store):
-                SDSelectUserTypeView(store: store)
-            case .resetPassword(let store):
-                SDSetNewPasswordView(store: store)
+            Group {
+                switch state.case {
+    //            case .login(let store):
+    //                SDLoginView(store: store)
+                case .codeValidate(let store):
+                    SDValidateCodeView(store: store)
+                case .phoneValidate(let store):
+                    SDValidatePhoneView(store: store)
+    //            case .loginAgain(let store):
+    //                SDLoginAgainView(store: store)
+                case .selectUserType(let store):
+                    SDSelectUserTypeView(store: store)
+                case .resetPassword(let store):
+                    SDSetNewPasswordView(store: store)
+                }
             }
+            .toolbarRole(.editor)
+            
         }
         .sdTint(SDColor.accent)
         .ignoresSafeArea(.keyboard, edges:  .bottom)

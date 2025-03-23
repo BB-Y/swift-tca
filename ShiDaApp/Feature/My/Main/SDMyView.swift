@@ -35,9 +35,16 @@ struct MyFeature {
         case corrections(SDCorrectionsFeature)
         case accountSettings(SDAccountSettingReducer)
         case teacherCertification(TeacherCertificationFeature)
-        case aboutUs
+        case aboutUs(AboutUsFeature)  // 修改这里
         case bookDetail(SDBookDetailReducer)
+        case accountDelete(SDAccountDeleteFeature)  // 添加注销账号路由
 
+        case phoneValidate(SDValidatePhoneReducer)
+        case codeValidate(SDValidateCodeReducer)
+        
+        @ReducerCaseIgnored
+        case verificationType
+        case password(SDSetNewPasswordReducer)
     }
     
     
@@ -45,7 +52,7 @@ struct MyFeature {
         case onAppear
         
         case onEditTapped
-        
+        case onMessageTapped
         case onFavoritesTapped
         case onCorrectionsTapped
         case onAccountSettingsTapped
@@ -62,7 +69,6 @@ struct MyFeature {
 
         case view(View)
         
-        
     }
     
     var body: some ReducerOf<Self> {
@@ -74,7 +80,7 @@ struct MyFeature {
                 switch viewAction {
                 
 
-                case .onEditTapped:
+                case .onEditTapped, .onMessageTapped:
                     return .none
 
                 case .onAppear:
@@ -95,12 +101,36 @@ struct MyFeature {
                     state.showFeedBack = true
                     return .none
                 case .onAboutUsTapped:
-                    state.path.append(.aboutUs)
+                    state.path.append(.aboutUs(AboutUsFeature.State()))
                     return .none
 
                 }
      
+            case .path(StackAction.element(id: _, action: .accountSettings(.delegate(.deleteAccount)))):
+                state.path.append(.phoneValidate(SDValidatePhoneReducer.State(sendCodeType: .verify)))
+                return .none
+
+            
+            case let .path(StackAction.element(id: _, action: .phoneValidate(.delegate(.sendSuccess(phone, type))))):
+                state.path.append(.codeValidate(SDValidateCodeReducer.State(phone: phone, sendCodeType: type)))
+                return .none
+
+            case let .path(StackAction.element(id: _, action: .codeValidate(.delegate(.validateSuccess(phone, code, sendCodeType))))):
+                switch sendCodeType {
                 
+                case .changePassword:
+                    state.path.append(.password(SDSetNewPasswordReducer.State(scene: .resetByCode, code: code)))
+                case .verify:
+                    state.path.append(.accountDelete(SDAccountDeleteFeature.State()))
+
+                default:
+                    return .none
+                }
+                return .none
+                
+            case .path(StackAction.element(id: _, action: .password(.delegate(.resetPasswordSuccess)))):
+                state.path.removeAll()
+                return .none
             case .path, .binding:
                 return .none
 
@@ -113,47 +143,7 @@ struct MyFeature {
     }
 }
 
-// 菜单行组件
-private struct MenuRow: View {
-    let icon: String
-    let title: String
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            HStack {
-                Image(icon)
-                    
-                    
-                Text(title)
-                    .font(.sdBody2.weight(.medium))
-                    .foregroundStyle(SDColor.text1)
-                Spacer()
-                Image("arrow_right")
-                    
-            }
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(PlainButtonStyle())
-        .frame(height: 54)  // 添加固定行高
-        .alignmentGuide(.listRowSeparatorLeading) { viewDimensions in
-            return 0
-        }
-        .alignmentGuide(.listRowSeparatorTrailing) { viewDimensions in
-            return viewDimensions[.listRowSeparatorTrailing]
-        }
-    }
-}
 
-// 通知红点组件
-private struct NotificationBadge: View {
-    var body: some View {
-        Circle()
-            .fill(Color.red)
-            .frame(width: 8, height: 8)
-            .offset(x: 2, y: -4)
-    }
-}
 
 @ViewAction(for: MyFeature.self)
 struct SDMyView: View {
@@ -319,6 +309,7 @@ struct SDMyView: View {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button(action: {
                             // 消息按钮动作
+                            send(.onMessageTapped)
                         }) {
                             Image(SDImage.My.message)
                                 .overlay(alignment: .topTrailing) {
@@ -347,10 +338,22 @@ struct SDMyView: View {
                     case .teacherCertification(let store):
                         TeacherCertificationView(store: store)
                    
-                    case .aboutUs:
-                        Text("关于我们页面")
+                    case .aboutUs(let store):
+                        SDAboutUsView(store: store)
                     case .bookDetail(let store):
                         SDBookDetailView(store: store)
+
+                    case .accountDelete(let store):
+                        SDAccountDeleteView(store: store)
+                    case .phoneValidate(let store):
+                        SDValidatePhoneView(store: store)
+                    case .codeValidate(let store):
+                        SDValidateCodeView(store: store)
+                    case .password(let store):
+                        SDSetNewPasswordView(store: store)
+                    case .verificationType:
+                        SDVerificationTypeView()
+                   
                     }
                 }
                 .toolbar(.hidden, for: .tabBar)
@@ -372,7 +375,49 @@ struct SDMyView: View {
     SDMyView(
         store: Store(
             initialState: MyFeature.State(),
-            reducer: { MyFeature() }
+            reducer: { MyFeature()._printChanges() }
         )
     )
+}
+
+// 菜单行组件
+private struct MenuRow: View {
+    let icon: String
+    let title: String
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack {
+                Image(icon)
+                    
+                    
+                Text(title)
+                    .font(.sdBody2.weight(.medium))
+                    .foregroundStyle(SDColor.text1)
+                Spacer()
+                Image("arrow_right")
+                    
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(PlainButtonStyle())
+        .frame(height: 54)  // 添加固定行高
+        .alignmentGuide(.listRowSeparatorLeading) { viewDimensions in
+            return 0
+        }
+        .alignmentGuide(.listRowSeparatorTrailing) { viewDimensions in
+            return viewDimensions[.listRowSeparatorTrailing]
+        }
+    }
+}
+
+// 通知红点组件
+private struct NotificationBadge: View {
+    var body: some View {
+        Circle()
+            .fill(Color.red)
+            .frame(width: 8, height: 8)
+            .offset(x: 2, y: -4)
+    }
 }

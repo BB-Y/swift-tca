@@ -156,3 +156,19 @@ struct SDSendCodeReducer {
         }
     }
 }
+
+// MARK: - Environment Key and Value extension for `playbackControlStore` sharing.
+enum SDSendCodeReducerStoreKey: EnvironmentKey {
+    static var defaultValue: StoreOf<SDSendCodeReducer> = .init(initialState: SDSendCodeReducer.State.init(phone: "", sendCodeType: .verify), reducer: {SDSendCodeReducer()})
+}
+
+extension EnvironmentValues {
+    var sendCodeReducerStoreKey: StoreOf<SDSendCodeReducer> {
+        get {
+            self[SDSendCodeReducerStoreKey.self]
+        }
+        set {
+            self[SDSendCodeReducerStoreKey.self] = newValue
+        }
+    }
+}

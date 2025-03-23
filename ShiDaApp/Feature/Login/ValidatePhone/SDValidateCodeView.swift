@@ -57,9 +57,10 @@ struct SDValidateCodeView: View {
             .ignoresSafeArea(.keyboard, edges: .bottom)
             .toolbarRole(.editor)
             .padding(.horizontal, 40)
-            .onDisappear {
-                store.send(.onDisappear)
+            .task {
+                store.send(.onAppear)
             }
+            
         }
        
         
@@ -67,6 +68,9 @@ struct SDValidateCodeView: View {
 }
 
 
-//#Preview {
-//    SDValidateCodeView()
-//}
+#Preview {
+    SDValidateCodeView(store: .init(initialState: SDValidateCodeReducer.State(phone: "12345", sendCodeType: .verify), reducer: {
+        SDValidateCodeReducer()
+            ._printChanges()
+    }))
+}
