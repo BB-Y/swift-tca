@@ -200,8 +200,9 @@ struct SDHomeSectionView: View {
             createTitleView()
             ScrollView(.horizontal) {
                 HStack(alignment: .top, spacing: 16) {
-                    ForEach(dataList) { item in
-                        
+                    ForEach(0..<dataList.count) { index in
+                        let item = dataList[index]
+
                         SDHomeSectionItemView(item.dataCover ?? "", style: .imageSmall)
                             .onTapGesture {
                                 onItemTap?(item)

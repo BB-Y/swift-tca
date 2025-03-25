@@ -11,14 +11,27 @@ import SwiftUI
 @ViewAction(for: SDBookReaderReducer.self)
 struct SDBookReaderView: View {
     @Perception.Bindable var store: StoreOf<SDBookReaderReducer>
-    
-    @State var progress: CGFloat = 0
-    
+    var storePage = Store(
+        initialState: BookPageReducer.State(nextPage: 0, prePage: 0),
+        reducer: { BookPageReducer() }
+        )
+    @State var progress: CGFloat = 1
+    var safeAreaHeight: CGFloat {
+        UIApplication.statusBarAndNavigationBarHeight
+    }
     var body: some View {
         ZStack(alignment: .top) {
-            SDColor.background.ignoresSafeArea()
+            Color.white.ignoresSafeArea()
             content
-            bar
+            if storePage.state.showMenu
+            {
+                bar
+            }
+            if let errorMessage = store.errorMessage {
+                SDErrorView(config: .networkError())
+                
+            }
+            
         }
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarTitleDisplayMode(.inline)
@@ -30,9 +43,7 @@ struct SDBookReaderView: View {
     }
     
     @ViewBuilder var content: some View {
-        GsdWebView(htmlString: store.state.getChapterContent(),
-                   baseURL: Bundle.main.resourceURL)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        BookPageView(store: store, storePage: storePage)
     }
     
     var bar: some View {
@@ -51,29 +62,25 @@ struct SDBookReaderView: View {
             }
             
             Spacer()
-            Button {
-                //send(.favoriteButtonTapped)
-            } label: {
-                Image("star")
-            }
+            
         }
         .frame(height: 44)
         .padding(.horizontal, 16)
-        .background(Color(hex: "#E7F1EE").opacity(progress))
+        .background(Color.white.opacity(progress))
     }
 }
 
 #Preview {
-    NavigationStack {
-        SDBookReaderView(
-            store: Store(
-                initialState: SDBookReaderReducer.State(id: 121, chapterId: 15404),
-                reducer: {
-                    SDBookReaderReducer()
-                        .dependency(\.bookReaderClient, .liveValue)
-                    
-                }
-            )
-        )
-    }
+//    NavigationStack {
+//        SDBookReaderView(
+//            store: Store(
+//                initialState: SDBookReaderReducer.State(id: 121, catalogId: 15404),
+//                reducer: {
+//                    SDBookReaderReducer()
+//                        .dependency(\.bookReaderClient, .liveValue)
+//                    
+//                }
+//            )
+//        )
+//    }
 }

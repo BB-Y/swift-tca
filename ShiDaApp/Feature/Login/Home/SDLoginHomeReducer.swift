@@ -58,6 +58,9 @@ struct SDLoginHomeReducer {
         case login(SDLoginReducer.Action)
         case loginAgain(SDLoginAgainReducer.Action)
         
+        
+        case saveUserInfo(SDResponseLogin)
+        
         case checkUserType
         case path(StackActionOf<Destination>)
         
@@ -95,9 +98,10 @@ struct SDLoginHomeReducer {
                 switch action {
                 case .userTypeNil:
                     state.errorMsg = "登录失败，请选择其他登录方式"
-                case .loginSuccess:
-                    state.$loginStatus.withLock {$0 = .login}
-                    return .merge(.send(.dismiss), .send(.loginDone))
+                case .loginSuccess(let userInfoModel):
+                    
+                    return .send(.saveUserInfo(userInfoModel))
+
                 case .switchToOtherLogin:
                     state.showlogin = true
                 }
@@ -117,15 +121,8 @@ struct SDLoginHomeReducer {
             case .checkUserType:
                 if state.userInfoModel?.userType == nil {
                     state.path.append(.selectUserType(SDSelectUserTypeReducer.State()))
-                } else {
-                    state.$loginStatus.withLock{$0 = .login}
-                    return .merge(.send(.dismiss), .send(.loginDone))
                 }
-                //let data = state.$userInfo.wra
-                
-                //                if let a = state.$userInfo.decode(type: SDResponseLogin.self, decoder: JSONDecoder()) {
-                //
-                //                }
+            
                 return .none
                 
                 
@@ -139,28 +136,37 @@ struct SDLoginHomeReducer {
                 return .send(.login(SDLoginReducer.Action.view(.onLoginTapped)))
            
                    // 处理登录成功后的操作
-
+            case .saveUserInfo(let userInfoModel):
+                
+                // 根据返回的用户信息更新登录状态
+                if userInfoModel.token == nil {
+                    state.$loginStatus.withLock({$0 = .notLogin})
+                    return .none
+                } else {
+                    // 更新全局用户状态
+                    let data = Data.getData(from: userInfoModel)
+                    state.$userInfo.withLock({$0 = data})
+                    state.$token.withLock({$0 = userInfoModel.token})
+                    if userInfoModel.userType == nil {
+                        state.$loginStatus.withLock({$0 = .logout})
+                        return .send(.checkUserType)
+                    } else {
+                        state.$loginStatus.withLock({$0 = .login})
+                        return .run { send in
+                            await send(.loginDone)
+                            await send(.dismiss)
+                        }
+                    }
+                  
+                }
+                
+                
+                
             case .login(.delegate(let action)):
                 switch action {
                     
                 case .loginSuccess(let userInfoModel):
-                    // 根据返回的用户信息更新登录状态
-                    if userInfoModel.token == nil {
-                        state.$loginStatus.withLock({$0 = .notLogin})
-                    } else {
-                        if userInfoModel.userType == nil {
-                            state.$loginStatus.withLock({$0 = .logout})
-                        } else {
-                            state.$loginStatus.withLock({$0 = .login})
-                        }
-                    }
-                    
-                    // 更新全局用户状态
-                    let data = Data.getData(from: userInfoModel)
-                    state.$userInfo.withLock({$0 = data})
-                    
-                    state.$token.withLock({$0 = userInfoModel.token})
-                    return .send(.checkUserType)
+                    return .send(.saveUserInfo(userInfoModel))
                 case .loginFailed(let error):
                     print(error)
                     return .none

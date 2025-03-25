@@ -17,21 +17,32 @@ struct SDHomeView: View {
     }
     @FocusState var focusState
     var body: some View {
-        NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
-            WithPerceptionTracking {
+        WithPerceptionTracking {
+            NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
                 VStack(spacing: 0) {
                     // 自定义导航栏
                     header
-                        
+                    
                     
                     ZStack {
                         ScrollView {
-                            content
-                                .padding(.top, 16)
+                            WithPerceptionTracking {
+                                Color.blue.frame(height: 200).overlay {
+                                    VStack {
+                                        Text(store.homeData?.first?.name ?? "123")
+                                        Text(store.token ?? "000")
+                                    }
+                                }
+
+                                content
+                                    .padding(.top, 16)
+                            }
+                            
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-
                         .scrollIndicators(.hidden)
+                        
+                        
                         if store.loginStatus != .login {
                             VStack {
                                 Spacer()
@@ -44,20 +55,20 @@ struct SDHomeView: View {
                                 .ignoresSafeArea(edges: .bottom)
                                 .transition(.opacity)
                                 .hideKeyboardWhenTap()
-
+                            
                         }
                         if store.isShowingSearchResults {
                             searchResultsContainer
                                 .ignoresSafeArea(edges: .bottom)
                                 .transition(.move(edge: .bottom).combined(with: .opacity))
                                 .hideKeyboardWhenTap()
-
+                            
                         }
                     }
                     
                 }
                 .sdLoadingToast(isPresented: $store.isLoading)
-
+                
                 
                 .frame(maxWidth: .infinity)
                 .background(SDColor.background)
@@ -65,28 +76,28 @@ struct SDHomeView: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar(.hidden, for: .navigationBar)
                 .ignoresSafeArea(.keyboard, edges:  .bottom)
-
+                
                 .task {
                     store.send(.onAppear)
                 }
-            }
-            
-            
-        } destination: { store in
-            switch store.case {
-            case .test(let store):
-                SDHomeTestView(store: store)
-            case .bookList(let store):
-                SDBookListView(store: store)
-                    .toolbar(.hidden, for: .tabBar)
-            case .schoolList(let store):
-                SDSchoolListView(store: store)
-                    .toolbar(.hidden, for: .tabBar)
                 
-            case .bookDetail(let store):
-                SDBookDetailView(store: store)
-                    .toolbar(.hidden, for: .tabBar)
                 
+            } destination: { store in
+                switch store.case {
+                case .test(let store):
+                    SDHomeTestView(store: store)
+                case .bookList(let store):
+                    SDBookListView(store: store)
+                        .toolbar(.hidden, for: .tabBar)
+                case .schoolList(let store):
+                    SDSchoolListView(store: store)
+                        .toolbar(.hidden, for: .tabBar)
+                    
+                case .bookDetail(let store):
+                    SDBookDetailView(store: store)
+                        .toolbar(.hidden, for: .tabBar)
+                    
+                }
             }
         }
     }
@@ -162,17 +173,21 @@ struct SDHomeView: View {
     @ViewBuilder var content: some View {
         VStack(spacing: 20) {
             ForEach(listData) { sectionData in
-                SDHomeSectionView(
-                    item: sectionData,
-                    onItemTap: { item in
-                        store.send(.onSectionItemTapped(item))
-                    },
-                    onTitleTap: { section in
-                        store.send(.onSectionTitleTapped(section))
-                    }
-                )
+                
+                WithPerceptionTracking {
+                    SDHomeSectionView(
+                        item: sectionData,
+                        onItemTap: { item in
+                            store.send(.onSectionItemTapped(item))
+                        },
+                        onTitleTap: { section in
+                            store.send(.onSectionTitleTapped(section))
+                        }
+                    )
+                }
             }
         }
+        .debug()
     }
     // 搜索结果容器视图
     var searchResultsContainer: some View {

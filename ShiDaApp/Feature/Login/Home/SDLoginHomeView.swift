@@ -10,43 +10,46 @@ import ComposableArchitecture
 
 //登录首页
 struct SDLoginHomeView: View {
-    @State var store: StoreOf<SDLoginHomeReducer>
+    @Perception.Bindable var store: StoreOf<SDLoginHomeReducer>
     
     var body: some View {
-        NavigationStack(
-            path: $store.scope(state: \.path, action: \.path)
-        ) {
-            WithPerceptionTracking {
-                content
-                    //.frame(maxHeight: .infinity)
-                    .ignoresSafeArea(.keyboard, edges:  .bottom)
+        WithPerceptionTracking {
+            NavigationStack(
+                path: $store.scope(state: \.path, action: \.path)
+            ) {
+                WithPerceptionTracking {
+                    content
+                        //.frame(maxHeight: .infinity)
+                        .ignoresSafeArea(.keyboard, edges:  .bottom)
 
-                    
+                        
 
-            }
-            
-        } destination: { state in
-            Group {
-                switch state.case {
-    //            case .login(let store):
-    //                SDLoginView(store: store)
-                case .codeValidate(let store):
-                    SDValidateCodeView(store: store)
-                case .phoneValidate(let store):
-                    SDValidatePhoneView(store: store)
-    //            case .loginAgain(let store):
-    //                SDLoginAgainView(store: store)
-                case .selectUserType(let store):
-                    SDSelectUserTypeView(store: store)
-                case .resetPassword(let store):
-                    SDSetNewPasswordView(store: store)
                 }
+                
+            } destination: { state in
+                WithPerceptionTracking {
+                    switch state.case {
+        //            case .login(let store):
+        //                SDLoginView(store: store)
+                    case .codeValidate(let store):
+                        SDValidateCodeView(store: store)
+                    case .phoneValidate(let store):
+                        SDValidatePhoneView(store: store)
+        //            case .loginAgain(let store):
+        //                SDLoginAgainView(store: store)
+                    case .selectUserType(let store):
+                        SDSelectUserTypeView(store: store)
+                    case .resetPassword(let store):
+                        SDSetNewPasswordView(store: store)
+                    }
+                }
+                .toolbarRole(.editor)
+                
             }
-            .toolbarRole(.editor)
-            
+            .sdTint(SDColor.accent)
+            .ignoresSafeArea(.keyboard, edges:  .bottom)
         }
-        .sdTint(SDColor.accent)
-        .ignoresSafeArea(.keyboard, edges:  .bottom)
+        
 
     }
     @ViewBuilder

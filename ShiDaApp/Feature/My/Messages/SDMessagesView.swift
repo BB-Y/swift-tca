@@ -21,8 +21,11 @@ struct SDMessagesView: View {
                 }
             }
             .task {
+                SDAppearance.setup()
+
                 await store.send(.getMessageList).finish()
             }
+            .toolbarRole(.editor)
             .navigationTitle("消息通知")
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(Color.clear, for: .navigationBar)

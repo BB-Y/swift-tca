@@ -13,50 +13,58 @@ struct SDAccountSettingView: View {
     @Perception.Bindable var store: StoreOf<SDAccountSettingReducer>
     
     var body: some View {
-        ZStack(alignment: .top) {
-            SDColor.background.ignoresSafeArea()
-            
-            ScrollView {
-                VStack(spacing: 16) {
-                    // 基本信息区域
-                    basicInfoSection
-                    
-                    // 绑定信息区域
-                   bindingSection
-                   
-                    // 退出登录区域
-                   logoutSection
+        WithPerceptionTracking {
+            ZStack(alignment: .top) {
+                SDColor.background.ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(spacing: 16) {
+                        // 基本信息区域
+                        basicInfoSection
+                        
+                        // 绑定信息区域
+                        bindingSection
+                        
+                        // 退出登录区域
+                        logoutSection
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 16)
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, 16)
+                
+                
+                if store.errorMessage != nil {
+                    SDErrorView(config: .networkError())
+                }
+            }
+            .sdAlert(isPresented: $store.showLogoutAlert,
+                     title: "退出登录",
+                     message: "确定要退出当前账号吗？",
+                     buttons: [
+                        .init(title: "取消", style: .cancel, action: { send(.cancelAlert) }),
+                        .init(title: "确定", style: .destructive, action: { send(.confirmLogout) })
+                     ])
+            .toolbarRole(.editor)
+            .toolbarBackground(Color.clear, for: .navigationBar)
+            .navigationTitle("账号设置")
+            //        .toolbar {
+            //                  ToolbarItem(placement: .navigationBarLeading) {
+            //                      EmptyView()  // 这会清除返回按钮上的文字
+            //                  }
+            //              }
+            .navigationBarTitleDisplayMode(.inline)
+            .task {
+                send(.onAppear)
             }
             
-            
-            if store.errorMessage != nil {
-                SDErrorView(config: .networkError())
-            }
+            .sdAlert(isPresented: $store.showUnbindAlert,
+                     title: "解绑账号",
+                     message: "要解除账号的绑定吗？",
+                     buttons: [
+                        .init(title: "取消", style: .cancel, action: { send(.cancelAlert) }),
+                        .init(title: "确定", style: .destructive, action: { send(.confirmUnbind) })
+                     ])
         }
-        .sdAlert(isPresented: $store.showLogoutAlert,
-                 title: "退出登录",
-                 message: "确定要退出当前账号吗？",
-                 buttons: [
-                    .init(title: "取消", style: .cancel, action: { send(.cancelAlert) }),
-                    .init(title: "确定", style: .destructive, action: { send(.confirmLogout) })
-                 ])
-        .toolbarBackground(Color.clear, for: .navigationBar)
-        .navigationTitle("账号设置")
-        .navigationBarTitleDisplayMode(.inline)
-        .task {
-            send(.onAppear)
-        }
-        
-        .sdAlert(isPresented: $store.showUnbindAlert,
-                 title: "解绑账号",
-                 message: "要解除账号的绑定吗？",
-                 buttons: [
-                    .init(title: "取消", style: .cancel, action: { send(.cancelAlert) }),
-                    .init(title: "确定", style: .destructive, action: { send(.confirmUnbind) })
-                 ])
     }
     
     
@@ -70,7 +78,10 @@ struct SDAccountSettingView: View {
             SDLine(SDColor.divider1)
             
             NavigationLink(state: MyFeature.Path.State.verificationType) {
-                settingRow(title: "修改密码", value: "", showArrow: true)
+                WithPerceptionTracking {
+                    settingRow(title: "修改密码", value: "", showArrow: true)
+
+                }
             }
         }
         .padding(.horizontal, 16)

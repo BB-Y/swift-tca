@@ -172,6 +172,10 @@ struct MyFeature {
 @ViewAction(for: MyFeature.self)
 struct SDMyView: View {
     @Perception.Bindable var store: StoreOf<MyFeature>
+    init(store: StoreOf<MyFeature>) {
+        self.store = store
+        SDAppearance.setup()
+    }
     
     var body: some View {
         WithPerceptionTracking {
@@ -350,8 +354,9 @@ struct SDMyView: View {
                         .presentationDetents([.height(300)])
                         .presentationDragIndicator(.hidden)
                 })
-            } destination: { store in
-                Group {
+            }
+            destination: { store in
+                WithPerceptionTracking {
                     switch store.case {
                     case .favorites(let store):
                         SDFavoritesView(store: store)
@@ -382,13 +387,14 @@ struct SDMyView: View {
                     }
                 }
                 .toolbar(.hidden, for: .tabBar)
-                .toolbarRole(.editor)
+                
                 
             }
-            .toolbarRole(.editor)
             
+            .tint(SDColor.text1)
             .task {
                 send(.onAppear)
+                SDAppearance.setup()
             }
         }
     }

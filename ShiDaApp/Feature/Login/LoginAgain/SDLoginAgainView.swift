@@ -35,7 +35,6 @@ struct SDLoginAgainReducer {
         case onLoginTapped
         case onOtherLoginTapped
         case onAcceptContinueTapped
-        case getUserInfoResponse(Result<SDResponseUserInfo, Error>)
         
         
         case oneKeyLoginResponse(Result<SDResponseLogin, Error>)
@@ -45,7 +44,7 @@ struct SDLoginAgainReducer {
         
         enum Delegate: Equatable {
             case userTypeNil
-            case loginSuccess
+            case loginSuccess(SDResponseLogin)
             case switchToOtherLogin
         }
     }
@@ -72,17 +71,7 @@ struct SDLoginAgainReducer {
                 }
                 return .none
 
-                
-            case let .getUserInfoResponse(.success(response)):
-                if response.userType == nil {
-                    return .send(.delegate(.userTypeNil))
-                } else {
-                    return .send(.delegate(.loginSuccess))
-                }
-                
-            case .getUserInfoResponse(.failure):
-                // 处理错误情况，可以添加错误提示
-                return .none
+           
                 
             case .onOtherLoginTapped:
                 return .send(.delegate(.switchToOtherLogin))
@@ -103,7 +92,7 @@ struct SDLoginAgainReducer {
                     if response.userType == nil {
                         return .send(.delegate(.userTypeNil))
                     } else {
-                        return .send(.delegate(.loginSuccess))
+                        return .send(.delegate(.loginSuccess(response)))
                     }
                 case .failure(_):
                     return .none

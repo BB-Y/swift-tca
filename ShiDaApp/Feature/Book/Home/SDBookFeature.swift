@@ -33,14 +33,17 @@ struct SDBookFeature: Reducer {
         
         // 搜索结果组件状态
         var searchResultsFeature = SDSearchResultsFeature.State()
-        
+        var bookDetailFeature = SDBookDetailReducer.State(id: 0)
+
         // 导航状态
         var path: StackState<Path.State> = StackState<Path.State>()
         
         // 共享状态
         @Shared(.shareSearchHistory) var searchHistoryString = ""
         //
-        var bookDetailFeature = SDBookDetailReducer.State(id: 0)
+        
+        @Shared(.shareLoginStatus) var loginStatus = .notLogin
+
     }
     
     @Reducer(state: .equatable)
@@ -206,8 +209,8 @@ struct SDBookFeature: Reducer {
                 case .navigateToBuyPaperBook:
                     return .none
                 
-                case .navigateToChapterDetail(let bookDetail,let chapterId):
-                    state.path.append(.bookReader(SDBookReaderReducer.State(id: bookDetail.id, chapterId: chapterId, bookDetail: bookDetail )))
+                case .navigateToChapterDetail(let bookDetail,let catalogId):
+                    state.path.append(.bookReader(SDBookReaderReducer.State(id: bookDetail.id, catalogId: catalogId, bookDetail: bookDetail )))
                     return .none
                 }
             case .path:

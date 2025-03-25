@@ -60,9 +60,13 @@ struct SDBookHomeView: View {
                 }
                 .background(Color.white.ignoresSafeArea())
                 .overlay(alignment: .bottom) {
-                    SDLoginNoticeView {
-                        store.send(.onLoginTapped)
+                    if store.loginStatus != .login {
+                        SDLoginNoticeView {
+                            store.send(.onLoginTapped)
+                        }
+                        .frame(maxWidth: .infinity)
                     }
+                    
                 }
             }
             .navigationTitle("")

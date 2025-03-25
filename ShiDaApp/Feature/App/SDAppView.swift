@@ -36,14 +36,15 @@ struct SDAppFeature {
         case study
         case my
     }
-    enum Action {
+    enum Action: BindableAction {
         case tabSelected(SDTabItem)
         case home(SDHomeFeature.Action)
         case book(SDBookFeature.Action)
         case study(StudyFeature.Action)
         case my(MyFeature.Action)
         
-        
+        case binding(BindingAction<State>)
+
         case login(PresentationAction<SDLoginHomeReducer.Action>)
 
         case clearLoginStatus
@@ -54,9 +55,25 @@ struct SDAppFeature {
     
     //@Dependency(\.)
     
-    
+    @Dependency(\.continuousClock) var clock
+
     @Dependency(\.dismiss) var dismiss
     var body: some ReducerOf<Self> {
+        BindingReducer()
+        //切片 Reducer
+        Scope(state: \.homeState, action: \.home) {
+            SDHomeFeature()
+                ._printChanges()
+        }
+        Scope(state: \.bookState, action: \.book) {
+            SDBookFeature()
+        }
+        Scope(state: \.studyState, action: \.study) {
+            StudyFeature()
+        }
+        Scope(state: \.myState, action: \.my) {
+            MyFeature()
+        }
         Reduce { state, action in
             switch action {
             case let .tabSelected(tab):
@@ -107,14 +124,17 @@ struct SDAppFeature {
                 state.bookState.path.removeAll()
                 state.myState.path.removeAll()
                 //state.studyState.path.removeAll()
-                state.selectedTab = .home
+                //state.selectedTab = .home
 
-                return .none
+                return .run { send in
+                    try await clock.sleep(for: .seconds(1))
+                    await send(.binding(.set(\.selectedTab, .home)))
+                }
             case .showLogin:
                 state.login = SDLoginHomeReducer.State()
                 return .none
                 
-            case .home, .book, .study, .my, .login:
+            case .home, .book, .study, .my, .login, .binding:
                 return .none
             }
         }
@@ -122,24 +142,12 @@ struct SDAppFeature {
         .ifLet(\.$login, action: \.login) {
             SDLoginHomeReducer()
         }
-        //切片 Reducer
-        Scope(state: \.homeState, action: \.home) {
-            SDHomeFeature()
-        }
-        Scope(state: \.bookState, action: \.book) {
-            SDBookFeature()
-        }
-        Scope(state: \.studyState, action: \.study) {
-            StudyFeature()
-        }
-        Scope(state: \.myState, action: \.my) {
-            MyFeature()
-        }
+        
     }
 }
 
 struct SDAppView: View {
-    @Perception.Bindable var store: StoreOf<SDAppFeature>
+    @State var store: StoreOf<SDAppFeature>
     
     var body: some View {
         WithPerceptionTracking{
@@ -187,14 +195,12 @@ struct SDAppView: View {
     }
     // 首页
     var homeView: some View {
-        WithPerceptionTracking {
-            SDHomeView(
-                store: store.scope(
-                    state: \.homeState,
-                    action: \.home
-                )
+        SDHomeView(
+            store: store.scope(
+                state: \.homeState,
+                action: \.home
             )
-        }
+        )
         .tabItem {
             
             Label("首页", image: store.selectedTab == .home ? "home_tab_select" : "home_tab_deselect")
@@ -204,14 +210,12 @@ struct SDAppView: View {
     
     // 书籍
     var bookView: some View {
-        WithPerceptionTracking {
-            SDBookHomeView(
-                store: store.scope(
-                    state: \.bookState,
-                    action: \.book
-                )
+        SDBookHomeView(
+            store: store.scope(
+                state: \.bookState,
+                action: \.book
             )
-        }
+        )
         .tabItem {
             Label("书籍", image: store.selectedTab == .book ? "book_tab_select" : "book_tab_deselect")
         }
@@ -220,14 +224,12 @@ struct SDAppView: View {
     
     // 学习
     var studyView: some View {
-        WithPerceptionTracking {
-            StudyView(
-                store: store.scope(
-                    state: \.studyState,
-                    action: \.study
-                )
+        StudyView(
+            store: store.scope(
+                state: \.studyState,
+                action: \.study
             )
-        }
+        )
         .tabItem {
             Label("学习", image: store.selectedTab == .study ? "study_tab_select" : "study_tab_deselect")
         }
@@ -236,14 +238,12 @@ struct SDAppView: View {
     
     // 我的
     var myView: some View {
-        WithPerceptionTracking {
-            SDMyView(
-                store: store.scope(
-                    state: \.myState,
-                    action: \.my
-                )
+        SDMyView(
+            store: store.scope(
+                state: \.myState,
+                action: \.my
             )
-        }
+        )
         .tabItem {
             Label("我的", image: store.selectedTab == .my ? "my_tab_select" : "my_tab_deselect")
         }

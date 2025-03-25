@@ -43,7 +43,8 @@ extension ButtonStyle where Self == SDButtonStyleConfirm<Capsule> {
               shape: Capsule())
       }
     static func sdSmall(
-          isDisable: Bool = false
+          isDisable: Bool = false,
+          height: CGFloat = 36
       ) -> Self {
           SDButtonStyleConfirm(
               isDisable: isDisable,
@@ -51,6 +52,18 @@ extension ButtonStyle where Self == SDButtonStyleConfirm<Capsule> {
               foreground: .white,
               height: 36,
               font: .sdBody3.weight(.medium),
+              shape: Capsule())
+      }
+    
+    static func sdSmall1(
+          isDisable: Bool = false
+      ) -> Self {
+          SDButtonStyleConfirm(
+              isDisable: isDisable,
+              background: SDColor.accent,
+              foreground: .white,
+              height: 26,
+              font: .sdBody4.weight(.medium),
               shape: Capsule())
       }
     
